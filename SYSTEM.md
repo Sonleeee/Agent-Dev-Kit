@@ -52,14 +52,23 @@ Nhiều workflows hỗ trợ mode modifiers để điều chỉnh hành vi:
 
 | Modifier | Ý nghĩa | Dùng ở |
 |---|---|---|
-| `--fast` | Rút gọn, bỏ bước không critical | plan, impl, review, delivery, delivery-lite, cook |
-| `--deep` | Research kỹ, kiểm tra sâu | plan, review |
+| `--fast` | Rút gọn, bỏ bước không critical | plan, impl, review, delivery, delivery-lite, cook, predict |
+| `--deep` | Research kỹ, kiểm tra sâu | plan, review, predict |
 | `--auto` | Tự approve gates, không hỏi user | plan, review, delivery |
 | `--tdd` | Viết test trước rồi code | impl, cook |
 | `--parallel` | Multi-agent song song (cần swarm) | impl, delivery |
 | `--no-test` | Bỏ test obligations | impl, delivery-lite, cook |
 | `--red-team` | Adversarial review 4 personas | review |
 | `--no-review` | Bỏ review step | cook |
+| `--focus` | Chỉ chạy personas liên quan nhất | predict |
+| `--compare` | Chỉ so sánh, không port code | xia |
+| `--port` | Lấy ý tưởng, code lại (default) | xia |
+| `--copy` | Bê nguyên structure, adapt naming | xia |
+| `--improve` | Copy + refactor + best practices | xia |
+| `--period` | Chỉ định khoảng thời gian phân tích | retro |
+| `--team` | Focus phân tích theo contributor | retro |
+| `--churn` | Focus files thay đổi nhiều nhất | retro |
+| `--full` | Phân tích đầy đủ tất cả dimensions | retro |
 
 Cách dùng: `/impl --fast` hoặc `/delivery --parallel --auto`
 
@@ -138,6 +147,14 @@ Blocked nếu:
 | `/scout` | Edge case discovery, error path analysis |
 | `/security` | Security scan: OWASP, secrets, auth review |
 | `/research` | Research docs, best practices, compare approaches |
+
+### Advanced
+
+| Workflow | Mô tả |
+|---|---|
+| `/predict` | Expert debate: 5 personas tranh luận impact trước khi implement |
+| `/xia` | Port features từ external repos (compare/port/copy/improve) |
+| `/retro` | Sprint retrospective: git metrics → health scores → action items |
 
 ## Nếu project chưa có AGENTS.md
 

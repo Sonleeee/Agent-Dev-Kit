@@ -60,13 +60,18 @@ Trước khi thực hiện bất kỳ task nào, bạn BẮT BUỘC phải:
 ├── SYSTEM.md                     ← Agent behavior specification
 ├── rules/
 │   └── global.md                 ← Quality gates & guardrails
-├── workflows/                    ← /clarify, /plan, /impl, /review...
+├── workflows/                    ← 20 workflows (4 nhóm)
+├── agents/                       ← 6 system agent personas
+├── skills/                       ← 13 skills (6 categories)
+│   ├── core/                     ← Discovery, planning, guard, regression
+│   ├── meta/                     ← Tạo/cải thiện agent system
+│   ├── devops/                   ← CI/CD pipeline, Docker review
+│   ├── security/                 ← OWASP scan, secret detection
+│   ├── testing/                  ← Test strategy, scenario generator
+│   └── research/                 ← Docs seeker, pattern researcher
 ├── templates/                    ← Output templates
 ├── quality/                      ← Master checklists
 ├── registry/                     ← Project type registry
-├── skills/
-│   ├── core/                     ← Discovery, planning, guard
-│   └── meta/                     ← Cải thiện agent system
 ├── _project-template/            ← Template cho project mới
 └── addons/                       ← Mở rộng tùy chọn
     ├── swarm/                    ← Multi-agent orchestration
@@ -77,18 +82,76 @@ Trước khi thực hiện bất kỳ task nào, bạn BẮT BUỘC phải:
 
 ---
 
-## 📋 Workflows
+## 📋 Workflows (20)
 
-| Lệnh | Mô tả | Khi nào dùng |
-|-------|--------|--------------|
-| `/clarify` | Làm rõ requirements | Task mơ hồ, cần hỏi đáp |
-| `/plan` | Lập kế hoạch implementation | Chốt approach + template |
-| `/impl` | Implement code | Code theo plan |
-| `/review` | Review & verify | Kiểm tra 5 layers |
-| `/delivery` | Full flow (clarify→plan→impl→review) | Task phức tạp |
-| `/delivery-lite` | Shortcut nhanh | Task đơn giản, rõ ràng |
-| `/enhance` | Refactor/optimize | Cải thiện code có chủ đích |
-| `/brainstorm` | So sánh options | Cần quyết định hướng đi |
+### Stage Pipeline (core flow)
+
+| Lệnh | Mô tả | Gate |
+|-------|--------|------|
+| `/clarify` | Làm rõ requirements | — |
+| `/plan` | Lập kế hoạch implementation | Gate 1 |
+| `/impl` | Implement code | Gate 2 |
+| `/review` | Review 5-layer + ship decision | Gate 3 |
+
+### Shortcuts & Auto-pipeline
+
+| Lệnh | Mô tả |
+|-------|--------|
+| `/delivery` | Full flow: clarify → plan → impl → review |
+| `/delivery-lite` | Quick flow cho task đơn giản |
+| `/cook` | Auto pipeline: 1 lệnh chạy hết clarify → plan → impl → test → review |
+
+### Utilities
+
+| Lệnh | Mô tả |
+|-------|--------|
+| `/brainstorm` | So sánh options, trade-off analysis |
+| `/enhance` | Refactor/optimize có chủ đích |
+| `/deploy` | Deploy checklist |
+| `/fix` | Debug pipeline: scout → diagnose → fix → verify → prevent |
+| `/test` | Generate & run tests cho module |
+| `/docs` | Generate/update documentation |
+| `/git` | Git commit messages, PR descriptions, changelog |
+| `/scout` | Edge case discovery, error path analysis |
+| `/security` | Security scan: OWASP, secrets, auth review |
+| `/research` | Research docs, best practices, compare approaches |
+
+### Advanced
+
+| Lệnh | Mô tả |
+|-------|--------|
+| `/predict` | Expert debate — 5 personas tranh luận impact trước khi implement |
+| `/xia` | Port features từ external repos (compare/port/copy/improve) |
+| `/retro` | Sprint retrospective — git metrics → health scores → action items |
+
+---
+
+## 🎛️ Mode Modifiers
+
+Thêm flags vào workflows để điều chỉnh hành vi:
+
+```bash
+/impl --fast          # Rút gọn, code luôn
+/review --red-team    # 4 adversarial personas tấn công code
+/predict --focus      # Chỉ chạy personas liên quan
+/xia --compare        # So sánh kiến trúc, không port code
+/retro --churn        # Focus hot spots (files thay đổi nhiều)
+```
+
+---
+
+## 🤖 System Agents (6)
+
+| Agent | Role | Khi nào dùng |
+|-------|------|--------------|
+| `planner` | Lập plan, phân tích scope | `/clarify`, `/plan` |
+| `implementer` | Code theo plan, bám sát template | `/impl` |
+| `reviewer` | Review 5-layer, ship decision | `/review` |
+| `debugger` | Debug root cause, không patch bừa | `/fix` |
+| `tester` | Generate tests, coverage analysis | `/test` |
+| `red-team` | 4 adversarial personas tấn công code | `/review --red-team` |
+
+> IDE hỗ trợ subagent → tự invoke. IDE không hỗ trợ → user copy persona prompt.
 
 ---
 

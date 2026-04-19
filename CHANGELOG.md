@@ -1,5 +1,31 @@
 # Changelog
 
+## v2.3.0 — 2026-04-19
+
+### 🔮 Phase 3 — Advanced Workflows (3)
+
+- `/predict` — Expert Debate: 5 personas (Architect, Security, Performance, UX, Ops) tranh luận impact trước khi implement
+- `/xia` — Port Features: phân tích external repo → compare/port/copy/improve vào local project
+- `/retro` — Sprint Retrospective: git metrics analysis → health scores → insights → action items
+
+### 🎛️ New Modifiers (8)
+
+- `--focus` (predict) — Chỉ chạy personas liên quan nhất
+- `--compare` (xia) — Chỉ so sánh kiến trúc, không port code
+- `--port` (xia) — Lấy ý tưởng, code lại theo local conventions (default)
+- `--copy` (xia) — Bê nguyên structure, adapt naming
+- `--improve` (xia) — Copy + refactor + best practices
+- `--period` (retro) — Chỉ định khoảng thời gian phân tích
+- `--team` (retro) — Focus phân tích theo contributor
+- `--churn` (retro) — Focus files thay đổi nhiều nhất
+
+### 📄 System Updates
+
+- `SYSTEM.md` updated: Advanced workflows section, 8 modifiers mới
+- Tổng: 20 workflows, 13 skills, 16 modifiers, 6 system agents
+
+---
+
 ## v2.2.0 — 2026-04-19
 
 ### 🤖 System Agents (6)

@@ -20,11 +20,13 @@ _archive/
 
 # Project-specific context (thuộc về project, không thuộc core kit)
 # Uncomment nếu commit kit riêng biệt (không phải cùng project repo):
-# context/
-# AGENTS.md
+context/
+AGENTS.md
 
 # Node modules (nếu có scripts)
 node_modules/
 
 # Logs
 *.log
+
+

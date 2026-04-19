@@ -19,9 +19,27 @@ Desktop.ini
 _archive/
 
 # Project-specific context (thuộc về project, không thuộc core kit)
-# Uncomment nếu commit kit riêng biệt (không phải cùng project repo):
+# Thể hiện dữ liệu riêng của dự án, KHÔNG push lên repo Agent-Dev-Kit
 context/
 AGENTS.md
+AGENT.md
+rule-overrides.approved.md
+
+# Kết quả phân tích (Từ các addon như Graphify)
+GRAPH_REPORT*.md
+
+# AI Generated Artifacts (Tránh push nhầm file sinh ra lúc làm việc)
+task*.md
+walkthrough*.md
+implementation_plan*.md
+clarify-record*.md
+delivery-report*.md
+
+# Môi trường / IDE ẩn
+.env
+.env.*
+.gemini/
+.cursor/
 
 # Node modules (nếu có scripts)
 node_modules/

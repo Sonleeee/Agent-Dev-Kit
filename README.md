@@ -1,4 +1,4 @@
-# 🤖 .agents — Universal Agent Kit
+# 🤖 .agents — Agent-Dev-Kit
 
 > Bộ kit giúp AI agent code đúng pattern, giữ quality gates,
 > và tích lũy tri thức dự án. Dùng được trên **mọi IDE/editor** có AI agent.
@@ -42,7 +42,7 @@ cp -r .agents/_project-template/.agents/context/* .agents/context/
 Tạo file `.cursorrules` tại thư mục gốc của project với nội dung:
 
 ```markdown
-# 🤖 UNIVERSAL AGENT KIT
+# 🤖 AGENT-DEV-KIT
 
 Trước khi thực hiện bất kỳ task nào, bạn BẮT BUỘC phải:
 1. Đọc file `AGENTS.md` ở root directory để hiểu ngữ cảnh dự án.
@@ -100,6 +100,13 @@ Trước khi thực hiện bất kỳ task nào, bạn BẮT BUỘC phải:
 | `/delivery` | Full flow: clarify → plan → impl → review |
 | `/delivery-lite` | Quick flow cho task đơn giản |
 | `/cook` | Auto pipeline: 1 lệnh chạy hết clarify → plan → impl → test → review |
+
+---
+
+## 📋 Registry (Project Types)
+
+Mỗi project type sẽ có bộ quy tắc (rules) và template riêng. Tra danh sách tại `registry/index.md`.
+
 
 ### Utilities
 

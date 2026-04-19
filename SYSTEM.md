@@ -1,4 +1,4 @@
-# Agent System — Universal Kit
+# Agent System — Agent-Dev-Kit
 
 Bộ agent dùng chung cho mọi project và mọi platform/IDE.
 

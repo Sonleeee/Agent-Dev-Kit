@@ -1,4 +1,4 @@
-# 🤖 Universal Agent Kit — Cách hoạt động toàn bộ quy trình
+# 🤖 Agent-Dev-Kit — Cách hoạt động toàn bộ quy trình
 
 ## 1. Kiến trúc 3 tầng
 
@@ -266,7 +266,7 @@ graph LR
 
 ```
 Bước 1: Clone kit
-  git clone https://github.com/[repo]/agent-kit .agents
+  git clone https://github.com/Sonleeee/Agent-Dev-Kit .agents
 
 Bước 2: Copy template
   cp .agents/_project-template/AGENTS.md ./AGENTS.md

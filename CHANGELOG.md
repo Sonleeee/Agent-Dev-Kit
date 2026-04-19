@@ -96,9 +96,9 @@
 
 ## v2.0.0 — 2026-04-18
 
-### 🚀 Universal Kit
+### 🚀 Agent-Dev-Kit
 
-Chuyển đổi từ project-specific sang **Universal Agent Kit** — dùng được cho mọi project, mọi IDE/editor.
+Chuyển đổi từ project-specific sang **Agent-Dev-Kit** — dùng được cho mọi project, mọi IDE/editor.
 
 ### Architecture
 

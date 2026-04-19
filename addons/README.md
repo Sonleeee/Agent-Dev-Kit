@@ -1,6 +1,6 @@
 # 📦 Addons — Mở rộng tùy chọn
 
-Addons là các tính năng bổ sung cho Agent Kit. Chỉ bật khi bạn cần.
+Addons là các tính năng bổ sung cho Agent-Dev-Kit. Chỉ bật khi bạn cần.
 
 Core Kit (workflows, rules, quality gates) hoạt động **độc lập** — không cần addon nào.
 

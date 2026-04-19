@@ -10,7 +10,8 @@
 ### 1. Clone kit vào project
 
 ```bash
-git clone https://github.com/[repo-name]/agent-kit .agents
+# Clone trực tiếp vào thư mục .agents trong dự án của bạn
+git clone https://github.com/Sonleeee/Agent-Dev-Kit .agents
 ```
 
 ### 2. Tạo AGENTS.md cho project
@@ -31,15 +32,22 @@ Mở `AGENTS.md`, điền:
 ```bash
 mkdir -p .agents/context
 # Copy skeleton templates
-cp .agents/_project-template/.agents/context/* .agents/context/
+cp -r .agents/_project-template/.agents/context/* .agents/context/
 ```
 
 Điền `architecture.md` với kiến trúc cụ thể của project.
 
-### 5. Bắt đầu dùng!
+### 5. Cấu hình cho Cursor IDE (Khuyên dùng)
 
-```
-/clarify "Tôi muốn thêm feature X..."
+Tạo file `.cursorrules` tại thư mục gốc của project với nội dung:
+
+```markdown
+# 🤖 UNIVERSAL AGENT KIT
+
+Trước khi thực hiện bất kỳ task nào, bạn BẮT BUỘC phải:
+1. Đọc file `AGENTS.md` ở root directory để hiểu ngữ cảnh dự án.
+2. Đọc file `.agents/SYSTEM.md` để nắm các workflow (/clarify, /plan, /impl, /review).
+3. Tuân thủ bộ luật tại `.agents/rules/global.md`.
 ```
 
 ---
@@ -92,7 +100,7 @@ Bất kỳ IDE/editor nào có AI agent đọc được file đều dùng đư�
 | IDE / Editor | AI Agent | Ghi chú |
 |---|---|---|
 | VS Code | Copilot Chat, Cline | Mainstream |
-| Cursor | Built-in | Popular |
+| Cursor | Built-in (Composer/Chat) | Popular - Dùng kèm `.cursorrules` |
 | Windsurf | Cascade | Tương tự Cursor |
 | JetBrains | AI Assistant / Copilot | Có thể dùng manual prompt |
 | Antigravity | Built-in + MCP | Full support |
@@ -135,4 +143,5 @@ Tầng 1: CORE KIT (clone từ repo)
 
 ## 📄 License
 
-[Chốt sau]
+MIT License. Tự do sử dụng và tùy biến cho dự án cá nhân và doanh nghiệp.
+

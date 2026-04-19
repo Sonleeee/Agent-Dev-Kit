@@ -1,0 +1,87 @@
+import { Breadcrumbs, MainCard, Button } from '@components';
+import { Form, FormField, useFormResolver } from '@forms';
+import { CloudUploadOutlined, SendOutlined } from '@ant-design/icons';
+import { Grid, Stack } from '@mui/material';
+import { locales } from '@locales';
+import { routes } from '@routes';
+import { useRouter, useToast } from '@hooks';
+import { {{serviceExportName}} } from '@services/{{serviceFolder}}';
+import zod from 'zod';
+import { fileSchemaRequired } from '@forms';
+
+const uploadSchema = zod.object({
+  files: fileSchemaRequired
+});
+
+type UploadForm = zod.infer<typeof uploadSchema>;
+
+const {{PascalName}}Upload = () => {
+  const router = useRouter();
+  const toast = useToast();
+  
+  const form = useFormResolver(uploadSchema, {
+    defaultValues: { files: [] }
+  });
+
+  const { formState: { isSubmitting } } = form;
+
+  const handleSubmit = async (values: UploadForm) => {
+    // Lấy danh sách file thuần từ FileUploadItem[]
+    const files = values.files.map(item => item.file).filter(Boolean) as File[];
+    
+    const response = await {{serviceExportName}}.uploadFiles(files);
+    
+    if (response.success) {
+      toast.success(locales.common.upload.success);
+      router.push(routes.{{routePath}}.list);
+    } else {
+      toast.error(response.errors?.[0] ?? locales.common.upload.error);
+    }
+  };
+
+  const breadcrumbLinks = [
+    { title: locales.breadcrumbs.home, to: routes.default },
+    { title: locales.breadcrumbs.{{breadcrumbKey}}, to: routes.{{routePath}}.list },
+    { title: locales.breadcrumbs.upload }
+  ];
+
+  return (
+    <>
+      <Breadcrumbs heading={locales.breadcrumbs.upload} links={breadcrumbLinks} />
+      
+      <MainCard title={locales.common.title.uploadFile}>
+        <Form methods={form} onSubmit={handleSubmit}>
+          <Stack spacing={3}>
+            <Grid container spacing={2}>
+              <Grid size={12}>
+                <FormField.FileUpload 
+                  name="files" 
+                  label={locales.inputs.files} 
+                  multiple 
+                  required 
+                />
+              </Grid>
+            </Grid>
+
+            <Stack direction="row" spacing={1} justifyContent="flex-end">
+              <Button.Base
+                label={locales.buttons.cancel}
+                color="secondary"
+                onClick={() => router.push(routes.{{routePath}}.list)}
+              />
+              <Button.Base
+                type="submit"
+                label={locales.buttons.upload}
+                variant="contained"
+                startIcon={<CloudUploadOutlined />}
+                disabled={isSubmitting}
+              />
+            </Stack>
+          </Stack>
+        </Form>
+      </MainCard>
+    </>
+  );
+};
+
+export default {{PascalName}}Upload;

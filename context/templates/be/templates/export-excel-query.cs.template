@@ -1,0 +1,13 @@
+// Placeholders: {Entity}, {Module}
+// Pattern: Query dành riêng cho tính năng xuất báo cáo Excel
+// Features/Reporting/{Module}/Queries/Export{Entity}Excel/Export{Entity}ExcelQuery.cs
+using MediatR;
+using Shared.DTOs.Report; // ReportFileResponse
+
+namespace TLBIOMASS.Application.Features.Reporting.{Module}.Queries.Export{Entity}Excel;
+
+public class Export{Entity}ExcelQuery : IRequest<ReportFileResponse>
+{
+    // Cấp phát Filter tương tự GetPagedQuery để map dữ liệu cùng bộ search
+    public {Entity}PagedFilterDto Filter { get; set; } = new();
+}

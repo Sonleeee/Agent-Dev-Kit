@@ -1,0 +1,30 @@
+# API Contract Checklist
+
+**Task:** [tên task]
+**Endpoint(s) liên quan:** [list endpoints]
+
+---
+
+## Route & Method
+- [ ] Route: không đổi / đổi sang `[new]`
+- [ ] Method: không đổi / đổi sang `[new]`
+
+## Status Code
+- [ ] Success: `[old]` → `[new]` — [lý do nếu đổi]
+- [ ] Error: không đổi / đổi sang `[new]`
+
+## Request Schema
+| Field | Thay đổi | Ghi chú |
+|---|---|---|
+| | Không đổi / Thêm / Xóa / Đổi type | |
+
+## Response Schema
+| Field | Thay đổi | Ghi chú |
+|---|---|---|
+| | Không đổi / Thêm / Xóa / Đổi type | |
+
+## Kết luận
+- **Contract status:** `OK / Risk`
+- **Breaking changes:** [danh sách nếu có]
+- **Consumer đã được thông báo:** Yes / No / N/A
+- **Migration note:** [nếu cần]

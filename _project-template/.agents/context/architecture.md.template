@@ -1,0 +1,110 @@
+# Architecture — [Tên Project]
+
+> File này định nghĩa guardrails kiến trúc cụ thể của project.
+> Agent đọc file này để biết pattern cần follow.
+> Xóa các comments (dòng >) trước khi dùng.
+
+---
+
+## Architecture Pattern
+
+> Mô tả flow chính của ứng dụng.
+> Ví dụ: Controller → MediatR → Handler → Repository → Database
+
+**Flow BE:** [Điền flow backend]
+
+**Layer Responsibilities:**
+
+| Layer | Làm gì | Không làm gì |
+|---|---|---|
+| **[Layer 1]** | [Mô tả] | [Anti-pattern] |
+| **[Layer 2]** | [Mô tả] | [Anti-pattern] |
+| **[Layer 3]** | [Mô tả] | [Anti-pattern] |
+
+> Thêm FE layer responsibilities nếu project có frontend:
+
+**Flow FE:** [Điền flow frontend]
+
+---
+
+## Error / Exception Handling
+
+> Định nghĩa cách xử lý lỗi thống nhất.
+
+### BE — Error Taxonomy
+
+| Tình huống | Exception Type | HTTP Status |
+|---|---|---|
+| Input không hợp lệ | [ValidationException] | 400 |
+| Resource không tồn tại | [NotFoundException] | 404 |
+| Vi phạm business rule | [BusinessException] | 400 |
+
+**Anti-patterns (KHÔNG được làm):**
+> Liệt kê những cách xử lý lỗi KHÔNG được dùng.
+
+- KHÔNG [anti-pattern 1]
+- KHÔNG [anti-pattern 2]
+
+---
+
+## Naming Conventions
+
+> Quy tắc đặt tên thống nhất.
+
+- **BE files:** [PascalCase / snake_case / ...]
+- **FE files:** [kebab-case / camelCase / ...]
+- **API routes:** [/api/v1/resource-name]
+- **DB tables:** [snake_case / PascalCase / ...]
+
+---
+
+## Folder Structure
+
+> Mô tả cấu trúc folder chính.
+
+**Backend:**
+```
+src/
+├── [Layer 1]/
+├── [Layer 2]/
+└── [Layer 3]/
+```
+
+**Frontend:**
+```
+src/
+├── pages/
+├── services/
+├── routes/
+└── [khác]/
+```
+
+---
+
+## Known Anti-Patterns
+
+> Liệt kê anti-patterns đã phát hiện trong project.
+> Agent KHÔNG được lặp lại các anti-patterns này.
+
+- **[Anti-pattern 1]:** Mô tả → Cách đúng
+- **[Anti-pattern 2]:** Mô tả → Cách đúng
+
+---
+
+## Known Pitfalls
+
+> Các "bẫy" mà developer/agent hay mắc phải.
+
+- **[Pitfall 1]:** Mô tả cụ thể
+- **[Pitfall 2]:** Mô tả cụ thể
+
+---
+
+## Baseline Modules
+
+> Liệt kê modules chuẩn mà agent tham khảo khi sinh code.
+
+| Module | Trạng thái | Ghi chú |
+|---|---|---|
+| [Module 1] | Chuẩn | Tham khảo cho CRUD cơ bản |
+| [Module 2] | Chuẩn | Tham khảo cho [use case đặc biệt] |

@@ -1,0 +1,64 @@
+# Implement Summary
+
+**Task:** [task-name]
+**Date:** [date]
+**Mode:** Serial / Parallel (3-agent)
+
+---
+
+## Task Matrix
+
+| # | Task | Agent | Files | Status |
+|---|---|---|---|---|
+| 1 | [task] | codex-cli | [files] | DONE / DONE_WITH_CONCERNS |
+| 2 | [task] | gemini-cli | [files] | DONE / DONE_WITH_CONCERNS |
+| 3 | [task] | opencode-cli | [files] | DONE / DONE_WITH_CONCERNS |
+
+---
+
+## Per-Agent Report
+
+### codex-cli
+- Status: [DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED]
+- Changed files: [list]
+- Self-check: [items]
+
+### gemini-cli (neu co)
+- Status: [DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED]
+- Changed files: [list]
+- Self-check: [items]
+
+### opencode-cli (neu co)
+- Status: [DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED]
+- Changed files: [list]
+- Self-check: [items]
+
+---
+
+## Cross-Agent Contract Status
+
+| # | Provider | Consumer | Function | Match? |
+|---|---|---|---|---|
+| 1 | [agent] | [agent] | [func_name(params)] | ✅ / ❌ |
+
+---
+
+## Build Verification
+
+- BE (`dotnet build`): PASS / FAIL
+- FE (`npm run build`): PASS / FAIL / N/A
+- Fix retries: [count]
+
+---
+
+## API Contract
+`OK / Risk`
+
+## Assumptions / Blockers
+- [item]
+
+## Dev Done Checklist
+- [ ] Tat ca agents DONE
+- [ ] Build PASS
+- [ ] Cross-agent contracts verified
+- [ ] Quality card self-check pass

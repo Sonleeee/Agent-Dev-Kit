@@ -1,0 +1,57 @@
+{
+  "_comment": "DAY LA FILE REFERENCE/DOCUMENTATION — KHONG PHAI RUNTIME CONFIG.",
+  "_runtime_config": "Config that cua Antigravity nam o: C:\\Users\\Sonlee\\.gemini\\antigravity\\mcp_config.json",
+  "_purpose": "File nay mo ta cac MCP servers can thiet cho agent swarm. Khi setup moi truong moi, copy cac entries vao mcp_config.json cua Antigravity.",
+
+  "mcpServers": {
+    "codex-cli": {
+      "transport": "stdio",
+      "command": "codex",
+      "args": ["mcp-server", "-c", "approval_policy=\"never\""],
+      "env": {},
+      "roles": ["implementer", "researcher", "reviewer"],
+      "notes": "Implementer #1 + Reviewer chinh. OpenAI API."
+    },
+    "gemini-swarm": {
+      "command": "node",
+      "args": ["<path-to>/gemini-swarm-mcp/dist/index.js"],
+      "disabled": false,
+      "roles": ["implementer", "reviewer-secondary"],
+      "tools": {
+        "implement": "gemini_run_task",
+        "review": "gemini_review_quality"
+      },
+      "notes": "Implementer #2 (gemini_run_task) + Dual reviewer (gemini_review_quality). Gemini API."
+    },
+    "notebooklm": {
+      "command": "<path-to>/notebooklm-mcp.exe",
+      "args": [],
+      "disabled": false,
+      "roles": ["knowledge"],
+      "notes": "Knowledge Base. Google NotebookLM."
+    }
+  },
+
+  "terminalAgents": {
+    "opencode-cli": {
+      "_comment": "KHONG phai MCP server — goi qua terminal command (run_command tool).",
+      "transport": "terminal",
+      "command": "opencode",
+      "args_template": "-p \"{task}\" --non-interactive",
+      "provider": "OpenCode Zen — MiniMax M2.5 Free",
+      "roles": ["implementer"],
+      "notes": "Implementer #3. Goi bang run_command, KHONG co trong mcp_config.json."
+    }
+  },
+
+  "routing": {
+    "clarify_research": "codex-cli",
+    "plan_draft": "codex-cli",
+    "impl_be": "codex-cli",
+    "impl_fe": "gemini-swarm (gemini_run_task)",
+    "impl_parallel": "opencode-cli (terminal)",
+    "review_primary": "codex-cli",
+    "review_secondary": "gemini-swarm (gemini_review_quality)",
+    "knowledge": "notebooklm"
+  }
+}

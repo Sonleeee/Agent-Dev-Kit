@@ -1,0 +1,83 @@
+{
+  "_comment": "DAY LA FILE REFERENCE/DOCUMENTATION — KHONG PHAI RUNTIME CONFIG.",
+  "_runtime_config": "Config that cua Antigravity nam o: C:\\Users\\Sonlee\\.gemini\\antigravity\\mcp_config.json",
+  "_purpose": "File nay mo ta logic routing va behavior cua agent swarm. Antigravity doc file nay de hieu cach dieu phoi, KHONG phai de connect MCP.",
+
+  "version": "2.0",
+  "swarm": {
+    "orchestrator": "antigravity",
+    "agents": {
+      "codex-cli": {
+        "roles": ["implementer", "researcher", "reviewer"],
+        "transport": "mcp",
+        "mcp_server_name": "codex-cli",
+        "priority": 1
+      },
+      "gemini-cli": {
+        "roles": ["implementer", "reviewer-secondary"],
+        "transport": "mcp",
+        "mcp_server_name": "gemini-swarm",
+        "mcp_tools": {
+          "implement": "gemini_run_task",
+          "review": "gemini_review_quality"
+        },
+        "_note": "Trong docs dung ten 'gemini-cli', nhung MCP server that ten la 'gemini-swarm' trong mcp_config.json",
+        "priority": 2
+      },
+      "opencode-cli": {
+        "roles": ["implementer"],
+        "transport": "terminal",
+        "_note": "KHONG co trong mcp_config.json. Goi bang run_command tool.",
+        "command_template": "opencode -p \"{task}\" --non-interactive",
+        "provider": "OpenCode Zen — MiniMax M2.5 Free",
+        "priority": 3
+      },
+      "notebooklm": {
+        "roles": ["knowledge"],
+        "transport": "mcp",
+        "mcp_server_name": "notebooklm",
+        "priority": 4
+      }
+    }
+  },
+  "workflow": {
+    "default": ["clarify", "plan", "impl", "review"],
+    "shortcuts": {
+      "delivery": ["clarify", "plan", "impl", "review"],
+      "delivery-lite": ["clarify", "plan", "impl", "review"]
+    },
+    "utilities": ["brainstorm", "deploy", "enhance"]
+  },
+  "impl": {
+    "mode": "parallel",
+    "routing": {
+      "BE": "codex-cli",
+      "FE": "gemini-cli",
+      "parallel": "opencode-cli",
+      "default": "codex-cli"
+    },
+    "file_conflict_policy": "strict-no-overlap",
+    "cross_agent_contracts": true,
+    "build_verify": {
+      "enabled": true,
+      "max_retries": 3,
+      "on_fail": "codex-cli-fix"
+    }
+  },
+  "review": {
+    "routing": {
+      "single": {
+        "condition": "task_count <= 2",
+        "agents": ["codex-cli"]
+      },
+      "dual": {
+        "condition": "task_count >= 3",
+        "agents": ["codex-cli", "gemini-cli"]
+      }
+    },
+    "layers": 5,
+    "tri_state": ["PASS", "FAIL", "UNPLANNED"]
+  },
+  "fallback_chain": ["codex-cli", "gemini-cli", "opencode-cli", "antigravity"],
+  "status_contract": ["DONE", "DONE_WITH_CONCERNS", "NEEDS_CONTEXT", "BLOCKED"]
+}

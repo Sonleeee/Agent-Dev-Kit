@@ -1,0 +1,48 @@
+// Source of truth: Features/SalesContracts/Queries/GetSalesContractById/
+// Placeholders: {Entity}, {Module}, {entityLower}
+// Pattern: Load entity with Details (Includes) -> Throw NotFound if null -> Map DTO
+// Features/{Module}/Queries/Get{Entity}ById/Get{Entity}ByIdQueryHandler.cs
+using Mapster;
+using MediatR;
+using Shared.DTOs.{Module};
+using Shared.DTOs.FileStorage;
+using Shared.Exceptions;
+using TLBIOMASS.Domain.{Module}.Interfaces;
+using TLBIOMASS.Domain.FileStorage.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace TLBIOMASS.Application.Features.{Module}.Queries.Get{Entity}ById;
+
+public class Get{Entity}ByIdQueryHandler : IRequestHandler<Get{Entity}ByIdQuery, {Entity}ResponseDetailsDto>
+{
+    private readonly I{Entity}Repository _{entityLower}Repository;
+    private readonly IFileStorageRepository _fileStorageRepository;
+
+    public Get{Entity}ByIdQueryHandler(
+        I{Entity}Repository {entityLower}Repository,
+        IFileStorageRepository fileStorageRepository)
+    {
+        _{entityLower}Repository = {entityLower}Repository;
+        _fileStorageRepository = fileStorageRepository;
+    }
+
+    public async Task<{Entity}ResponseDetailsDto> Handle(Get{Entity}ByIdQuery request, CancellationToken cancellationToken)
+    {
+        // P10: Dùng GetByIdWithDetailsAsync để eager load navigation properties
+        var entity = await _{entityLower}Repository.GetByIdWithDetailsAsync(request.Id, cancellationToken)
+            ?? throw new NotFoundException(nameof({Entity}), request.Id);
+
+        var dto = entity.Adapt<{Entity}ResponseDetailsDto>();
+
+        // Fetch file đính kèm
+        var files = await _fileStorageRepository.FindByCondition(x => 
+            x.EntityType == "{Entity}" && x.EntityId == entity.Id).ToListAsync();
+        
+        if (files.Any())
+        {
+            dto.EvidenceFiles = files.Adapt<List<FileStorageResponseDto>>();
+        }
+
+        return dto;
+    }
+}

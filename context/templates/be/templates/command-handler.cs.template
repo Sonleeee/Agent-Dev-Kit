@@ -1,0 +1,48 @@
+// Features/{Module}/Commands/Create{Entity}/Create{Entity}CommandHandler.cs
+using MediatR;
+using TLBIOMASS.Domain.{Module}.Interfaces;
+using TLBIOMASS.Application.Features.{Module}.Services;
+using Shared.Exceptions;
+
+namespace TLBIOMASS.Application.Features.{Module}.Commands.Create{Entity};
+
+public class Create{Entity}CommandHandler : IRequestHandler<Create{Entity}Command, long>
+{
+    private readonly I{Entity}Repository _{entityLower}Repository;
+    private readonly I{Entity}OrchestrationService _{entityLower}OrchestrationService; // Inject nếu logic phức tạp
+    private readonly ICodeGenerator _codeGenerator;
+
+    public Create{Entity}CommandHandler(
+        I{Entity}Repository {entityLower}Repository,
+        I{Entity}OrchestrationService {entityLower}OrchestrationService,
+        ICodeGenerator codeGenerator)
+    {
+        _{entityLower}Repository = {entityLower}Repository;
+        _{entityLower}OrchestrationService = {entityLower}OrchestrationService;
+        _codeGenerator = codeGenerator;
+    }
+
+    public async Task<long> Handle(Create{Entity}Command request, CancellationToken cancellationToken)
+    {
+        // CASE 1: Logic PHỨC TẠP -> Ủy quyền cho Orchestration Service
+        // return await _{entityLower}OrchestrationService.Create{Entity}WithLogicAsync(request, cancellationToken);
+
+        // CASE 2: Logic ĐƠN GIẢN -> Thực hiện trực tiếp tại Handler
+        
+        // 1. Uniqueness check (Async check tại App layer)
+        // if (await _{entityLower}Repository.ExistsAsync(x => x.Code == request.Code, cancellationToken)) 
+        //    throw new DuplicateException(nameof({Entity}), nameof(request.Code), request.Code);
+
+        // 2. Resolve Code
+        var code = _codeGenerator.ResolveOrGenerate(request.Code, EntityCodeType.{Entity});
+
+        // 3. Create Entity (Constructor/Factory đảm bảo Invariants)
+        var entity = {Entity}.Create(code, request.Name /*, ... */);
+
+        // 4. Persistence
+        await _{entityLower}Repository.AddAsync(entity, cancellationToken);
+        await _{entityLower}Repository.SaveChangesAsync(cancellationToken);
+
+        return entity.Id;
+    }
+}

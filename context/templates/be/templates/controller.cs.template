@@ -1,0 +1,72 @@
+// Source of truth: API/Controllers/SalesContractController.cs
+// Placeholders: {Entity}, {Module}
+// Dùng ApiControllerBase helpers — KHÔNG tự tạo response wrapper trong controller
+// API/Controllers/{Entity}Controller.cs
+using Asp.Versioning;
+using Mapster;
+using Infrastructure.Common;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Shared.DTOs.{Module};
+using Shared.SeedWork;
+
+namespace TLBIOMASS.API.Controllers;
+
+[ApiVersion("1.0")]
+public class {Entity}Controller : ApiControllerBase<{Entity}Controller>
+{
+    private const string EntityName = "{Entity}";
+
+    public {Entity}Controller(IMediator mediator, ILogger<{Entity}Controller> logger)
+        : base(mediator, logger) { }
+
+    [HttpGet]
+    public async Task<IActionResult> GetPagedList([FromQuery] {Entity}PagedFilterDto filter)
+    {
+        var query = new Get{Entity}sPagedQuery { Filter = filter };
+        return await HandleGetPagedWithSummaryAsync<Get{Entity}sPagedQuery, {Entity}ResponseDto>(
+            query, EntityName, filter.PageNumber, filter.PageSize);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(long id)
+    {
+        var query = new Get{Entity}ByIdQuery(id);
+        return await HandleGetByIdAsync<Get{Entity}ByIdQuery, {Entity}ResponseDetailsDto>(query, id, EntityName);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] {Entity}CreateDto dto)
+    {
+        var command = dto.Adapt<Create{Entity}Command>();
+        return await HandleCreateAsync(command, EntityName, dto.Code);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(long id, [FromBody] {Entity}UpdateDto dto)
+    {
+        var command = dto.Adapt<Update{Entity}Command>();
+        return await HandleUpdateAsync(command, id, id, EntityName);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(long id)
+    {
+        var command = new Delete{Entity}Command { Id = id };
+        return await HandleDeleteAsync(command, id, EntityName);
+    }
+
+    // --- [FromForm] + File Upload Pattern ---
+    // ⚠️ BẮT BUỘC dùng DTO riêng cho [FromForm], KHÔNG truyền Command trực tiếp.
+    // Lý do: CollectionModelBinder chỉ quét text fields để xác định index trong List<FileUploadDto>.
+    // Nếu client chỉ gửi file binary mà không gửi text field (FileCode/FileType) → List bị null.
+    // Client BẮT BUỘC gửi ít nhất 1 text field cho mỗi index (ví dụ: Files[0].FileCode = "").
+    [HttpPost("{id}/pay")]
+    public async Task<IActionResult> Pay(long id, [FromForm] Pay{Entity}Dto dto)
+    {
+        var command = dto.Adapt<Pay{Entity}Command>();
+        command.Id = id;
+        var result = await Mediator.Send(command);
+        return Ok(new ApiSuccessResult<bool>(result, "..."));
+    }
+}

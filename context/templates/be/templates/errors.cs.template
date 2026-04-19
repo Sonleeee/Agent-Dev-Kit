@@ -1,0 +1,19 @@
+// Source of truth: Domain/Constants/ErrorMessages/
+// Placeholders: {Entity}, {Module}
+// Format error code: "{Module}.{Entity}.{Scenario}" — FE dùng key này để dịch i18n
+// Domain/Constants/ErrorMessages/{Module}Errors.cs
+namespace TLBIOMASS.Domain.Constants.ErrorMessages;
+
+public static class {Module}Errors
+{
+    public static class {Entity}
+    {
+        public const string NotFound = "{Module}.{Entity}.NotFound";
+        public const string CodeAlreadyExists = "{Module}.{Entity}.CodeAlreadyExists";
+        public const string CodeRequired = "{Module}.{Entity}.CodeRequired";
+        public const string CodeTooLong = "{Module}.{Entity}.CodeTooLong";
+        public const string NameRequired = "{Module}.{Entity}.NameRequired";
+        public const string NameTooLong = "{Module}.{Entity}.NameTooLong";
+        // TODO: thêm error codes theo nghiệp vụ
+    }
+}

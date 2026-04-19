@@ -1,0 +1,22 @@
+# Clarify Record
+
+**Task:** [task]
+**Type:** Feature / Bugfix
+**Scope:** BE / FE / BE+FE
+
+## Problem
+[1-2 cau]
+
+## Scope
+- In: [item]
+- Out: [item]
+
+## Risks
+- [risk 1]
+- [risk 2]
+
+## Questions / Assumptions
+- [item 1]
+
+## API Contract
+`Yes / No / Unknown`

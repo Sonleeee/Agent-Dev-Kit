@@ -1,0 +1,24 @@
+# Delivery Report
+
+**Task:** [task]
+**Flow:** `clarify -> plan -> impl -> review`
+
+## Stage Status
+- Clarify: Done / Blocked / Skipped
+- Plan: Done / Blocked / Skipped
+- Implement: Done / Blocked / In progress
+- Review: Done / Blocked / In progress
+
+## Findings
+- Critical: [none or item]
+- Major: [none or item]
+- Minor: [none or item]
+
+## API Contract
+`OK / Risk`
+
+## Residual Risks
+- [item]
+
+## Decision
+`Ready to ship / Blocked`

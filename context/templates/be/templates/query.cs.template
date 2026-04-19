@@ -1,0 +1,13 @@
+// Source of truth: Features/SalesContracts/Queries/GetSalesContractsPaged/
+// Placeholders: {Entity}, {Module}
+// Features/{Module}/Queries/Get{Entity}sPaged/Get{Entity}sPagedQuery.cs
+using MediatR;
+using Shared.SeedWork;
+using Shared.DTOs.{Module};
+
+namespace TLBIOMASS.Application.Features.{Module}.Queries.Get{Entity}sPaged;
+
+public class Get{Entity}sPagedQuery : IRequest<PagedResultWithSummary<{Entity}ResponseDto>>
+{
+    public {Entity}PagedFilterDto Filter { get; set; } = new();
+}

@@ -1,0 +1,30 @@
+# Agent Kit — .gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Antigravity-specific (không share qua repo)
+.antigravityignore
+
+# Archive (nội dung cũ, không cần thiết trong kit mới)
+_archive/
+
+# Project-specific context (thuộc về project, không thuộc core kit)
+# Uncomment nếu commit kit riêng biệt (không phải cùng project repo):
+# context/
+# AGENTS.md
+
+# Node modules (nếu có scripts)
+node_modules/
+
+# Logs
+*.log

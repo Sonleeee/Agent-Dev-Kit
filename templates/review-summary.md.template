@@ -1,0 +1,61 @@
+# Review Summary
+
+**Task:** [task-name]
+**Date:** [date]
+**Review Mode:** Single (codex-cli) / Dual (codex-cli + gemini-cli)
+
+---
+
+## Layer Summary
+
+| Layer | Items | Pass | Fail | Unplanned |
+|---|---|---|---|---|
+| 1. Checklist Verification | [count] | [count] | [count] | [count] |
+| 2. Code Existence | [count] | [count] | [count] | — |
+| 3. Architecture Compliance | [count] | [count] | [count] | — |
+| 4. Unplanned Code | [count] | — | — | [count] |
+| 5. Cross-Agent Contracts | [count] | [count] | [count] | — |
+
+---
+
+## Findings
+
+### ❌ FAIL Items
+- [item]: [evidence] → Fix suggestion: [fix]
+
+### ⚠️ UNPLANNED Items
+- [item]: [description] → Needs human review
+
+### Critical
+- [none or item]
+
+### Major
+- [none or item]
+
+### Minor
+- [none or item]
+
+---
+
+## Cross-Agent Contract Status
+
+| # | Provider → Consumer | Function | Match? |
+|---|---|---|---|
+| 1 | [agent → agent] | [func(params)] | ✅ / ❌ |
+
+---
+
+## Contract Status
+`OK / Risk`
+
+## Residual Risks
+- [item]
+
+## Ship Decision
+
+`Ready / Blocked / Needs Review`
+
+### Action Required (neu co)
+- [ ] Fix FAIL items
+- [ ] User review UNPLANNED items
+- [ ] Align cross-agent contract mismatches

@@ -1,0 +1,26 @@
+# Graphify Ignore Example
+# Copy file này thành .graphifyignore ở root project
+
+# Dependencies
+node_modules/
+vendor/
+packages/
+
+# Build outputs
+bin/
+obj/
+dist/
+build/
+out/
+.next/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+
+# Misc
+*.min.js
+*.min.css
+*.map
+*.lock

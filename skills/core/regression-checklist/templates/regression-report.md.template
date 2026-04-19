@@ -1,0 +1,33 @@
+# Regression Report
+
+**Task:** [tên task]
+**Date:** [ngày]
+**Scope thay đổi:** [BE / FE / BE+FE]
+
+---
+
+## Happy Path
+- [ ] [luồng chính 1]: Pass / Fail
+- [ ] [luồng chính 2]: Pass / Fail
+
+## Edge Cases
+- [ ] [case 1]: Pass / Fail / N/A
+- [ ] [case 2]: Pass / Fail / N/A
+
+## Luồng Lân Cận
+| Luồng | Kiểm tra | Kết quả |
+|---|---|---|
+| [tên luồng] | [cách check] | Pass / Fail / Chưa check |
+
+## API Contract
+- [ ] Consumer phía FE hoạt động đúng: Pass / Fail / N/A
+
+## Residual Risks
+| Risk | Level | Plan |
+|---|---|---|
+| [mô tả risk] | Low/Medium/High | [plan hoặc "accept"] |
+
+## Tổng kết
+- **Overall:** Pass / Pass with risks / Fail
+- **Findings:** [Critical / Major / Minor / None]
+- **Ship decision:** Ready / Blocked — [lý do nếu Blocked]

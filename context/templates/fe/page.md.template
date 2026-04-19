@@ -1,0 +1,160 @@
+# Frontend Page Template — TL BIOMASS
+
+> Guide ngắn cho FE. Đọc file này trước, sau đó dùng các file trong `templates/` để output code.
+> Source of truth: `code-base/.../pages/sale-contract/` + `code-base/.../services/sale-contact/` — đối chiếu khi pattern thay đổi.
+> File template thực tế (có placeholder): `.agents/context/templates/fe/templates/`
+>
+> Cập nhật pattern: khi fix/thay đổi pattern trong code → cập nhật file template tương ứng ngay cùng task.
+
+---
+
+## Naming — Xác định trước khi code
+
+| Tên | Giải thích | Ví dụ |
+|---|---|---|
+| `{{PascalName}}` | PascalCase tên module | `SaleContract` |
+| `{{camelName}}` | camelCase | `saleContract` |
+| `{{kebab-name}}` | kebab-case | `sale-contract` |
+| `{{serviceFolder}}` | Thư mục trong `src/services/` | `sale-contact` ← **CÓ THỂ KHÁC pageFolder** |
+| `{{endpointKey}}` | Key trong `getEndpoints()` | `saleContract` |
+| `{{serviceExportName}}` | Tên export service | `saleContractService` |
+| `{{routePath}}` | Object trong `routes` | `saleContract` |
+| `{{breadcrumbKey}}` | Key trong `locales.breadcrumbs.*` | `saleContracts` |
+
+---
+
+## 1. Service Layer
+
+### File structure (BẮT BUỘC TÁCH)
+```
+services/{{serviceFolder}}/
+├── request.ts       ← request types
+├── response.ts      ← response types
+├── service.ts       ← service class methods
+└── index.ts         ← re-export tất cả
+```
+
+### 1.1 Service.ts Patterns
+- **Standard CRUD:** Suffix tên phương thức bằng tên Module (P14).
+- **Multipart/FormData:** Dùng `callApi` hoặc `this.postFormData` / `this.putFormData`.
+
+```typescript
+// Example: Multipart upload (P15)
+import httpClient from '@libs/axios';
+import { callApi } from '@services/core/utils';
+
+uploadFile = (files: File[]) => {
+  const formData = new FormData();
+  files.forEach(file => formData.append('Files', file));
+  
+  return callApi<boolean>(
+    httpClient.post(getEndpoints().{{endpointKey}}.upload, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+  );
+};
+```
+
+---
+
+## 2. Schema (Zod)
+
+Dùng các schema có sẵn từ `@forms` để tiết kiệm công sức và đồng nhất validate.
+
+| Schema | Sử dụng |
+|---|---|
+| `dateTimeSchemaRequired` | Ngày bắt buộc (DatePicker/DateTimePicker) |
+| `dateTimeSchemaOptional` | Ngày tùy chọn (DatePicker/DateTimePicker) |
+| `fileSchemaRequired` | Bắt buộc upload file |
+| `phoneSchema` | Validate số điện thoại VN |
+| `emailSchema` / `emailSchemaRequired` | Validate email |
+| `moneySchema` | Số dương > 0 (dùng cho giá tiền) |
+| `selectionOptionSchemaRequired` | Bắt buộc chọn từ Autocomplete/Select |
+
+```typescript
+// pages/{{kebab-name}}/manage/schema.ts
+import { dateTimeSchemaRequired, emailSchemaRequired, moneySchema } from '@forms';
+import zod from 'zod';
+
+export const schema = zod.object({
+  email: emailSchemaRequired,
+  price: moneySchema,
+  effectiveDate: dateTimeSchemaRequired,
+});
+```
+
+---
+
+## 3. FormSection (Advanced Fields)
+
+Dùng `FormField` components đã được cấu hình sẵn.
+
+```tsx
+<Grid container spacing={2}>
+  {/* Decimal field: tự động format dấu phẩy */}
+  <Grid size={{ xs: 12, md: 6 }}>
+    <FormField.Decimal name="price" label={locales.inputs.price} required />
+  </Grid>
+
+  {/* Autocomplete: chỉ truyền options [{label, value}], P16: onChange chỉ nhận 1 tham số */}
+  <Grid size={{ xs: 12, md: 6 }}>
+    <FormField.Autocomplete 
+      name="categoryId" 
+      label={locales.inputs.category} 
+      options={categories} 
+      required 
+    />
+  </Grid>
+
+  {/* File Upload: trả về mảng FileUploadItem[] */}
+  <Grid size={12}>
+    <FormField.FileUpload name="documents" label={locales.inputs.files} multiple />
+  </Grid>
+</Grid>
+```
+
+---
+
+## 4. Advanced Page Layouts
+
+### 4.1 Tabs Pattern (cho trang List)
+Khi module có nhiều loại dữ liệu liên quan (ví dụ: Import Port Ticket & Export Port Ticket).
+
+```tsx
+const [currentTab, setCurrentTab] = useState('import');
+
+<Tabs.Panel
+  tabs={[
+    { label: locales.module.import, value: 'import', component: <ImportTable /> },
+    { label: locales.module.export, value: 'export', component: <ExportTable /> }
+  ]}
+  value={currentTab}
+  onChange={setCurrentTab}
+/>
+```
+
+---
+
+## 5. Known Pitfalls (bắt buộc đọc)
+
+| # | Vấn đề | Sai | Đúng |
+|---|---|---|---|
+| P1 | `isSubmitting` | Khai báo trước `useFormResolver` | Khai báo SAU `form = useFormResolver(...)` |
+| P2 | Error handling | `response.message` | `response.errors?.[0]` hoặc locales key |
+| P3 | Zod import | `import { z } from 'zod'` | `import zod from 'zod'` |
+| P11 | DatePicker crash | `zod.string()` | Dùng `dateTimeSchemaRequired/Optional` từ `@forms` |
+| P15 | Multipart Error | Quên set header `multipart/form-data` | Dùng `this.postFormData` hoặc set header thủ công |
+| P16 | Autocomplete | `onChange={(_, val) => ...}` | `onChange={(val) => ...}` (chỉ nhận value) |
+| P17 | DataTable Load | Cộng `page + 1` | Truyền thẳng `params.page` (DataTable đã handle 0-indexed) |
+| P18 | Double Submit | Quên disable button | PHẢI có `disabled={isSubmitting}` cho mọi nút Save |
+
+---
+
+## 6. Checklist cho AI Implementation
+
+- [ ] Service types: Luôn tách `request.ts` và `response.ts`.
+- [ ] Schema: Ưu tiên dùng schema từ `@forms`.
+- [ ] Button: Dùng `locales.buttons.*`, KHÔNG bọc `t()`.
+- [ ] Form: Luôn có `disabled={isSubmitting}`.
+- [ ] Date: Map data BE vào form dùng `dateHelper.from(date)`.
+- [ ] List: Search query dùng key `q` (mặc định của QueryRequest).

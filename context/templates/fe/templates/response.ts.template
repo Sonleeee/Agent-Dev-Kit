@@ -1,0 +1,8 @@
+import { Entity } from '@services/core';
+
+export type List{{PascalName}}Response = Entity<number> & {
+  // TODO: cập nhật fields theo BE response DTO
+  code?: string;
+  name?: string;
+  status?: string;
+};

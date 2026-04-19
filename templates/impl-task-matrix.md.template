@@ -1,0 +1,65 @@
+# Task Assignment Matrix
+
+**Task:** [task-name]
+**Date:** [date]
+**Plan:** [link to implementation plan]
+
+---
+
+## Assignment
+
+| # | Task | Agent | Files | Cross-Agent Contracts | Status |
+|---|---|---|---|---|---|
+| 1 | [bounded task] | codex-cli | [file1, file2] | — | [ ] |
+| 2 | [bounded task] | gemini-cli | [file3, file4] | Agent 1: FuncName(params) -> ReturnType | [ ] |
+| 3 | [bounded task] | opencode-cli | [file5] | — | [ ] |
+
+---
+
+## Cross-Agent Contracts
+
+| # | Provider Agent | Consumer Agent | Function/Class | Params | Return Type |
+|---|---|---|---|---|---|
+| 1 | codex-cli | gemini-cli | ServiceName.MethodName | (Type1 arg1, Type2 arg2) | ResultType |
+
+---
+
+## Constraints
+
+- [ ] Khong co 2 agents cung sua 1 file
+- [ ] Cross-agent dependency chi qua func name + params (khong cho nhau)
+- [ ] Moi agent chi access files trong assignment cua minh
+- [ ] Template selection da chi ro cho tung task
+
+---
+
+## Build Verification
+
+Sau khi tat ca agents hoan thanh:
+
+- [ ] `dotnet build` — BE
+- [ ] `npm run build` — FE (neu co)
+- Build FAIL -> route fix task cho codex-cli
+- Build PASS -> sang /review
+
+---
+
+## Per-Agent Report
+
+### codex-cli
+- Status: [DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED]
+- Changed files: [list]
+- Self-check: [items]
+- Cross-agent exports: [functions created for other agents]
+
+### gemini-cli
+- Status: [DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED]
+- Changed files: [list]
+- Self-check: [items]
+- Cross-agent exports: [functions created for other agents]
+
+### opencode-cli
+- Status: [DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED]
+- Changed files: [list]
+- Self-check: [items]
+- Cross-agent exports: [functions created for other agents]

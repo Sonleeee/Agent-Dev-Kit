@@ -1,0 +1,19 @@
+// Source of truth: Features/SalesContracts/Queries/GetSalesContractById/
+// Placeholders: {Entity}, {Module}
+// Features/{Module}/Queries/Get{Entity}ById/Get{Entity}ByIdQuery.cs
+using MediatR;
+using Shared.DTOs.{Module};
+
+namespace TLBIOMASS.Application.Features.{Module}.Queries.Get{Entity}ById;
+
+public class Get{Entity}ByIdQuery : IRequest<{Entity}ResponseDetailsDto?>
+{
+    public long Id { get; set; }
+
+    public Get{Entity}ByIdQuery() { }
+
+    public Get{Entity}ByIdQuery(long id)
+    {
+        Id = id;
+    }
+}

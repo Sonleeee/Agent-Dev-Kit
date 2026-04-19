@@ -1,0 +1,23 @@
+# Implementation Plan
+
+**Task:** [task]
+
+## Approach
+[chosen approach ngan]
+
+## Impacted Files / Modules
+- [path or module]
+
+## Template Selection
+- [template or reference]
+
+## Test Obligations
+- [item 1]
+- [item 2]
+
+## Done Criteria
+- [dev done item]
+- [review item]
+
+## API Contract
+`No change / Change with guard`

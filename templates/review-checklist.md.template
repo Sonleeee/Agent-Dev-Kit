@@ -1,0 +1,81 @@
+# Review Checklist
+
+**Task:** [task-name]
+**Reviewer:** codex-cli [+ gemini-cli neu dual review]
+**Review Mode:** single | dual
+**Date:** [date]
+
+---
+
+## Layer 1: Implementation Checklist
+
+Verify tung item tu checklist da tao o /impl.
+
+| # | Item | Status | Evidence |
+|---|---|---|---|
+| 1 | [checklist item from /impl] | ✅ PASS / ❌ FAIL / ⚠️ UNPLANNED | [file:line] |
+
+---
+
+## Layer 2: Code Existence
+
+Verify code thuc su ton tai trong files, khong phai chi "planned".
+
+| # | Expected Code | Actually Exists? | Location |
+|---|---|---|---|
+| 1 | [description of expected code] | Yes / No | [file:line] |
+
+---
+
+## Layer 3: Architecture Compliance
+
+So sanh code vs template pattern, bat architecture drift.
+
+| # | Template Rule | Compliant? | Detail |
+|---|---|---|---|
+| 1 | [rule from project template] | ✅ / ❌ | [explanation] |
+
+---
+
+## Layer 4: Unplanned Code
+
+Phat hien code CO nhung KHONG NAM trong plan/template.
+
+| # | Found Code | In Plan? | In Template? | Verdict |
+|---|---|---|---|---|
+| 1 | [description of found code] | No | No | ⚠️ UNPLANNED |
+
+---
+
+## Layer 5: Cross-Agent Contract Verification
+
+Verify cross-agent func name + params match giua cac agents.
+
+| # | Provider Agent | Consumer Agent | Function | Params Match? | Status |
+|---|---|---|---|---|---|
+| 1 | codex-cli | gemini-cli | [func_name] | ✅ / ❌ | [detail] |
+
+---
+
+## Summary
+
+| Category | Count |
+|---|---|
+| ✅ Pass | [count] |
+| ❌ Fail | [count] |
+| ⚠️ Unplanned | [count] |
+
+## Ship Decision
+
+`Ready / Blocked / Needs Review`
+
+### Neu Blocked
+
+- [ ] Fail items can fix
+- [ ] Unplanned items can review manual
+- [ ] Cross-agent contract mismatch can align
+
+### Neu Needs Review
+
+- [ ] User can review unplanned items
+- [ ] User can approve ship

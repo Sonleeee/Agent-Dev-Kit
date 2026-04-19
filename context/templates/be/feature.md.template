@@ -1,0 +1,401 @@
+# Backend Feature Guide — TL BIOMASS
+
+> **🔰 SYSTEM-WIDE KNOWLEDGE - CHỈ DẪN CHO AI (DEVELOPER ĐỌC CÙNG BẮT BUỘC)**  
+> Khi khởi tạo/sửa đổi Module, AI **BẮT BUỘC** phải tự đặt ra và trả lời 5 câu hỏi sau để đối chiếu với các Service dùng chung của toàn hệ thống `TL_BIOMASS_full`, ĐẢM BẢO KHÔNG THIẾU LOGIC CỦA BẤT KỲ USE CASE NÀO:
+> 
+> **Q1: Module này có đính kèm file (evidence, images, documents) không?**
+> - *Dấu hiệu*: Yêu cầu có nhắc đến upload file, lưu ảnh, đính kèm chứng từ.
+> - *Hành động chuẩn*: **BẮT BUỘC DÙNG TEMPLATE `command-handler-with-file.cs.template` VÀ `update-handler-with-file.cs.template`**. KHÔNG DÙNG cấu trúc command thông thường.
+> 
+> **Q2: Module này có yêu cầu xuất file / In ấn (Excel, PDF, Word) không?**
+> - *Dấu hiệu*: Yêu cầu có nút "export", "báo cáo", "in phiếu".
+> - *Hành động chuẩn*: **BẮT BUỘC DÙNG TEMPLATE `export-excel-query-handler.cs.template`**. Inject các Interface có sẵn ở `TLBIOMASS.Application/Common/Interfaces` như: `IExcelService`, `IPaymentReportPdfService` thay vì tự viết thư viện.
+> 
+> **Q3: Trạng thái (Status) của Module có liên quan tới Luồng Duyệt (Approval Workflow) không?**
+> - *Dấu hiệu*: Trạng thái có các bước "Chờ duyệt", "Đã duyệt", "Từ chối". Đòi hỏi cấp quản lý duyệt.
+> - *Hành động chuẩn*: Không tự viết logic chuyển trạng thái cứng vào Handler. PHẢI tích hợp chặt với module `ApprovalWorkflows`. Tối thiểu phải check `IApprovalResultApplier` hoặc kế thừa luồng Approval. Chú ý các constant trong `ApprovalStatusConstants.cs`.
+>
+> **Q4: Đây là CRUD CƠ BẢN (1 bảng duy nhất) hay Aggregate PHỨC TẠP (Kéo theo Child Records/Master-Detail)?**
+> - *Hành động đối với Aggregate Phức tạp*: **BẮT BUỘC DÙNG TEMPLATE `delete-handler-cascade.cs.template` CHO TÍNH NĂNG DELETE**. KHÔNG dùng `delete-handler.cs.template` cơ bản. Truy vấn Child objects bằng ChildRepo tương ứng, gọi `Delete` từng Child, cuối cùng mới Delete Parent và Save.
+>
+> **Q5: Có cần sinh MÃ CODE tự động (Reference Code, Voucher, Invoice No) không?**
+- *Hành động chuẩn*: KHÔNG tự code hàm random hay gọi trực tiếp helper trong Repository. PHẢI dùng Service `ICodeGenerator` tại Application layer. (Tích hợp thêm enum trong `ICodeGenerator.cs` nếu là module mới).
+>
+> **📌 NGUYÊN TẮC QUAN TRỌNG:** Tùy thuộc vào câu trả lời, HÃY CHỌN CHÍNH XÁC file template `.cs.template` được cấp phát trong thư mục `templates/`. Tối kỵ việc tự chế logic!
+
+---
+
+
+## Naming — Xác định trước khi code
+
+| Placeholder | Giải thích | Ví dụ |
+|---|---|---|
+| `{Entity}` | PascalCase tên entity | `SalesContract` |
+| `{Module}` | PascalCase tên module | `SalesContracts` |
+| `{entityLower}` | camelCase cho biến/field private | `salesContract` |
+| `{ChildEntity}` | PascalCase tên child entity (nếu có) | `PaymentItem` |
+| `{ValueObject}` | Tên ValueObject trung gian, tùy nghiệp vụ | `PaymentItemInput`, `ContractLineDetail` |
+| `{FilterSpec}` | Tên FilterSpec record (filter thuần) | `WarehouseFilterSpec` |
+| `{PagedFilterSpec}` | Tên PagedFilterSpec record (filter + paging) | `WarehousePagedFilterSpec` |
+
+---
+
+## File Templates (dùng để output code)
+
+| File | Mục đích |
+|---|---|
+| `templates/command.cs.template` | Create Command + IRequest |
+| `templates/validator.cs.template` | FluentValidation AbstractValidator |
+| `templates/command-handler.cs.template` | Create Handler — thin, gọi repo + domain |
+| `templates/update-command.cs.template` | Update Command dùng `Optional<T>` |
+| `templates/update-handler.cs.template` | Update Handler — load entity → update → save |
+| `templates/query.cs.template` | Query + IRequest paged |
+| `templates/get-by-id-query.cs.template` | GetById Query + IRequest |
+| `templates/get-by-id-handler.cs.template` | GetById Handler — load entity + map DTO + file fetching |
+| `templates/query-handler.cs.template` | QueryHandler — thin, chỉ gọi repo + map DTO |
+| `templates/controller.cs.template` | Controller kế thừa ApiControllerBase |
+| `templates/errors.cs.template` | Error message constants theo module |
+| `templates/business-rule.cs.template` | IBusinessRule — business invariant trong Domain |
+| `templates/mapster-config-snippet.cs.template` | Cách thêm mapping mới vào cụm `Common/Mappings/Mapster/` |
+| `templates/dto.cs.template` | DTO types (nằm ở Shared, không phải Application) |
+| `templates/value-object.cs.template` | Input ValueObject — record trung gian Domain, repo nhận thay DTO |
+| `templates/child-repo-with-file.cs.template` | ChildRepo — CreateItemsAsync + SyncItemsAsync + file linking |
+| `templates/orchestration-service.cs.template` | OrchestrationService — điều phối mỏng, map DTO→Input, gọi repo |
+
+---
+
+## Exception Taxonomy — 7 loại (bắt buộc dùng đúng)
+
+| Exception | HTTP | Dùng khi | Throw ở |
+|---|---|---|---|
+| `NotFoundException` | 404 | Entity không tìm thấy theo ID | Handler |
+| `ValidationException` | 400 | Vi phạm input contract (required/format/range) | FluentValidation (tự động) |
+| `BusinessException` | 400 | Lỗi business có error code | Handler / Domain method |
+| `BusinessRuleValidationException` | 400 | Entity vi phạm invariant qua `IBusinessRule` | Entity.CheckRule() |
+| `DuplicateException` | 409 | Trùng lặp unique field | Handler (sau check exists) |
+| `BadRequestException` | 400 | Input không hợp lệ kiểu chung | Handler (dùng static factory) |
+| `UnauthorizedException` | 401 | Auth thất bại | Auth layer |
+
+---
+
+## Mapster — Quy tắc
+
+1. `IRegister` **KHÔNG dùng** trong project này.
+2. Dùng cấu trúc module tại `TLBIOMASS.Application/Common/Mappings/Mapster/`.
+3. Khi thêm module mới: tạo file `{Module}Mappings.cs` có `Configure()` và đăng ký trong `Mapster/MapsterConfig.cs`.
+4. Với field enum dạng `Optional<Enum>` trong DTO/Command: map trực tiếp `src => src.Status` (không parse qua string).
+5. Trong handler/controller: dùng `.Adapt<T>()` trực tiếp sau khi mapping đã config.
+6. **DTO → FilterSpec/PagedFilterSpec**: Khi DTO chứa field `string` mà domain FilterSpec cần `Enum?`, **BẮT BUỘC** config `MapWith()` trong Mapster thay vì parse thủ công trong handler.
+7. Chọn đúng API theo usecase:
+   - `Map(...)`: map từng field, dùng cho DTO/class có setter và logic đơn giản.
+   - `MapWith(...)`: tự dựng cả object đích, dùng cho `record`, immutable type, hoặc khi cần parse/compose nhiều field trong một chỗ.
+   - `ConstructUsing(...)`: khởi tạo qua factory/domain method, dùng cho entity/value object có invariant.
+   - `AfterMapping(...)`: chỉ dùng cho xử lý sau map, không dùng để thay thế logic khởi tạo chính.
+
+```csharp
+// ✅ Đúng: Mapster config chuyển string→enum
+TypeAdapterConfig<{Entity}PagedFilterDto, {PagedFilterSpec}>.NewConfig()
+    .MapWith(src => new {PagedFilterSpec}(
+        src.Q,
+        !string.IsNullOrEmpty(src.Type) ? Enum.Parse<{EnumType}>(src.Type) : null,
+        src.PageNumber,
+        src.PageSize
+    ));
+
+// ❌ Sai: Parse thủ công trong handler
+var type = Enum.Parse<ContractType>(request.Filter.Type);
+var spec = new TransportTrackingFilterSpec { Q = request.Filter.Q, Type = type };
+```
+
+---
+
+## Handler — Khi nào gọi Repo, khi nào gọi Service
+
+Handler là nơi **điều phối** (chỉ gọi lại), KHÔNG chứa logic nghiệp vụ. Quy tắc lựa chọn:
+
+| Tình huống | Gọi ai? | Giải thích |
+|------------|---------|------------|
+| Logic nghiệp vụ **chỉ liên quan 1 module** và repo đã cover hết (query, filter, update, save) | **Gọi Repo trực tiếp** | Ví dụ: `await _transportTripRepository.UpdateStatusAsync(id, status, ct);` — 1 dòng duy nhất. |
+| Logic cần **kết hợp nhiều Repo**, xử lý phức tạp, hoặc cần Transaction đa bước | **Gọi Orchestration Service** | Service điều phối: Link/Unlink, Đồng bộ kho, Gọi Domain logic. |
+| Logic nghiệp vụ thuần (Business Rules, Tính toán, State Transition) | **Gọi Domain Service** | KHÔNG gọi DB. Chỉ nhận Data từ Orchestration, tính toán và trả về Result. |
+
+### Architectural Flow (BẮT BUỘC cho Logic Phức tạp)
+
+```mermaid
+graph TD
+    A[Controller] --> B[Command Handler]
+    B --> C[Orchestration Service]
+    C --> D[Repository - Read Data]
+    D --> C
+    C --> E[Domain Service - Pure Logic]
+    E --> C
+    C --> F[Repository - Save Data]
+    F --> C
+```
+
+> [!IMPORTANT]
+> **Orchestration Service** (Application Layer) có nhiệm vụ I/O (gọi DB, gọi API ngoài).  
+> **Domain Service** (Domain Layer) có nhiệm vụ LOGIC (tính toán, kiểm tra rule). KHÔNG ĐƯỢC gọi DB trong Domain Service.
+
+### QueryHandler Pattern (BẮT BUỘC theo Warehouse)
+
+```csharp
+// ✅ Handler chuẩn: dùng Adapt + gọi repo/service
+public async Task<PagedResultWithSummary<{Entity}ResponseDto>> Handle(Get{Entity}sPagedQuery request, CancellationToken ct)
+{
+    var spec = request.Filter.Adapt<{PagedFilterSpec}>();          // 1. Mapster convert DTO→Spec
+    var (items, totalCount, summary) = await _repository.Get{Entity}sPagedAsync(spec, ct);  // 2. Gọi repo/service
+    return new PagedResultWithSummary<{Entity}ResponseDto>
+    {
+        Items = items.Adapt<List<{Entity}ResponseDto>>(),
+        TotalCount = totalCount,
+        PageNumber = spec.PageNumber,   // 3. Lấy từ spec, KHÔNG từ request.Filter
+        PageSize = spec.PageSize,
+        Summary = summary               // 4. Summary được tính bằng GroupByCountAsync trong Repo
+    };
+}
+```
+
+### Repository Query Pattern (BẮT BUỘC)
+
+```csharp
+public async Task<(List<{Entity}> Items, int TotalCount, Dictionary<string, int> Summary)> Get{Entity}sPagedAsync(
+    {PagedFilterSpec} spec, CancellationToken cancellationToken = default)
+{
+    IQueryable<{Entity}> baseQuery = DbContext.Set<{Entity}>().AsNoTracking();
+
+    // 1. Apply Filter (trừ Filter theo Tab/Status dùng cho Summary)
+    var query = baseQuery.ApplyFilter(spec); 
+
+    // 2. Tính Summary (trước khi filter theo Status/Tab)
+    // Dùng GroupByCountAsync extension từ Infrastructure.Common
+    var summary = await query.GroupByCountAsync(x => x.Status, keyToString: s => s.ToString(), cancellationToken: cancellationToken);
+
+    // 3. Apply Filter theo Status (nếu có)
+    if (spec.Status.HasValue)
+        query = query.Where(x => x.Status == spec.Status.Value);
+
+    // 4. Sort & Paging
+    var totalCount = await query.CountAsync(cancellationToken);
+    var items = await query
+        .ApplySorting(spec.OrderBy, spec.OrderByDirection)
+        .Skip((spec.PageNumber - 1) * spec.PageSize)
+        .Take(spec.PageSize)
+        .ToListAsync(cancellationToken);
+
+    return (items, totalCount, summary);
+}
+```
+
+### Nguyên tắc Cross-Module (BẮT BUỘC)
+
+**TUYỆT ĐỐI KHÔNG** viết logic nghiệp vụ của Module A vào Handler của Module B.
+
+**❌ Sai:**
+```csharp
+// Trong ImportPortTicketsCommandHandler (module PortTickets)
+var trips = await _transportTripRepository.Query()
+    .Where(x => ids.Contains(x.WeighingTicketId) && x.TripStatus == TransportTripStatus.InProgress)
+    .ToListAsync(cancellationToken);
+foreach (var trip in trips) { trip.MarkAsCompleted(); await _transportTripRepository.UpdateAsync(trip); }
+```
+
+**✅ Đúng:**
+```csharp
+// Logic nằm gọn trong TransportTripRepository (module TransportTrips)
+await _transportTripRepository.MarkTripsAsCompletedByTicketsAsync(reconciledWeighingTicketIds, cancellationToken);
+```
+
+> **Tóm lại:** Handler module B inject repo/service của module A → gọi DUY NHẤT 1 hàm đã đóng gói. Toàn bộ `.Where()`, `.Include()`, `foreach`, `SaveChangesAsync` nằm bên trong hàm đó của module A.
+
+### Phân biệt Service — 3 loại (BẮT BUỘC)
+| Loại Service | Vị trí thư mục | Khi nào sử dụng? | Đặc điểm |
+|---|---|---|---|
+| **Domain Service** | `Domain/{Module}/Services/` | **Ghi/Sửa/Xóa (Commands)** + Tính toán cốt lõi. | **PURE LOGIC**. Không inject Repository. Trả về `Result`. |
+| **Orchestration Service** | `Application/Features/{Module}/Services/` | **Điều phối dữ liệu**. Map DTO, gọi DB, gọi Domain Service. | **I/O + COORDINATION**. Inject Repositories + Domain Services. |
+| **Infrastructure Service** | `Infrastructure/Services/` | **Hỗ trợ kỹ thuật**. Xuất Excel, PDF, Auth, Giao tiếp bên ngoài. | **TECHNICAL**. Cài đặt các Interface từ Application/Common. |
+
+> 💡 **Quy tắc CQRS ngầm định:** Tránh nhét logic Query (chỉ đọc) vào Domain Service để giữ tầng Domain luôn tập trung vào logic kinh doanh. Nếu chỉ lấy data gộp, hãy dùng Infrastructure Service.
+
+### Infrastructure Service — Nhận Spec thay vì rời params
+
+Service interface/implementation **BẮT BUỘC** nhận `{PagedFilterSpec}` thay vì rời `pageNumber, pageSize`:
+
+```csharp
+// ✅ Đúng
+Task<(List<Result> Items, int TotalCount, Dictionary<string, int>? Summary)> GetContractsAsync(
+    TransportTrackingPagedFilterSpec spec, CancellationToken ct);
+
+// ❌ Sai — params rời
+Task<...> GetContractsAsync(TransportTrackingFilterSpec spec, int pageNumber, int pageSize, CancellationToken ct);
+```
+
+---
+
+## IBusinessRule — Domain Invariants
+
+Khi entity có business rule cần enforce (trạng thái hợp lệ, format...):
+- Tạo `Domain/{Module}/Rules/{Entity}{RuleName}Rule.cs` implement `IBusinessRule`.
+- **QUAN TRỌNG**: Rule KHÔNG được inject repository hoặc gọi DB (Violation #2).
+- Entity gọi `CheckRule(new {Rule}(...))` — tự throw `BusinessRuleValidationException` → 400.
+
+### Uniqueness Check Pattern (Code/TaxCode Unique)
+Vì lý do performance và Clean Architecture, việc check trùng lặp phải làm **Async** tại Application Layer hoặc qua Domain Service:
+
+1. **Cách 1 (Đơn giản)**: Handler gọi `_repo.ExistsAsync(...)` → throw `DuplicateException` nếu đã tồn tại.
+2. **Cách 2 (Chuẩn DDD)**: 
+   - Định nghĩa `I{Entity}UniquenessService` tại Domain (Async).
+   - Implement tại Infrastructure.
+   - Handler inject và gọi service trước khi Create/Update.
+
+---
+
+## Common Helpers — Shared Project
+
+Sử dụng các helper chung tại `BuildingBlocks/Shared/Helpers/` để tránh tái phát minh bánh xe:
+
+### 1. ICodeGenerator (Application Service)
+Dùng để sinh mã theo module/entity với prefix chuẩn. (Violation #5 - Tránh code gen phân tán).
+- Inject `ICodeGenerator` vào Handler.
+- Gọi `_codeGenerator.ResolveOrGenerate(request.Code, EntityCodeType.{Entity})`.
+- `GenerateCodeHelper` (Shared/Helpers) chỉ dùng bên trong implementation của `CodeGenerator`.
+
+---
+
+## File Management — FileStorageHelper + IMediator
+
+Hỗ trợ đính kèm file (evidence, images) cho module:
+
+### 1. Query Details (GetById)
+Handler fetch file sau khi load entity:
+```csharp
+var dto = entity.Adapt<{Entity}ResponseDetailsDto>();
+// ... fetch files và map vào EvidenceFiles
+```
+
+### 2. Command (Create/Update) — File Upload/Delete thuộc về Repository
+**NGUYÊN TẮC**: File upload/delete dùng `FileStorageHelper` (static class ở `Application/Common/Helpers/`).
+- Repository inject `IMediator` + `IFileStorageRepository` → gọi `FileStorageHelper.UploadFilesAsync` / `FileStorageHelper.DeleteFilesAsync`.
+- ValueObject chứa `List<FileUploadDto>? Files` (upload mới) + `List<long>? RemoveIds` (xóa cũ).
+- Service KHÔNG inject `IFileStorageRepository` hay `IMediator` — chỉ truyền `Files`/`RemoveIds` từ DTO qua Input.
+- Upload files SAU `SaveChangesAsync` (cần entity Id thật).
+
+### 3. Controller `[FromForm]` — BẮT BUỘC dùng DTO riêng, KHÔNG truyền Command trực tiếp
+
+**⚠️ ASP.NET Model Binding Gotcha với `[FromForm]` + `List<ComplexObject>`:**
+
+Khi gửi `multipart/form-data`, ASP.NET tách dữ liệu thành 2 nơi:
+- **Text fields** → `Request.Form`
+- **File binary** → `Request.Form.Files`
+
+`CollectionModelBinder` (xử lý `List<T>`) chỉ quét **text fields** để xác định index tồn tại. File binary **KHÔNG được dùng** để kích hoạt index.
+
+**Hệ quả:** Nếu `List<FileUploadDto> Files` chỉ gửi `Files[0].File` (binary) mà KHÔNG gửi `Files[0].FileCode` hoặc `Files[0].FileType` (text) → Model Binder coi list trống → `Files = null`.
+
+**Quy tắc:**
+1. **Controller BẮT BUỘC dùng DTO riêng** cho `[FromForm]`, rồi `.Adapt<Command>()` — KHÔNG nhận Command trực tiếp.
+2. Client **BẮT BUỘC gửi ít nhất 1 text field** cho mỗi index trong list `FileUploadDto` (ví dụ: `Files[0].FileCode = ""`).
+
+```csharp
+// ✅ Đúng: Dùng DTO riêng cho [FromForm]
+[HttpPost("{id}/pay")]
+public async Task<IActionResult> Pay(long id, [FromForm] Pay{Entity}Dto dto)
+{
+    var command = dto.Adapt<Pay{Entity}Command>();
+    command.Id = id;
+    var result = await Mediator.Send(command);
+    return Ok(new ApiSuccessResult<bool>(result, "..."));
+}
+
+// ❌ Sai: Truyền Command trực tiếp vào [FromForm]
+public async Task<IActionResult> Pay(long id, [FromForm] Pay{Entity}Command command)
+```
+
+> **Lưu ý:** Vấn đề này KHÔNG xảy ra với `IFormFile` trực tiếp (có binder riêng `FormFileModelBinder`), chỉ xảy ra khi `IFormFile` nằm bên trong complex object (`FileUploadDto`) trong một `List<T>`.
+
+---
+
+## Aggregate với Child Entities — Kiến trúc 4 tầng
+
+Khi module có Aggregate phức tạp (Parent + Child Items + File đính kèm), **BẮT BUỘC** dùng 3 template sau:
+
+| Tầng | Template | Vai trò |
+|------|----------|--------|
+| Handler | `templates/command-handler.cs.template` | Cực mỏng — chỉ gọi Service |
+| Service | `templates/orchestration-service.cs.template` | Điều phối — map DTO→Input, gọi repo |
+| ValueObject | `templates/value-object.cs.template` | Record trung gian Domain — repo nhận thay DTO |
+| Repository | `templates/child-repo-with-file.cs.template` | Toàn bộ logic CRUD items + file linking |
+
+### Quy tắc
+- **Handler**: chỉ 1 dòng gọi Service method. KHÔNG chứa logic.
+- **Service**: map DTO→Input bằng LINQ `.Select()`, gọi repo. KHÔNG inject `IFileStorageRepository`. KHÔNG chứa foreach/for loops.
+- **Input**: record nằm ở `Domain/{Module}/ValueObjects/`, chứa tất cả field cần thiết + `List<FileUploadDto>? Files` + `List<long>? RemoveIds`.
+- **ChildRepository**: inject `IMediator` + `IFileStorageRepository`, chứa `CreateItemsAsync` (Create flow) + `SyncItemsAsync` (Update flow). Dùng `FileStorageHelper.UploadFilesAsync` / `DeleteFilesAsync` cho file operations. Validate IDs bằng base repo `FindByCondition`. Tự gọi `SaveChangesAsync`.
+
+---
+
+## Known Pitfalls BE (bắt buộc đọc)
+
+| # | Vấn đề | Sai | Đúng |
+|---|---|---|---|
+| P1 | Not-found exception | `throw new InvalidOperationException("not found")` | Chỉ `throw new NotFoundException(nameof({Entity}), id)` tại Query. Tại Update/Delete Command phải `return false;`. |
+| P2 | Hardcode message | `throw new Exception("Business error message")` | `BusinessException` + error code constant từ `Domain/Constants/ErrorMessages/` |
+| P3 | Query logic trong handler | `query.Where(...).OrderBy(...).Skip(...)` trong handler | Di chuyển vào repository method |
+| P4 | Validator message literal | `WithMessage("Code is required")` | `WithMessage({Module}Errors.{Entity}.CodeRequired)` ← constant |
+| P5 | Response wrapper tự tạo | Controller tự build response object | Dùng `HandleCreateAsync`, `HandleUpdateAsync`, `HandleGetPagedWithSummaryAsync` |
+| P6 | Update command không dùng Optional | Field nullable hoặc always-required trong update | Dùng `Optional<T>` cho tất cả update fields |
+| P7 | Mapster IRegister pattern | `public class MappingProfile : IRegister` | Tạo `Common/Mappings/Mapster/{Module}Mappings.cs` + gọi `{Module}Mappings.Configure()` trong `Mapster/MapsterConfig.cs` |
+| P8 | Vị trí `using` directives | Gọi inline namespace như `Shared.DTOs...` trong tham số hàm | BẮT BUỘC đặt `using` ở đầu file, không dùng inline alias |
+| P9 | Throw lỗi khi Root Entity ko tồn tại ở Command | `throw new NotFoundException(...)` | `return false;` trong Update/Delete command (để Controller tự sinh 404). Chỉ throw `NotFoundException` trong Query. |
+| P10 | Eager Loading trong Repository | `override GetByIdAsync` | `GetByIdAsync` không virtual → Tạo method mới `GetByIdWithDetailsAsync` có `.Include(...)` |
+| P11 | Duplicate logic resolve current user | Mỗi handler tự viết `ResolveCurrentInternalUserIdAsync` | Dùng `ICurrentInternalUserResolver` service dùng chung |
+| P12 | Không định nghĩa giá trị mặc định cho DTO/Entity | Tạo object rồi `Status` bị null | Sử dụng default value ngay trong class definition |
+| P13 | Multiple SaveChanges | Gọi `SaveChangesAsync` nhiều lần phân tán | Repo method tự quản SaveChanges nội bộ. Service/Handler KHÔNG gọi SaveChanges trực tiếp khi có items. |
+| P14 | Rule inject Repository | `IBusinessRule` gọi DB sync | Rule chỉ check logic sync. Check DB phải làm Async ở Service/Handler. |
+| P15 | Dùng `Enum.Parse` string trong Handler | Gây `500 Server Error` nếu parse fail | Khai báo property dưới kiểu Enum. Nếu bắt buộc string thì `Enum.TryParse` trong FluentValidation. |
+| P16 | forEach/for loop tạo list | `foreach + list.Add(item)` | Dùng LINQ `.Select().ToList()` cho mapping/tạo list |
+| P17 | Service/Handler inject IFileStorageRepository | Service gọi Link/Unlink trực tiếp | File upload/delete nằm TRONG Repository dùng `FileStorageHelper`. Service chỉ truyền `Files`/`RemoveIds` qua Input. |
+| P18 | Repo nhận DTO từ Shared | Repo tham chiếu `Shared.DTOs.*` | Tạo `Input` record trong `Domain/{Module}/ValueObjects/`. Service map DTO→Input rồi truyền cho repo. |
+| P19 | Validate IDs bằng static helper | Viết private static method tự check | Dùng base repo `FindByCondition(x => ids.Contains(x.Id))` để validate IDs tồn tại. |
+| P20 | Logic phức tạp trong Service/Handler | Service chứa validate, remove, update, create, file linking | Đẩy toàn bộ xuống repo method (`SyncItemsAsync`, `CreateItemsAsync`). Service chỉ map + gọi repo. |
+| P21 | Viết logic module A vào handler module B | Handler PortTickets chứa `.Query().Where()` và `foreach trip.MarkAsCompleted()` của TransportTrip | Đóng gói hàm trong `ITransportTripRepository` / Service của module TransportTrip. Handler PortTickets chỉ gọi 1 dòng. |
+| P22 | Tạo Service khi Repo đã đủ | Tạo `ITransportTripDomainService` chỉ để wrap 1 repo call | Ưu tiên thêm method vào Repo. Chỉ tạo Service khi cần kết hợp nhiều Repo hoặc logic map phức tạp. |
+| P23 | FilterSpec là `class` thay vì `record` | `public class {Entity}FilterSpec { public string? Q { get; set; } }` | **Dùng `record`**: `public record {Entity}FilterSpec(string? Q, EntityStatus? Status)` — immutable, gọn, theo pattern Warehouse. |
+| P24 | Không tách FilterSpec vs PagedFilterSpec | Gộp chung filter + paging vào 1 class lớn | Tách: `{Entity}FilterSpec` (filter thuần) + `{Entity}PagedFilterSpec` (filter + paging). Đặt trong `Domain/{Module}/`. |
+| P25 | Parse enum thủ công trong Handler | `var type = Enum.Parse<ContractType>(request.Filter.Type)` | Config Mapster `MapWith()` chuyển DTO→PagedFilterSpec. Handler chỉ `request.Filter.Adapt<{PagedFilterSpec}>()`. |
+| P26 | Load all rồi filter/page in-memory | `GetAllAsync()` + `.Where().Skip().Take()` trong service | Tạo repo method dùng SQL-level `WHERE`, `GroupBy`, `Skip/Take`. Chỉ load đúng page cần thiết. |
+| P27 | Service nhận params rời cho paging | `GetAsync(spec, int pageNumber, int pageSize)` | Service nhận `{PagedFilterSpec}` duy nhất chứa cả filter + paging. |
+| P28 | Tính Summary thủ công bằng GroupBy | Dùng `GroupBy` + `ToDictionary` + `foreach` để bù key | Dùng `GroupByCountAsync` extension từ `Infrastructure.Common`. Repo query SQL-level cho hiệu năng cao. |
+| P29 | `[FromForm]` nhận Command trực tiếp + `List<FileUploadDto>` bị null | `Pay(long id, [FromForm] PayCommand command)` — khi client chỉ gửi file binary mà không gửi text field cho `Files[0].???` thì `Files = null` | **Tạo DTO riêng** cho `[FromForm]` rồi `.Adapt<Command>()`. Client **BẮT BUỘC** gửi ít nhất 1 text field (FileCode/FileType) cho mỗi index trong `List<FileUploadDto>`. Lý do: `CollectionModelBinder` chỉ quét text fields để xác định index, file binary không được dùng làm tín hiệu. |
+
+---
+
+## Checklist Khi Dùng Template Này
+
+- [ ] Thay tất cả `{Entity}`, `{Module}`, `{entityLower}` bằng tên thực tế
+- [ ] Exception đúng loại: not-found → `NotFoundException`, business → `BusinessException`, duplicate → `DuplicateException` (P1, P2)
+- [ ] Validator dùng error constant, không literal (P4)
+- [ ] Handler CỰC MỎNG: chỉ gọi Service hoặc repo, không chứa logic (P3, P20)
+- [ ] Không viết logic nghiệp vụ của module khác vào handler hiện tại — gọi repo/service của module đó (P21)
+- [ ] Ưu tiên thêm method vào Repo trước, chỉ tạo Service khi Repo không cover hết (P22)
+- [ ] Update command dùng `Optional<T>` (P6)
+- [ ] Mapping config thêm vào `Common/Mappings/Mapster/*.cs`, không dùng `IRegister` (P7)
+- [ ] DTO đặt đúng chỗ: `BuildingBlocks/Shared/DTOs/{Module}/`
+- [ ] Controller dùng `ApiControllerBase` helpers (P5)
+- [ ] DI registration: repository, handler, validator, service
+- [ ] Nếu có business field user id: dùng `ICurrentInternalUserResolver` (P11)
+- [ ] Dùng LINQ `.Select().ToList()` thay vì foreach + Add (P16)
+- [ ] API contract: Create→201, Update→200, Delete→200, NotFound→404, Invalid→400, Duplicate→409
+- [ ] FilterSpec/PagedFilterSpec dùng `record`, tách riêng, đặt trong `Domain/{Module}/` (P23, P24)
+- [ ] Handler dùng `Adapt<{PagedFilterSpec}>()` thay vì parse thủ công (P25)
+- [ ] Repo query dùng SQL-level filter + paging, KHÔNG load all rồi filter in-memory (P26)
+- [ ] Repo dùng `GroupByCountAsync` cho Summary để đảm bảo hiệu năng và đủ key (P28)
+- [ ] Service nhận `{PagedFilterSpec}` duy nhất, KHÔNG nhận params rời (P27)
+
+### Checklist riêng cho Aggregate có Child Items + File
+- [ ] Tạo `{ValueObject}` record trong `Domain/{Module}/ValueObjects/` với `List<FileUploadDto>? Files` + `List<long>? RemoveIds` (P18)
+- [ ] `{ChildEntity}Repository` inject `IMediator` + `IFileStorageRepository`, chứa `CreateItemsAsync` + `SyncItemsAsync` (P17, P20)
+- [ ] Validate IDs trong repo bằng `FindByCondition` (P19)
+- [ ] Service chỉ map DTO → Input rồi gọi repo, KHÔNG inject IFileStorageRepository hay IMediator (P17)
+- [ ] File upload/delete nằm TRONG repo, dùng `FileStorageHelper.UploadFilesAsync`/`DeleteFilesAsync` (P17)
+- [ ] Endpoint `[FromForm]` có `List<FileUploadDto>` phải dùng DTO riêng, KHÔNG nhận Command trực tiếp (P29)

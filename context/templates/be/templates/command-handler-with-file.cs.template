@@ -1,0 +1,43 @@
+// Placeholders: {Entity}, {Module}, {entityLower}
+// Pattern: Dành RIÊNG cho tính năng CÓ Upload File (Image/Evidence) — CRUD ĐƠN (không có Child Items)
+// Nếu có Child Items + File → dùng orchestration-service.cs.template + child-repo-with-file.cs.template
+// Features/{Module}/Commands/Create{Entity}/Create{Entity}CommandHandler.cs
+using MediatR;
+using Shared.Domain.Enums;
+using TLBIOMASS.Application.Common.Helpers;
+using TLBIOMASS.Domain.{Module}.Interfaces;
+
+namespace TLBIOMASS.Application.Features.{Module}.Commands.Create{Entity};
+
+public class Create{Entity}CommandHandler : IRequestHandler<Create{Entity}Command, long>
+{
+    private readonly I{Entity}Repository _{entityLower}Repository;
+    private readonly IMediator _mediator; // Dùng FileStorageHelper thay vì IFileStorageRepository trực tiếp
+
+    public Create{Entity}CommandHandler(
+        I{Entity}Repository {entityLower}Repository,
+        IMediator mediator)
+    {
+        _{entityLower}Repository = {entityLower}Repository;
+        _mediator = mediator;
+    }
+
+    public async Task<long> Handle(Create{Entity}Command request, CancellationToken cancellationToken)
+    {
+        var entity = {Entity}.Create(request.Code, request.Name);
+        await _{entityLower}Repository.AddAsync(entity, cancellationToken);
+        
+        // SaveChanges trước để có entity.Id thật
+        await _{entityLower}Repository.SaveChangesAsync(cancellationToken);
+
+        // Upload files SAU khi save (cần Id thật)
+        if (request.Files != null && request.Files.Any())
+        {
+            await FileStorageHelper.UploadFilesAsync(
+                _mediator, request.Files, entity.Id,
+                FileStorageEntityType.{Entity}, cancellationToken);
+        }
+
+        return entity.Id;
+    }
+}

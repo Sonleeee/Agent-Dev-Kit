@@ -1,0 +1,72 @@
+// Placeholders: {Entity}, {Module}, {entityLower}
+// Pattern: Trả về ReportFileResponse sử dụng DTO Reporting và IExcelService hệ thống.
+// Features/Reporting/{Module}/Queries/Export{Entity}Excel/Export{Entity}ExcelQueryHandler.cs
+using MediatR;
+using Mapster;
+using Shared.DTOs.Report;
+using System.Linq;
+using TLBIOMASS.Application.Common.Interfaces;
+using TLBIOMASS.Application.Common.Settings;
+using TLBIOMASS.Domain.Constants;
+using Microsoft.Extensions.Logging;
+
+namespace TLBIOMASS.Application.Features.Reporting.{Module}.Queries.Export{Entity}Excel;
+
+public class Export{Entity}ExcelQueryHandler : IRequestHandler<Export{Entity}ExcelQuery, ReportFileResponse>
+{
+    private readonly I{Entity}ReportingService _reportDataService; // Có thể gọi thông qua Repo hoặc Service Reporting riêng
+    private readonly IExcelService _excelService; // Bắt buộc dùng service gốc
+    private readonly ReportingSettings _reportingSettings; // Lọc config tên file
+    private readonly ILogger<Export{Entity}ExcelQueryHandler> _logger;
+
+    public Export{Entity}ExcelQueryHandler(
+        I{Entity}ReportingService reportDataService, 
+        IExcelService excelService,
+        ReportingSettings reportingSettings,
+        ILogger<Export{Entity}ExcelQueryHandler> logger)
+    {
+        _reportDataService = reportDataService;
+        _excelService = excelService;
+        _reportingSettings = reportingSettings;
+        _logger = logger;
+    }
+
+    public async Task<ReportFileResponse> Handle(Export{Entity}ExcelQuery request, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Bắt đầu xuất Excel {Entity}. Filter: {@Filter}", request.Filter);
+
+        // Map sang Spec của EFCore/Repo
+        var filterSpec = request.Filter.Adapt<{Entity}PagedFilterSpec>();
+        
+        // Truy vấn List (KHÔNG lấy hàm Paging vì export cần lấy max dòng giới hạn export)
+        var entities = await _reportDataService.Get{Entity}ExportAsync(filterSpec, cancellationToken);
+
+        // Ánh xạ sang cấu trúc DTO Item Excel
+        var items = entities.Select((x, index) =>
+        {
+            var dto = x.Adapt<{Entity}ExcelItemDto>();
+            dto.Index = index + 1;
+            // Ánh xạ enum/magic string sang resource đa ngôn ngữ nếu cần
+            dto.Status = x.Status == Contracts.Domain.Enums.EntityStatus.Active 
+                ? ReportingConstants.DefaultValues.Active : "Deactive";
+            return dto;
+        }).ToList();
+
+        // Object truyền vào template ClosedXML (Mẫu file được lưu ở config)
+        var templateData = new
+        {
+            ReportDate = DateTime.Now.ToString(ReportingConstants.Formats.Date),
+            Items = items
+        };
+
+        // "_reportingSettings.{Entity}TemplateName" khai báo trong appsettings.json
+        var fileContent = await _excelService.ExportByTemplateAsync(_reportingSettings.{Entity}ExportTemplateName, templateData);
+
+        return new ReportFileResponse
+        {
+            Content = fileContent,
+            ContentType = ReportingConstants.ExcelContentType,
+            FileName = $"{ReportingConstants.{Entity}ExportPrefix}{DateTime.Now:yyyyMMddHHmmss}.xlsx"
+        };
+    }
+}

@@ -15,6 +15,10 @@ modifiers:
   --fast: Review-lite — checklist subset, bỏ Layer 4 (Unplanned), quick ship decision
   --deep: Full 5-layer review + kiểm tra cross-module impact
   --auto: Tự động approve nếu 0 FAIL, không hỏi user cho UNPLANNED items
+  --red-team: Bổ sung Layer 6 — 4 adversarial personas (Security, Failure Mode, Assumption, Scope)
+agents-suggested:
+  - reviewer
+  - red-team
 ---
 
 # /review

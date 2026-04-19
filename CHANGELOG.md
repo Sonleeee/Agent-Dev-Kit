@@ -1,5 +1,37 @@
 # Changelog
 
+## v2.2.0 — 2026-04-19
+
+### 🤖 System Agents (6)
+
+- `agents/planner/AGENT.md` — Chuyên lập plan, phân tích scope, chọn approach
+- `agents/implementer/AGENT.md` — Code theo plan, bám sát template, self-check
+- `agents/reviewer/AGENT.md` — Review 5-layer, tri-state checklist, ship decision
+- `agents/debugger/AGENT.md` — Root cause analysis, không patch symptoms
+- `agents/tester/AGENT.md` — Test generation, coverage analysis, scenario-driven
+- `agents/red-team/AGENT.md` — 4 adversarial personas: Security, Failure Mode, Assumption Destroyer, Scope Critic
+
+### 🔴 Red-Team Review
+
+- Thêm `--red-team` modifier vào `/review` workflow
+- 4 personas review độc lập → dedup → rank findings
+- Verdict: PASS / CONDITIONAL PASS / FAIL
+
+### 🍳 Auto-Pipeline `/cook`
+
+- New workflow: `/cook` — auto chain: clarify → plan → impl → test → review
+- Modifiers: `--fast`, `--tdd`, `--no-review`, `--no-test`
+- Auto-pause khi cần user input hoặc có Critical findings
+- Output: Cook Report với delivery summary
+
+### 📄 System Updates
+
+- `SYSTEM.md` updated: agents/ in structure, System Agents section, /cook in shortcuts
+- Mode Modifiers table: thêm `--red-team`, `--no-review`
+- Tổng: 17 workflows, 13 skills, 8 modifiers, 6 system agents
+
+---
+
 ## v2.1.0 — 2026-04-19
 
 ### 🎛️ Mode Modifiers

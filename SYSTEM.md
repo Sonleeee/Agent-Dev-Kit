@@ -9,6 +9,7 @@ Bộ agent dùng chung cho mọi project và mọi platform/IDE.
     ├── rules/          ← Quality gates chung
     ├── skills/         ← Skills tái sử dụng
     ├── workflows/      ← Các workflow chuẩn
+    ├── agents/         ← System agent personas
     ├── quality/        ← Master checklists
     ├── templates/      ← Output templates
     ├── registry/       ← Project type registry
@@ -51,12 +52,14 @@ Nhiều workflows hỗ trợ mode modifiers để điều chỉnh hành vi:
 
 | Modifier | Ý nghĩa | Dùng ở |
 |---|---|---|
-| `--fast` | Rút gọn, bỏ bước không critical | plan, impl, review, delivery, delivery-lite |
+| `--fast` | Rút gọn, bỏ bước không critical | plan, impl, review, delivery, delivery-lite, cook |
 | `--deep` | Research kỹ, kiểm tra sâu | plan, review |
 | `--auto` | Tự approve gates, không hỏi user | plan, review, delivery |
-| `--tdd` | Viết test trước rồi code | impl |
+| `--tdd` | Viết test trước rồi code | impl, cook |
 | `--parallel` | Multi-agent song song (cần swarm) | impl, delivery |
-| `--no-test` | Bỏ test obligations | impl, delivery-lite |
+| `--no-test` | Bỏ test obligations | impl, delivery-lite, cook |
+| `--red-team` | Adversarial review 4 personas | review |
+| `--no-review` | Bỏ review step | cook |
 
 Cách dùng: `/impl --fast` hoặc `/delivery --parallel --auto`
 
@@ -113,12 +116,13 @@ Blocked nếu:
 | `/impl` | Implement code theo plan | Gate 2 |
 | `/review` | Review 5-layer, ship decision | Gate 3 |
 
-### Shortcuts
+### Shortcuts & Auto-pipeline
 
 | Workflow | Mô tả |
 |---|---|
 | `/delivery` | Full flow: clarify → plan → impl → review |
 | `/delivery-lite` | Quick flow cho task đơn giản |
+| `/cook` | Auto pipeline: clarify → plan → impl → test → review (1 lệnh) |
 
 ### Utilities
 
@@ -142,6 +146,24 @@ Agent chạy ở generic mode:
 - Dùng global rules
 - Hỏi user về context cần thiết
 - Gợi ý onboard project bằng `_project-template/`
+
+## System Agents
+
+Kit cung cấp 6 agent personas trong `agents/`. Mỗi agent là 1 `AGENT.md` chứa persona, skills, và quy trình riêng.
+
+| Agent | Role | Khi nào dùng |
+|---|---|---|
+| `planner` | Lập plan, phân tích scope, chọn approach | `/clarify`, `/plan` |
+| `implementer` | Code theo plan, bám sát template | `/impl` |
+| `reviewer` | Review 5-layer, ship decision | `/review` |
+| `debugger` | Debug root cause, không patch bừa | `/fix` |
+| `tester` | Generate tests, coverage analysis | `/test` |
+| `red-team` | 4 adversarial personas tấn công code | `/review --red-team` |
+
+**IDE-agnostic:** `AGENT.md` chỉ chứa persona + instructions dạng markdown.
+- IDE hỗ trợ subagent → tự invoke agent phù hợp
+- IDE không hỗ trợ → user copy persona prompt thủ công
+- Swarm setup → xem `addons/swarm/README.md`
 
 ## Multi-Agent (tùy chọn)
 

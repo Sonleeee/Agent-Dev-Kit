@@ -1,5 +1,41 @@
 # Changelog
 
+## v2.1.0 — 2026-04-19
+
+### 🎛️ Mode Modifiers
+
+- Thêm `modifiers:` vào YAML frontmatter cho: `/plan`, `/impl`, `/review`, `/delivery`, `/delivery-lite`
+- Modifiers: `--fast`, `--deep`, `--auto`, `--tdd`, `--parallel`, `--no-test`
+- Agent đọc modifier → điều chỉnh behavior tương ứng
+
+### 🔧 New Workflows (7)
+
+- `/fix` — Structured debug pipeline: scout → diagnose → fix → verify → prevent
+- `/test` — Generate & run tests: scan → analyze → generate → run → report
+- `/docs` — Generate/update documentation: scan → detect drift → generate → review
+- `/git` — Git automation: commit messages, PR descriptions, changelog
+- `/scout` — Edge case discovery: data flows, error paths, severity classification
+- `/security` — Security scan: OWASP Top 10, secrets detection, auth review
+- `/research` — Research & docs: search → synthesize → recommend → document
+
+### 🧩 New Skill Categories (4) + Skills (8)
+
+- `skills/devops/ci-pipeline-check` — Review CI/CD config, best practices
+- `skills/devops/docker-review` — Review Dockerfile + docker-compose
+- `skills/security/owasp-scan` — OWASP Top 10 checklist cho codebase
+- `skills/security/secret-detection` — Tìm hardcoded secrets, API keys
+- `skills/testing/test-strategy` — Test strategy, coverage targets, priority
+- `skills/testing/scenario-generator` — Generate test scenarios từ requirements
+- `skills/research/docs-seeker` — Tìm docs cho library/framework
+- `skills/research/pattern-researcher` — Compare design patterns, ADR
+
+### 📄 System Updates
+
+- `SYSTEM.md` updated: Mode Modifiers section, new skill categories, new workflows
+- Tổng: 16 workflows (từ 9), 13 skills (từ 5), 6 mode modifiers
+
+---
+
 ## v2.0.0 — 2026-04-18
 
 ### 🚀 Universal Kit

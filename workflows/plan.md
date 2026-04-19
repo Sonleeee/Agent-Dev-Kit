@@ -10,6 +10,10 @@ output-format: implementation-plan-lite
 gate-after: gate-1
 skills-suggested:
   - core/solution-planning
+modifiers:
+  --fast: Bỏ qua phân tích sâu, plan-lite 3-5 dòng, không quality card chi tiết
+  --deep: Research kỹ trước khi plan — đọc thêm docs, tìm precedent trong codebase
+  --auto: Tự động approve plan, không hỏi user confirmation
 ---
 
 # /plan

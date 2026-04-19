@@ -11,6 +11,10 @@ gate-after: gate-3
 skills-suggested:
   - core/regression-checklist
   - core/api-contract-guard
+modifiers:
+  --fast: Review-lite — checklist subset, bỏ Layer 4 (Unplanned), quick ship decision
+  --deep: Full 5-layer review + kiểm tra cross-module impact
+  --auto: Tự động approve nếu 0 FAIL, không hỏi user cho UNPLANNED items
 ---
 
 # /review

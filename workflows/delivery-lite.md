@@ -4,6 +4,9 @@ type: shortcut
 entry-command: /delivery-lite
 stages: clarify-lite -> plan-lite -> impl -> review-lite
 description: Task rõ ràng — đi nhanh
+modifiers:
+  --fast: Rút gọn tối đa — clarify 1 câu, plan 3 dòng, review chỉ build check
+  --no-test: Bỏ test obligations, chỉ build pass là đủ
 ---
 
 # /delivery-lite

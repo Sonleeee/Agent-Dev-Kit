@@ -4,6 +4,10 @@ type: shortcut
 entry-command: /delivery
 stages: clarify -> plan -> impl -> review
 description: Task phức tạp — full flow
+modifiers:
+  --fast: Mỗi stage chạy ở chế độ --fast, rút gọn tối đa
+  --parallel: Stage /impl chạy multi-agent song song (cần swarm addon)
+  --auto: Tự động approve tất cả gates, không hỏi user
 ---
 
 # /delivery

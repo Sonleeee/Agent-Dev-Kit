@@ -10,6 +10,11 @@ output-format: impl-summary
 gate-after: gate-2
 skills-suggested:
   - core/api-contract-guard
+modifiers:
+  --fast: Bỏ qua research, code luôn từ context sẵn có, self-check rút gọn
+  --tdd: Viết test trước, rồi implement code cho pass tests
+  --parallel: Chạy multi-agent song song (cần swarm addon)
+  --no-test: Không bắt buộc test — dùng khi prototype/spike
 ---
 
 # /impl

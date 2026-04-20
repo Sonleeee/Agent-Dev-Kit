@@ -1,49 +1,53 @@
-# Project: TL BIOMASS
+# Repo: Agent-Dev-Kit (Tầng 1 — Core Kit)
 
-> File này là "passport" của project. Agent đọc file này đầu tiên khi nhận bất kỳ task nào.
+> File này là "passport" của **chính repo Agent-Dev-Kit**: bộ khung workflows, rules, skills và template dùng chung. Agent đọc file này khi làm việc **trong repo phát triển/maintain kit**.
 
 ---
 
 ## Identity
 
-- **project-type:** dotnet-clean-arch+react-vite
-- **display-name:** TL BIOMASS
-- **description:** Hệ thống quản lý thu mua và chế biến Biomass (hợp đồng bán hàng, kho, tồn kho, cấu hình, sản phẩm)
+- **project-type:** agent-dev-kit (meta — không phải ứng dụng nghiệp vụ)
+- **display-name:** Agent-Dev-Kit
+- **description:** Bộ công cụ và quy ước giúp AI agent code đúng pattern, giữ quality gates, tích lũy tri thức — nhân bản vào dự án qua thư mục kit (thường mount dưới tên `.agents/`).
 - **agent-system-version:** 1.0.0
 
-## Tech Stack
+## Phạm vi repo này (tránh nhầm với dự án app)
 
-- **Backend:** .NET 10, MediatR, EF Core, CQRS, Clean Architecture, DDD, FluentValidation
-- **Frontend:** React 18, TypeScript, Vite, MUI (Material-UI), react-hook-form, Zod, Axios
-- **Database:** PostgreSQL
-- **Auth:** JWT
-- **Infra:** Docker, docker-compose
+- Repo này **không** phải source một sản phẩm cụ thể (ví dụ TL BIOMASS hay web app bất kỳ).
+- Danh tính và tech stack của **ứng dụng** nằm ở **Tầng 2**: file `AGENTS.md` ở **root của từng repo dự án**, và `.agents/context/` trong repo đó. Thông tin đó **chỉ** sửa/thêm trong repo của dự án đó, không ghi vào đây.
 
-## Context Files
+## Tech stack (bản thân kit)
 
-> Agent đọc các file này theo thứ tự khi load project context.
+- **Định dạng:** Markdown, cấu trúc thư mục theo convention (portable mọi IDE có AI).
+- **Code runtime:** không có — kit là tài liệu + workflow + template.
 
-- **architecture:** `.agents/context/architecture.md`
-- **checklist:** `.agents/context/checklist.md`
-  > Extend từ global master-checklist (38 items) + TLBIOMASS-specific items (T1–T8)
-  > Checklist đầy đủ 38 items: `.agents/quality/checklists/master-standard.md` (project copy)
+## Context & điểm vào chính (đọc theo thứ tự khi onboard kit)
 
-## Reference Modules
+- **hành vi agent:** `SYSTEM.md`
+- **tổng quan & cách dùng:** `README.md`
+- **luồng end-to-end:** `HowItWorks.md`
+- **quality gates:** `rules/global.md`
+- **checklist master:** `quality/checklists/` (ví dụ `master-standard.md` nếu có trong bản copy)
+- **project type registry:** `registry/index.md`
+- **mẫu passport cho app (Tầng 2):** `_project-template/AGENTS.md` — copy ra root repo dự án rồi điền theo app
 
-> **🛑 QUAN TRỌNG:** KHÔNG DÙNG 1 MODULE (như SalesContracts) ĐỂ COPY PASTE CHO MỌI TRƯỜNG HỢP.
-> Các module thực tế rất đa dạng (có File, không File, có Export...). Do đó, thay vì copy từ module cũ, AI **BẮT BUỘC PHẢI DÙNG BỘ TEMPLATE CHUẨN MỰC** theo hướng dẫn sau:
+## Nội dung chính trong repo
 
-- **BE Feature Template Guide (Ground Truth):** `.agents/context/templates/be/feature.md.template` -> Đọc file này đầu tiên để biết cách chọn file `.cs.template` phù hợp với nghiệp vụ.
-- **BE Templates Folder:** `.agents/context/templates/be/templates/` -> Chứa các mã nguồn mẫu chuyên biệt cho CRUD cơ bản, xử lý FileStorage, Export Excel, và Delete Cascade.
-- **FE pattern reference:** `TL_BIOMASS/src/pages/sale-contract/`
-- **FE service reference:** `TL_BIOMASS/src/services/sale-contact/`
+| Khu vực | Vai trò |
+|--------|---------|
+| `workflows/` | Lệnh `/clarify`, `/plan`, `/impl`, `/review`, … |
+| `skills/` | Skill theo domain (core, devops, security, …) |
+| `agents/` | Persona hệ thống |
+| `templates/` | Template output |
+| `_project-template/` | Skeleton để project tạo `AGENTS.md` và context |
+| `addons/` | Mở rộng tùy chọn (swarm, obsidian, …) |
 
-## Team Context
+## Team Context (repo kit)
 
-- **Team size:** 2–5
-- **Code review:** optional
-- **Deploy frequency:** on-demand
+- **Team size:** nhỏ (maintainer + contributors)
+- **Code review:** khuyến nghị khi đổi workflow/rules ảnh hưởng rộng
+- **Release:** theo CHANGELOG / tag
 
 ## Rule Overrides
 
-Không có override — dùng global rules 100%.
+Không có override riêng cho repo kit — giữ `rules/global.md` làm nguồn chuẩn trừ khi tài liệu kit quy định khác.

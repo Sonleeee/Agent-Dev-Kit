@@ -2,7 +2,7 @@
 id: clarify
 type: stage
 stage-number: 1
-entry-command: /clarify
+entry-command: /sk-clarify
 next: plan
 prev: null
 input-from: user
@@ -12,7 +12,7 @@ skills-suggested:
   - core/business-discovery
 ---
 
-# /clarify
+# /sk-clarify
 
 **Mục tiêu:** Làm rõ đủ để code đúng, không cần analysis dài quá mức cần thiết.
 
@@ -58,13 +58,13 @@ User yêu cầu -> Agent nhận
 
 ## Template
 
-`../templates/clarify-record.md.template`
+`../templates/sk-clarify-record.md.template`
 
 ## Guardrails
 
 - Không chốt design chi tiết trong bước này
 - Không generate task breakdown dài
-- Nếu task đã rất rõ, có thể rút gọn thành clarify-lite rồi sang `/plan`
+- Nếu task đã rất rõ, có thể rút gọn thành clarify-lite rồi sang `/sk-plan`
 
 > [Multi-agent] Nếu dùng swarm addon, có thể delegate research
 > cho sub-agent chuyên scan codebase. Xem `addons/swarm/`.

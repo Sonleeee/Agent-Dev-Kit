@@ -21,8 +21,8 @@ Review code theo 5-layer process — đảm bảo quality trước khi ship.
 
 ## Khi nào activate
 
-- Sau `/impl` (Gate 2 passed)
-- User gọi `/review`
+- Sau `/sk-impl` (Gate 2 passed)
+- User gọi `/sk-review`
 - Code đã build pass
 
 ## Quy trình
@@ -31,7 +31,7 @@ Review code theo 5-layer process — đảm bảo quality trước khi ship.
 
 Thu thập:
 
-- Changed files list từ `/impl` output
+- Changed files list từ `/sk-impl` output
 - Checklist từ quality card
 - Architecture rules từ `context/architecture.md`
 - Template patterns từ `context/templates/`

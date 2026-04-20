@@ -1,11 +1,11 @@
 ---
 id: enhance
 type: utility
-entry-command: /enhance
+entry-command: /sk-enhance
 description: Enhancement/refactor có chủ đích
 ---
 
-# /enhance
+# /sk-enhance
 
 **Mục tiêu:** Cải thiện code hiện tại — refactor, optimize, hoặc nâng cấp pattern.
 
@@ -21,7 +21,7 @@ description: Enhancement/refactor có chủ đích
 1. **Xác định mục tiêu** — cải thiện gì, tại sao
 2. **Đánh giá impact** — files nào ảnh hưởng, risk gì
 3. **Plan changes** — approach, template nếu có
-4. **Implement** — theo `/impl` flow
+4. **Implement** — theo `/sk-impl` flow
 5. **Verify** — build pass, không regression
 
 ## Guardrails

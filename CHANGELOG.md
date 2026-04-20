@@ -4,9 +4,9 @@
 
 ### 🔮 Phase 3 — Advanced Workflows (3)
 
-- `/predict` — Expert Debate: 5 personas (Architect, Security, Performance, UX, Ops) tranh luận impact trước khi implement
-- `/xia` — Port Features: phân tích external repo → compare/port/copy/improve vào local project
-- `/retro` — Sprint Retrospective: git metrics analysis → health scores → insights → action items
+- `/sk-predict` — Expert Debate: 5 personas (Architect, Security, Performance, UX, Ops) tranh luận impact trước khi implement
+- `/sk-xia` — Port Features: phân tích external repo → compare/port/copy/improve vào local project
+- `/sk-retro` — Sprint Retrospective: git metrics analysis → health scores → insights → action items
 
 ### 🎛️ New Modifiers (8)
 
@@ -39,20 +39,20 @@
 
 ### 🔴 Red-Team Review
 
-- Thêm `--red-team` modifier vào `/review` workflow
+- Thêm `--red-team` modifier vào `/sk-review` workflow
 - 4 personas review độc lập → dedup → rank findings
 - Verdict: PASS / CONDITIONAL PASS / FAIL
 
-### 🍳 Auto-Pipeline `/cook`
+### 🍳 Auto-Pipeline `/sk-cook`
 
-- New workflow: `/cook` — auto chain: clarify → plan → impl → test → review
+- New workflow: `/sk-cook` — auto chain: clarify → plan → impl → test → review
 - Modifiers: `--fast`, `--tdd`, `--no-review`, `--no-test`
 - Auto-pause khi cần user input hoặc có Critical findings
 - Output: Cook Report với delivery summary
 
 ### 📄 System Updates
 
-- `SYSTEM.md` updated: agents/ in structure, System Agents section, /cook in shortcuts
+- `SYSTEM.md` updated: agents/ in structure, System Agents section, /sk-cook in shortcuts
 - Mode Modifiers table: thêm `--red-team`, `--no-review`
 - Tổng: 17 workflows, 13 skills, 8 modifiers, 6 system agents
 
@@ -62,30 +62,30 @@
 
 ### 🎛️ Mode Modifiers
 
-- Thêm `modifiers:` vào YAML frontmatter cho: `/plan`, `/impl`, `/review`, `/delivery`, `/delivery-lite`
+- Thêm `modifiers:` vào YAML frontmatter cho: `/sk-plan`, `/sk-impl`, `/sk-review`, `/sk-delivery`, `/sk-delivery-lite`
 - Modifiers: `--fast`, `--deep`, `--auto`, `--tdd`, `--parallel`, `--no-test`
 - Agent đọc modifier → điều chỉnh behavior tương ứng
 
 ### 🔧 New Workflows (7)
 
-- `/fix` — Structured debug pipeline: scout → diagnose → fix → verify → prevent
-- `/test` — Generate & run tests: scan → analyze → generate → run → report
-- `/docs` — Generate/update documentation: scan → detect drift → generate → review
-- `/git` — Git automation: commit messages, PR descriptions, changelog
-- `/scout` — Edge case discovery: data flows, error paths, severity classification
-- `/security` — Security scan: OWASP Top 10, secrets detection, auth review
-- `/research` — Research & docs: search → synthesize → recommend → document
+- `/sk-fix` — Structured debug pipeline: scout → diagnose → fix → verify → prevent
+- `/sk-test` — Generate & run tests: scan → analyze → generate → run → report
+- `/sk-docs` — Generate/update documentation: scan → detect drift → generate → review
+- `/sk-git` — Git automation: commit messages, PR descriptions, changelog
+- `/sk-scout` — Edge case discovery: data flows, error paths, severity classification
+- `/sk-security` — Security scan: OWASP Top 10, secrets detection, auth review
+- `/sk-research` — Research & docs: search → synthesize → recommend → document
 
 ### 🧩 New Skill Categories (4) + Skills (8)
 
 - `skills/devops/ci-pipeline-check` — Review CI/CD config, best practices
 - `skills/devops/docker-review` — Review Dockerfile + docker-compose
-- `skills/security/owasp-scan` — OWASP Top 10 checklist cho codebase
-- `skills/security/secret-detection` — Tìm hardcoded secrets, API keys
-- `skills/testing/test-strategy` — Test strategy, coverage targets, priority
+- `skills/sk-security/owasp-scan` — OWASP Top 10 checklist cho codebase
+- `skills/sk-security/secret-detection` — Tìm hardcoded secrets, API keys
+- `skills/testing/sk-test-strategy` — Test strategy, coverage targets, priority
 - `skills/testing/scenario-generator` — Generate test scenarios từ requirements
-- `skills/research/docs-seeker` — Tìm docs cho library/framework
-- `skills/research/pattern-researcher` — Compare design patterns, ADR
+- `skills/sk-research/sk-docs-seeker` — Tìm docs cho library/framework
+- `skills/sk-research/pattern-researcher` — Compare design patterns, ADR
 
 ### 📄 System Updates
 
@@ -144,10 +144,10 @@ Chuyển đổi từ project-specific sang **Agent-Dev-Kit** — dùng được 
 
 ### New Workflows
 
-- Added `workflows/clarify.md`
-- Added `workflows/plan.md`
-- Added `workflows/delivery-lite.md`
-- Added `workflows/review.md`
+- Added `workflows/sk-clarify.md`
+- Added `workflows/sk-plan.md`
+- Added `workflows/sk-delivery-lite.md`
+- Added `workflows/sk-review.md`
 
 ### Swarm Refactor
 

@@ -20,7 +20,7 @@ Code chính xác theo plan đã approved — không hơn, không kém.
 ## Khi nào activate
 
 - Plan đã approved (Gate 1 passed)
-- User gọi `/impl`
+- User gọi `/sk-impl`
 - Task assignment rõ ràng
 
 ## Quy trình

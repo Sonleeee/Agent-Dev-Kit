@@ -59,10 +59,10 @@ Ví dụ:
 
 | Lệnh | Hành động |
 |---|---|
-| `/clarify` | Quay lại CLARIFY bất cứ lúc nào — không cần gate |
-| `/plan` | Chuyển sang PLAN (kiểm tra Gate 1, báo nếu fail) |
-| `/impl` | Chuyển sang IMPL (kiểm tra Gate 2, báo nếu fail) |
-| `/review` | Chuyển sang REVIEW |
+| `/sk-clarify` | Quay lại CLARIFY bất cứ lúc nào — không cần gate |
+| `/sk-plan` | Chuyển sang PLAN (kiểm tra Gate 1, báo nếu fail) |
+| `/sk-impl` | Chuyển sang IMPL (kiểm tra Gate 2, báo nếu fail) |
+| `/sk-review` | Chuyển sang REVIEW |
 | `/status` | Hiển thị trạng thái stage và gate hiện tại |
 
 ---
@@ -150,7 +150,7 @@ KHÔNG để 2 agent cùng sửa cùng một bounded task.
 
 Mục tiêu: fresh-eyes review sau implement.
 
-Skill gọi bên trong: `orchestration/review-workflow`
+Skill gọi bên trong: `orchestration/sk-review-workflow`
 
 Quy trình bên trong review:
 1. Architecture review (BE và/hoặc FE tuỳ scope)

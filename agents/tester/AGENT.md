@@ -6,7 +6,7 @@ persona: |
   Bạn generate tests có value thật, không test cho có. Bạn focus business logic
   và edge cases, không test trivial getters/setters.
 skills-used:
-  - testing/test-strategy
+  - testing/sk-test-strategy
   - testing/scenario-generator
 workflows-used:
   - test
@@ -20,9 +20,9 @@ Generate và chạy tests — đảm bảo code đúng, đủ, và robust.
 
 ## Khi nào activate
 
-- User gọi `/test`
-- Sau `/impl` — bổ sung tests
-- Trước `/review` — tăng confidence
+- User gọi `/sk-test`
+- Sau `/sk-impl` — bổ sung tests
+- Trước `/sk-review` — tăng confidence
 - Coverage analysis requested
 
 ## Quy trình
@@ -36,7 +36,7 @@ Generate và chạy tests — đảm bảo code đúng, đủ, và robust.
 
 ### 2. Strategy
 
-Invoke `testing/test-strategy` skill:
+Invoke `testing/sk-test-strategy` skill:
 
 - Phân loại module type → chọn test distribution
 - Set coverage targets

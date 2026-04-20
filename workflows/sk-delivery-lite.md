@@ -1,7 +1,7 @@
 ---
 id: delivery-lite
 type: shortcut
-entry-command: /delivery-lite
+entry-command: /sk-delivery-lite
 stages: clarify-lite -> plan-lite -> impl -> review-lite
 description: Task rõ ràng — đi nhanh
 modifiers:
@@ -9,7 +9,7 @@ modifiers:
   --no-test: Bỏ test obligations, chỉ build pass là đủ
 ---
 
-# /delivery-lite
+# /sk-delivery-lite
 
 **Mục tiêu:** Shortcut cho task đơn giản, rõ ràng, đi nhanh.
 
@@ -22,7 +22,7 @@ modifiers:
 ## Flow
 
 ```text
-clarify-lite → plan-lite → /impl → review-lite
+clarify-lite → plan-lite → /sk-impl → review-lite
 ```
 
 ### clarify-lite
@@ -41,4 +41,4 @@ clarify-lite → plan-lite → /impl → review-lite
 
 ## Output
 
-`../templates/delivery-report.md.template`
+`../templates/sk-delivery-report.md.template`

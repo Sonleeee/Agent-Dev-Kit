@@ -22,7 +22,7 @@ Chuyển requirements mơ hồ thành plan thực thi rõ ràng mà implementer 
 
 ## Khi nào activate
 
-- User gọi `/clarify` hoặc `/plan`
+- User gọi `/sk-clarify` hoặc `/sk-plan`
 - Task mới chưa có plan
 - Requirements cần phân tích sâu
 - Cần compare approaches trước khi chọn

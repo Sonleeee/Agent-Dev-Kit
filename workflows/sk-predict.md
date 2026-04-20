@@ -1,7 +1,7 @@
 ---
 id: predict
 type: utility
-entry-command: /predict
+entry-command: /sk-predict
 description: 5 expert personas tranh luận impact trước khi implement — Architect, Security, Performance, UX, Ops
 modifiers:
   --fast: Mỗi persona chỉ 3 bullets, bỏ debate round
@@ -9,7 +9,7 @@ modifiers:
   --deep: Mỗi persona phân tích kỹ + đưa evidence từ codebase hiện tại
 ---
 
-# /predict
+# /sk-predict
 
 **Mục tiêu:** 5 expert personas tranh luận impact của thay đổi trước khi implement — phát hiện risks, trade-offs, và blind spots.
 
@@ -18,7 +18,7 @@ modifiers:
 - Thay đổi architecture lớn (thêm service, đổi database, refactor core module)
 - Feature mới ảnh hưởng nhiều stakeholders
 - Quyết định kỹ thuật quan trọng (tech stack, design pattern, scaling strategy)
-- Trước khi `/plan` cho task phức tạp — giúp plan toàn diện hơn
+- Trước khi `/sk-plan` cho task phức tạp — giúp plan toàn diện hơn
 
 ## Input
 
@@ -176,8 +176,8 @@ Agent tổng hợp:
 
 ## Guardrails
 
-- `/predict` KHÔNG thay thế `/plan` — nó **bổ trợ** trước plan
+- `/sk-predict` KHÔNG thay thế `/sk-plan` — nó **bổ trợ** trước plan
 - Mỗi persona phải argue từ **góc độ chuyên môn riêng** — không generic
 - Recommendations phải actionable — không mơ hồ
-- Nếu thay đổi đơn giản (≤2 files, no architecture change) → khuyên user dùng `/plan` trực tiếp
+- Nếu thay đổi đơn giản (≤2 files, no architecture change) → khuyên user dùng `/sk-plan` trực tiếp
 - Debates phải present cả 2 sides — không bias

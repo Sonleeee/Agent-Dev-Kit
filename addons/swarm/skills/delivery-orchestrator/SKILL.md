@@ -24,12 +24,12 @@ Dam bao moi task di qua dung flow ngan, khong quay lai mo hinh 6 buoc qua dai.
 ## Pipeline dieu phoi
 
 ```text
-Stage 1: /clarify -> core/business-discovery
-Stage 2: /plan    -> core/solution-planning + api-contract-guard neu can
+Stage 1: /sk-clarify -> core/business-discovery
+Stage 2: /sk-plan    -> core/solution-planning + api-contract-guard neu can
          [GATE 1 CHECK]
-Stage 3: /impl    -> codex-cli implement voi domain skills
+Stage 3: /sk-impl    -> codex-cli implement voi domain skills
          [GATE 2 CHECK]
-Stage 4: /review  -> gemini-cli review + review-workflow
+Stage 4: /sk-review  -> gemini-cli review + review-workflow
          [GATE 3 CHECK]
 ```
 
@@ -74,4 +74,4 @@ Neu `task type = Bugfix`:
 
 ## Output bat buoc
 
-Dung template `../../templates/delivery-report.md.template`.
+Dung template `../../templates/sk-delivery-report.md.template`.

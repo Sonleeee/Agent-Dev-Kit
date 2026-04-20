@@ -1,7 +1,7 @@
 ---
 id: cook
 type: composite
-entry-command: /cook
+entry-command: /sk-cook
 description: Full auto pipeline — clarify → plan → impl → test → review trong 1 lệnh
 stages: clarify -> plan -> impl -> test -> review
 agents-suggested:
@@ -16,7 +16,7 @@ modifiers:
   --no-test: Bỏ test step — impl → review
 ---
 
-# /cook
+# /sk-cook
 
 **Mục tiêu:** Full auto pipeline — từ task description đến ready-to-commit trong 1 lệnh.
 
@@ -34,7 +34,7 @@ modifiers:
 ## Pipeline
 
 ```text
-/cook "thêm field PhoneNumber vào Customer"
+/sk-cook "thêm field PhoneNumber vào Customer"
   │
   ├─ Step 1: Auto Clarify
   │  └─ Nếu task rõ → skip (clarify-lite 1 câu)
@@ -117,8 +117,8 @@ Delivery report tổng hợp:
 
 ## Guardrails
 
-- `/cook` là shortcut, KHÔNG phải magic — vẫn follow từng stage workflow
+- `/sk-cook` là shortcut, KHÔNG phải magic — vẫn follow từng stage workflow
 - Auto-approve gates CHỈ khi 0 issues — bất kỳ issue nào → pause + ask user
-- Nếu task phức tạp (>5 files, nhiều modules) → recommend `/delivery` thay vì `/cook`
+- Nếu task phức tạp (>5 files, nhiều modules) → recommend `/sk-delivery` thay vì `/sk-cook`
 - Không swallow errors — mọi failure phải visible trong report
 - User có thể interrupt bất kỳ lúc nào → agent dừng + report progress

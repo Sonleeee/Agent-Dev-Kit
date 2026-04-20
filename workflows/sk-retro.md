@@ -1,7 +1,7 @@
 ---
 id: retro
 type: utility
-entry-command: /retro
+entry-command: /sk-retro
 description: Sprint retrospective — git metrics analysis → health scores → insights → action items
 modifiers:
   --period: Chỉ định khoảng thời gian (mặc định 2 tuần). VD: --period 1w, --period 1m
@@ -10,7 +10,7 @@ modifiers:
   --full: Phân tích đầy đủ tất cả dimensions
 ---
 
-# /retro
+# /sk-retro
 
 **Mục tiêu:** Sprint retrospective dựa trên git metrics — phân tích health, tìm patterns, đề xuất action items.
 
@@ -152,7 +152,7 @@ Agent đề xuất improvements:
 
 ## Guardrails
 
-- `/retro` KHÔNG sửa code — chỉ analysis + recommendations
+- `/sk-retro` KHÔNG sửa code — chỉ analysis + recommendations
 - Health scores phải dựa trên data — không subjective
 - Insights phải có evidence (git data) — không speculation
 - Action items phải specific + actionable — không generic advice

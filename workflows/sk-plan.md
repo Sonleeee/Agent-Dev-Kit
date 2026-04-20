@@ -2,7 +2,7 @@
 id: plan
 type: stage
 stage-number: 2
-entry-command: /plan
+entry-command: /sk-plan
 next: impl
 prev: clarify
 input-from: clarify-record
@@ -16,13 +16,13 @@ modifiers:
   --auto: Tự động approve plan, không hỏi user confirmation
 ---
 
-# /plan
+# /sk-plan
 
 **Mục tiêu:** Chốt approach, chọn template, xác định scope thay đổi.
 
 ## Input tối thiểu
 
-- Output từ `/clarify` (hoặc clarify-lite)
+- Output từ `/sk-clarify` (hoặc clarify-lite)
 - Project context đã load (architecture.md, templates/)
 
 ## Quy trình

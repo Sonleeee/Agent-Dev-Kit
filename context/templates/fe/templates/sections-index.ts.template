@@ -1,3 +1,3 @@
 export { default as FormSection } from './form-section';
 // Tùy chọn: uncomment nếu module cần bảng phụ (plan, items...)
-// export { default as PlanSection } from './plan-section';
+// export { default as PlanSection } from './sk-plan-section';

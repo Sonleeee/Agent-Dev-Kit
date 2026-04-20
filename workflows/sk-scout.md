@@ -1,7 +1,7 @@
 ---
 id: scout
 type: utility
-entry-command: /scout
+entry-command: /sk-scout
 description: Phát hiện edge cases, error paths, data flow issues trước khi review
 modifiers:
   --data: Focus phân tích data flow — null propagation, type mismatches
@@ -9,14 +9,14 @@ modifiers:
   --security: Focus security edge cases — injection, auth bypass, input validation
 ---
 
-# /scout
+# /sk-scout
 
 **Mục tiêu:** Khám phá edge cases và rủi ro tiềm ẩn trước khi code đi vào review/production.
 
 ## Khi nào dùng
 
-- Trước `/review` — tìm edge cases review nên kiểm tra
-- Sau `/impl` — double-check implementation
+- Trước `/sk-review` — tìm edge cases review nên kiểm tra
+- Sau `/sk-impl` — double-check implementation
 - Module phức tạp — nhiều data flows, error paths
 - Trước deploy — scan rủi ro lần cuối
 
@@ -93,4 +93,4 @@ Agent đề xuất cho mỗi finding:
 - Scout KHÔNG sửa code — chỉ report findings
 - Findings phải có evidence (chỉ rõ file:line)
 - Không report false positives — chỉ report khi có evidence cụ thể
-- Nếu > 5 Critical findings → recommend chuyển sang `/fix` workflow
+- Nếu > 5 Critical findings → recommend chuyển sang `/sk-fix` workflow

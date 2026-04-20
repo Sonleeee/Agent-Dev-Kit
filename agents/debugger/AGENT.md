@@ -20,7 +20,7 @@ Tìm và fix bugs — từ root cause, không patch symptoms.
 
 ## Khi nào activate
 
-- User gọi `/fix`
+- User gọi `/sk-fix`
 - Bug report cần investigate
 - Build fail cần debug
 - Regression sau khi thay đổi code
@@ -81,6 +81,6 @@ Tìm và fix bugs — từ root cause, không patch symptoms.
 
 - KHÔNG patch khi chưa hiểu root cause
 - KHÔNG mở scope — fix xong thì dừng
-- Nếu fix > 3 files → cân nhắc chuyển `/impl` workflow
+- Nếu fix > 3 files → cân nhắc chuyển `/sk-impl` workflow
 - Document hypotheses đã loại → knowledge cho team
 - Build verify bắt buộc

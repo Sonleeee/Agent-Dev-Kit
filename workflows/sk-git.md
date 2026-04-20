@@ -1,7 +1,7 @@
 ---
 id: git
 type: utility
-entry-command: /git
+entry-command: /sk-git
 description: Git operations — commit message, PR description, changelog
 modifiers:
   --commit: Chỉ tạo commit message (conventional commit format)
@@ -9,13 +9,13 @@ modifiers:
   --changelog: Update changelog từ commits
 ---
 
-# /git
+# /sk-git
 
 **Mục tiêu:** Tự động hóa git operations — commit messages, PR descriptions, changelog.
 
 ## Khi nào dùng
 
-- Sau `/impl` — tạo commit message chuẩn
+- Sau `/sk-impl` — tạo commit message chuẩn
 - Chuẩn bị submit PR — tạo PR description
 - Release — compile changelog
 

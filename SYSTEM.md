@@ -38,13 +38,13 @@ Bộ agent dùng chung cho mọi project và mọi platform/IDE.
 Flow ưu tiên:
 
 ```text
-/clarify -> /plan -> /impl -> /review
+/sk-clarify -> /sk-plan -> /sk-impl -> /sk-review
 ```
 
 Shortcut:
 
-- `/delivery-lite` — task rõ ràng, đi nhanh
-- `/delivery` — task phức tạp, cần plan kỹ
+- `/sk-delivery-lite` — task rõ ràng, đi nhanh
+- `/sk-delivery` — task phức tạp, cần plan kỹ
 
 ## Mode Modifiers
 
@@ -70,11 +70,11 @@ Nhiều workflows hỗ trợ mode modifiers để điều chỉnh hành vi:
 | `--churn` | Focus files thay đổi nhiều nhất | retro |
 | `--full` | Phân tích đầy đủ tất cả dimensions | retro |
 
-Cách dùng: `/impl --fast` hoặc `/delivery --parallel --auto`
+Cách dùng: `/sk-impl --fast` hoặc `/sk-delivery --parallel --auto`
 
 ## Gates
 
-### Gate 1 — Ready (sau /plan)
+### Gate 1 — Ready (sau /sk-plan)
 
 Không code nếu thiếu:
 
@@ -84,7 +84,7 @@ Không code nếu thiếu:
 - Quality card
 - Task assignment rõ (nếu multi-agent)
 
-### Gate 2 — Dev Done (sau /impl)
+### Gate 2 — Dev Done (sau /sk-impl)
 
 Không review nếu thiếu:
 
@@ -92,7 +92,7 @@ Không review nếu thiếu:
 - Self-check pass
 - API contract status rõ
 
-### Gate 3 — Ship Ready (sau /review)
+### Gate 3 — Ship Ready (sau /sk-review)
 
 Blocked nếu:
 
@@ -120,41 +120,41 @@ Blocked nếu:
 
 | Workflow | Mô tả | Gate |
 |---|---|---|
-| `/clarify` | Thu thập requirements, xác nhận scope | — |
-| `/plan` | Chốt approach, chọn template | Gate 1 |
-| `/impl` | Implement code theo plan | Gate 2 |
-| `/review` | Review 5-layer, ship decision | Gate 3 |
+| `/sk-clarify` | Thu thập requirements, xác nhận scope | — |
+| `/sk-plan` | Chốt approach, chọn template | Gate 1 |
+| `/sk-impl` | Implement code theo plan | Gate 2 |
+| `/sk-review` | Review 5-layer, ship decision | Gate 3 |
 
 ### Shortcuts & Auto-pipeline
 
 | Workflow | Mô tả |
 |---|---|
-| `/delivery` | Full flow: clarify → plan → impl → review |
-| `/delivery-lite` | Quick flow cho task đơn giản |
-| `/cook` | Auto pipeline: clarify → plan → impl → test → review (1 lệnh) |
+| `/sk-delivery` | Full flow: clarify → plan → impl → review |
+| `/sk-delivery-lite` | Quick flow cho task đơn giản |
+| `/sk-cook` | Auto pipeline: clarify → plan → impl → test → review (1 lệnh) |
 
 ### Utilities
 
 | Workflow | Mô tả |
 |---|---|
-| `/brainstorm` | So sánh options, trade-off analysis |
-| `/enhance` | Enhancement/refactor có chủ đích |
-| `/deploy` | Deploy checklist |
-| `/fix` | Debug pipeline: scout → diagnose → fix → verify → prevent |
-| `/test` | Generate & run tests cho module |
-| `/docs` | Generate/update documentation |
-| `/git` | Git commit messages, PR descriptions, changelog |
-| `/scout` | Edge case discovery, error path analysis |
-| `/security` | Security scan: OWASP, secrets, auth review |
-| `/research` | Research docs, best practices, compare approaches |
+| `/sk-brainstorm` | So sánh options, trade-off analysis |
+| `/sk-enhance` | Enhancement/refactor có chủ đích |
+| `/sk-deploy` | Deploy checklist |
+| `/sk-fix` | Debug pipeline: scout → diagnose → fix → verify → prevent |
+| `/sk-test` | Generate & run tests cho module |
+| `/sk-docs` | Generate/update documentation |
+| `/sk-git` | Git commit messages, PR descriptions, changelog |
+| `/sk-scout` | Edge case discovery, error path analysis |
+| `/sk-security` | Security scan: OWASP, secrets, auth review |
+| `/sk-research` | Research docs, best practices, compare approaches |
 
 ### Advanced
 
 | Workflow | Mô tả |
 |---|---|
-| `/predict` | Expert debate: 5 personas tranh luận impact trước khi implement |
-| `/xia` | Port features từ external repos (compare/port/copy/improve) |
-| `/retro` | Sprint retrospective: git metrics → health scores → action items |
+| `/sk-predict` | Expert debate: 5 personas tranh luận impact trước khi implement |
+| `/sk-xia` | Port features từ external repos (compare/port/copy/improve) |
+| `/sk-retro` | Sprint retrospective: git metrics → health scores → action items |
 
 ## Nếu project chưa có AGENTS.md
 
@@ -170,12 +170,12 @@ Kit cung cấp 6 agent personas trong `agents/`. Mỗi agent là 1 `AGENT.md` ch
 
 | Agent | Role | Khi nào dùng |
 |---|---|---|
-| `planner` | Lập plan, phân tích scope, chọn approach | `/clarify`, `/plan` |
-| `implementer` | Code theo plan, bám sát template | `/impl` |
-| `reviewer` | Review 5-layer, ship decision | `/review` |
-| `debugger` | Debug root cause, không patch bừa | `/fix` |
-| `tester` | Generate tests, coverage analysis | `/test` |
-| `red-team` | 4 adversarial personas tấn công code | `/review --red-team` |
+| `planner` | Lập plan, phân tích scope, chọn approach | `/sk-clarify`, `/sk-plan` |
+| `implementer` | Code theo plan, bám sát template | `/sk-impl` |
+| `reviewer` | Review 5-layer, ship decision | `/sk-review` |
+| `debugger` | Debug root cause, không patch bừa | `/sk-fix` |
+| `tester` | Generate tests, coverage analysis | `/sk-test` |
+| `red-team` | 4 adversarial personas tấn công code | `/sk-review --red-team` |
 
 **IDE-agnostic:** `AGENT.md` chỉ chứa persona + instructions dạng markdown.
 - IDE hỗ trợ subagent → tự invoke agent phù hợp

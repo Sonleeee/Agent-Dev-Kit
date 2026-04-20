@@ -1,11 +1,11 @@
 ---
 id: brainstorm
 type: utility
-entry-command: /brainstorm
+entry-command: /sk-brainstorm
 description: So sánh options khi cần quyết định
 ---
 
-# /brainstorm
+# /sk-brainstorm
 
 **Mục tiêu:** So sánh nhiều approaches/options để chọn hướng tốt nhất.
 

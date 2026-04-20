@@ -42,7 +42,7 @@ Chi liet ke nhung file/module that su lien quan.
 
 Neu project co templates:
 
-- phai chi ro template nao duoc dung o `/impl`
+- phai chi ro template nao duoc dung o `/sk-impl`
 
 ### Buoc 4 - Test Obligations
 
@@ -64,5 +64,5 @@ Dung template `templates/implementation-plan-lite.md.template`.
 ## Guardrails
 
 - Khong om scope qua lon trong 1 plan
-- Khong bien `/plan` thanh `/solution` + `/solution-plan` cu
+- Khong bien `/sk-plan` thanh `/solution` + `/solution-plan` cu
 - Neu task lon -> tach work items nho

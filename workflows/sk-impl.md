@@ -2,7 +2,7 @@
 id: impl
 type: stage
 stage-number: 3
-entry-command: /impl
+entry-command: /sk-impl
 next: review
 prev: plan
 input-from: implementation-plan-lite
@@ -17,13 +17,13 @@ modifiers:
   --no-test: Không bắt buộc test — dùng khi prototype/spike
 ---
 
-# /impl
+# /sk-impl
 
 **Mục tiêu:** Implement code theo plan đã approved, build verification tự động.
 
 ## Input tối thiểu
 
-- Output từ `/plan` (approved)
+- Output từ `/sk-plan` (approved)
 - Danh sách files/modules cần thay đổi
 - Pre-Implementation Quality Card
 - Template selection cho từng scope
@@ -71,7 +71,7 @@ dotnet build [project path]
 cd [fe-path] && npm run build
 ```
 
-- **Build PASS** → sang `/review`
+- **Build PASS** → sang `/sk-review`
 - **Build FAIL** → phân tích error, fix, retry (max 3 lần)
 
 ### Bước 5: Dev Done
@@ -93,7 +93,7 @@ Kết luận Dev Done khi:
 
 ## Template
 
-- Output: `../templates/impl-summary.md.template`
+- Output: `../templates/sk-impl-summary.md.template`
 
 ## Gate sau bước này (Gate 2 — Dev Done)
 
@@ -103,7 +103,7 @@ Kết luận Dev Done khi:
 
 ## Guardrails
 
-- `/impl` không phải là review step
+- `/sk-impl` không phải là review step
 - Nếu project có `context/templates/`, đây là input bắt buộc
 - Build verification là gate bắt buộc, không được skip
 - Không mở rộng scope ngoài plan đã approved

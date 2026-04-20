@@ -20,7 +20,7 @@ Adversarial review — 4 personas tấn công code từ 4 góc độ khác nhau 
 
 ## Khi nào activate
 
-- User gọi `/review --red-team`
+- User gọi `/sk-review --red-team`
 - Task có risk cao (auth changes, data migration, public API)
 - Plan phức tạp (>5 modules, nhiều integrations)
 - Trước major release

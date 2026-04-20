@@ -1,16 +1,16 @@
 ---
 id: delivery
 type: shortcut
-entry-command: /delivery
+entry-command: /sk-delivery
 stages: clarify -> plan -> impl -> review
 description: Task phức tạp — full flow
 modifiers:
   --fast: Mỗi stage chạy ở chế độ --fast, rút gọn tối đa
-  --parallel: Stage /impl chạy multi-agent song song (cần swarm addon)
+  --parallel: Stage /sk-impl chạy multi-agent song song (cần swarm addon)
   --auto: Tự động approve tất cả gates, không hỏi user
 ---
 
-# /delivery
+# /sk-delivery
 
 **Mục tiêu:** Full delivery flow cho task phức tạp.
 
@@ -24,11 +24,11 @@ modifiers:
 ## Flow
 
 ```text
-/clarify → /plan → /impl → /review
+/sk-clarify → /sk-plan → /sk-impl → /sk-review
 ```
 
 Mỗi stage chạy đầy đủ theo workflow riêng.
 
 ## Output
 
-`../templates/delivery-report.md.template`
+`../templates/sk-delivery-report.md.template`

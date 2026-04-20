@@ -15,7 +15,7 @@ output: pattern-comparison
 Research và so sánh design patterns/approaches cho use case cụ thể — giúp chọn hướng đi đúng.
 
 ## Khi nào chạy
-- Trước `/plan` — cần chọn architecture pattern
+- Trước `/sk-plan` — cần chọn architecture pattern
 - Compare libraries/frameworks cho cùng use case
 - Evaluate trade-offs khi có nhiều options
 - Tìm best practices cho specific scenario

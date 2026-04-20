@@ -1,13 +1,13 @@
 ---
 id: deploy
 type: utility
-entry-command: /deploy
+entry-command: /sk-deploy
 next: null
 input-from: ship-ready-task
 output-format: deploy-checklist
 ---
 
-# /deploy
+# /sk-deploy
 
 **Mục tiêu:** Checklist pre-deploy để đảm bảo không có gì bị bỏ quên trước khi push production.
 

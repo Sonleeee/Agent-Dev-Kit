@@ -46,7 +46,7 @@ Tạo file `.cursorrules` tại thư mục gốc của project với nội dung:
 
 Trước khi thực hiện bất kỳ task nào, bạn BẮT BUỘC phải:
 1. Đọc file `AGENTS.md` ở root directory để hiểu ngữ cảnh dự án.
-2. Đọc file `.agents/SYSTEM.md` để nắm các workflow (/clarify, /plan, /impl, /review).
+2. Đọc file `.agents/SYSTEM.md` để nắm các workflow (/sk-clarify, /sk-plan, /sk-impl, /sk-review).
 3. Tuân thủ bộ luật tại `.agents/rules/global.md`.
 ```
 
@@ -88,18 +88,18 @@ Trước khi thực hiện bất kỳ task nào, bạn BẮT BUỘC phải:
 
 | Lệnh | Mô tả | Gate |
 |-------|--------|------|
-| `/clarify` | Làm rõ requirements | — |
-| `/plan` | Lập kế hoạch implementation | Gate 1 |
-| `/impl` | Implement code | Gate 2 |
-| `/review` | Review 5-layer + ship decision | Gate 3 |
+| `/sk-clarify` | Làm rõ requirements | — |
+| `/sk-plan` | Lập kế hoạch implementation | Gate 1 |
+| `/sk-impl` | Implement code | Gate 2 |
+| `/sk-review` | Review 5-layer + ship decision | Gate 3 |
 
 ### Shortcuts & Auto-pipeline
 
 | Lệnh | Mô tả |
 |-------|--------|
-| `/delivery` | Full flow: clarify → plan → impl → review |
-| `/delivery-lite` | Quick flow cho task đơn giản |
-| `/cook` | Auto pipeline: 1 lệnh chạy hết clarify → plan → impl → test → review |
+| `/sk-delivery` | Full flow: clarify → plan → impl → review |
+| `/sk-delivery-lite` | Quick flow cho task đơn giản |
+| `/sk-cook` | Auto pipeline: 1 lệnh chạy hết clarify → plan → impl → test → review |
 
 ---
 
@@ -112,24 +112,24 @@ Mỗi project type sẽ có bộ quy tắc (rules) và template riêng. Tra danh
 
 | Lệnh | Mô tả |
 |-------|--------|
-| `/brainstorm` | So sánh options, trade-off analysis |
-| `/enhance` | Refactor/optimize có chủ đích |
-| `/deploy` | Deploy checklist |
-| `/fix` | Debug pipeline: scout → diagnose → fix → verify → prevent |
-| `/test` | Generate & run tests cho module |
-| `/docs` | Generate/update documentation |
-| `/git` | Git commit messages, PR descriptions, changelog |
-| `/scout` | Edge case discovery, error path analysis |
-| `/security` | Security scan: OWASP, secrets, auth review |
-| `/research` | Research docs, best practices, compare approaches |
+| `/sk-brainstorm` | So sánh options, trade-off analysis |
+| `/sk-enhance` | Refactor/optimize có chủ đích |
+| `/sk-deploy` | Deploy checklist |
+| `/sk-fix` | Debug pipeline: scout → diagnose → fix → verify → prevent |
+| `/sk-test` | Generate & run tests cho module |
+| `/sk-docs` | Generate/update documentation |
+| `/sk-git` | Git commit messages, PR descriptions, changelog |
+| `/sk-scout` | Edge case discovery, error path analysis |
+| `/sk-security` | Security scan: OWASP, secrets, auth review |
+| `/sk-research` | Research docs, best practices, compare approaches |
 
 ### Advanced
 
 | Lệnh | Mô tả |
 |-------|--------|
-| `/predict` | Expert debate — 5 personas tranh luận impact trước khi implement |
-| `/xia` | Port features từ external repos (compare/port/copy/improve) |
-| `/retro` | Sprint retrospective — git metrics → health scores → action items |
+| `/sk-predict` | Expert debate — 5 personas tranh luận impact trước khi implement |
+| `/sk-xia` | Port features từ external repos (compare/port/copy/improve) |
+| `/sk-retro` | Sprint retrospective — git metrics → health scores → action items |
 
 ---
 
@@ -138,11 +138,11 @@ Mỗi project type sẽ có bộ quy tắc (rules) và template riêng. Tra danh
 Thêm flags vào workflows để điều chỉnh hành vi:
 
 ```bash
-/impl --fast          # Rút gọn, code luôn
-/review --red-team    # 4 adversarial personas tấn công code
-/predict --focus      # Chỉ chạy personas liên quan
-/xia --compare        # So sánh kiến trúc, không port code
-/retro --churn        # Focus hot spots (files thay đổi nhiều)
+/sk-impl --fast          # Rút gọn, code luôn
+/sk-review --red-team    # 4 adversarial personas tấn công code
+/sk-predict --focus      # Chỉ chạy personas liên quan
+/sk-xia --compare        # So sánh kiến trúc, không port code
+/sk-retro --churn        # Focus hot spots (files thay đổi nhiều)
 ```
 
 ---
@@ -151,12 +151,12 @@ Thêm flags vào workflows để điều chỉnh hành vi:
 
 | Agent | Role | Khi nào dùng |
 |-------|------|--------------|
-| `planner` | Lập plan, phân tích scope | `/clarify`, `/plan` |
-| `implementer` | Code theo plan, bám sát template | `/impl` |
-| `reviewer` | Review 5-layer, ship decision | `/review` |
-| `debugger` | Debug root cause, không patch bừa | `/fix` |
-| `tester` | Generate tests, coverage analysis | `/test` |
-| `red-team` | 4 adversarial personas tấn công code | `/review --red-team` |
+| `planner` | Lập plan, phân tích scope | `/sk-clarify`, `/sk-plan` |
+| `implementer` | Code theo plan, bám sát template | `/sk-impl` |
+| `reviewer` | Review 5-layer, ship decision | `/sk-review` |
+| `debugger` | Debug root cause, không patch bừa | `/sk-fix` |
+| `tester` | Generate tests, coverage analysis | `/sk-test` |
+| `red-team` | 4 adversarial personas tấn công code | `/sk-review --red-team` |
 
 > IDE hỗ trợ subagent → tự invoke. IDE không hỗ trợ → user copy persona prompt.
 

@@ -67,4 +67,4 @@ Moi finding can co:
 
 ## Output
 
-Dung template `../../../templates/review-summary.md.template`.
+Dung template `../../../templates/sk-review-summary.md.template`.

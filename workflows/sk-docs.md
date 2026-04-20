@@ -1,7 +1,7 @@
 ---
 id: docs
 type: utility
-entry-command: /docs
+entry-command: /sk-docs
 description: Generate hoặc update documentation cho module/API/project
 modifiers:
   --api: Chỉ API docs (endpoints, params, responses)
@@ -10,13 +10,13 @@ modifiers:
   --full: Generate tất cả docs
 ---
 
-# /docs
+# /sk-docs
 
 **Mục tiêu:** Generate hoặc update documentation đồng bộ với code hiện tại.
 
 ## Khi nào dùng
 
-- Sau `/impl` — document những gì đã thay đổi
+- Sau `/sk-impl` — document những gì đã thay đổi
 - API mới cần docs
 - README outdated
 - Cần changelog entry

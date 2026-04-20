@@ -1,10 +1,10 @@
 ---
 id: research
 type: utility
-entry-command: /research
+entry-command: /sk-research
 description: Research kỹ trước khi implement — web docs, best practices, examples
 skills-suggested:
-  - research/docs-seeker
+  - research/sk-docs-seeker
   - research/pattern-researcher
 modifiers:
   --docs: Chỉ tìm official docs
@@ -12,13 +12,13 @@ modifiers:
   --compare: So sánh nhiều approaches, output bảng trade-off
 ---
 
-# /research
+# /sk-research
 
 **Mục tiêu:** Research kỹ trước khi implement — tìm docs, best practices, examples.
 
 ## Khi nào dùng
 
-- Trước `/plan` — cần research approach
+- Trước `/sk-plan` — cần research approach
 - Dùng library/framework mới — cần tìm docs
 - So sánh nhiều solutions — cần evidence
 - Debug — cần tìm known issues, workarounds

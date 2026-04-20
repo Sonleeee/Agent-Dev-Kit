@@ -1,14 +1,14 @@
 ---
 id: fix
 type: utility
-entry-command: /fix
+entry-command: /sk-fix
 description: Pipeline debug có cấu trúc — scout → diagnose → fix → verify → prevent
 modifiers:
   --fast: Bỏ qua scout, diagnose luôn từ error message, fix nhanh
   --deep: Research root cause kỹ, tìm related issues trong codebase
 ---
 
-# /fix
+# /sk-fix
 
 **Mục tiêu:** Debug có cấu trúc — không patch bừa, tìm root cause rồi mới fix.
 
@@ -76,5 +76,5 @@ Agent đề xuất (tùy chọn):
 
 - KHÔNG patch bừa khi chưa hiểu root cause
 - KHÔNG mở rộng scope — fix xong thì dừng, refactor là task riêng
-- Nếu fix > 3 files → cân nhắc chuyển sang `/impl` workflow
+- Nếu fix > 3 files → cân nhắc chuyển sang `/sk-impl` workflow
 - Build verify là bắt buộc

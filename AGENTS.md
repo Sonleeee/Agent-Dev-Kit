@@ -35,7 +35,7 @@
 
 | Khu vực | Vai trò |
 |--------|---------|
-| `workflows/` | Lệnh `/clarify`, `/plan`, `/impl`, `/review`, … |
+| `workflows/` | Lệnh `/sk-clarify`, `/sk-plan`, `/sk-impl`, `/sk-review`, … |
 | `skills/` | Skill theo domain (core, devops, security, …) |
 | `agents/` | Persona hệ thống |
 | `templates/` | Template output |

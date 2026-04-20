@@ -2,7 +2,7 @@
 id: review
 type: stage
 stage-number: 4
-entry-command: /review
+entry-command: /sk-review
 next: null
 prev: impl
 input-from: impl-summary
@@ -21,13 +21,13 @@ agents-suggested:
   - red-team
 ---
 
-# /review
+# /sk-review
 
 **Mục tiêu:** Review code theo 5 layers với tri-state checklist.
 
 ## Input tối thiểu
 
-- Output từ `/impl` (impl-summary)
+- Output từ `/sk-impl` (impl-summary)
 - Changed files list
 - Build verification result (PASS required)
 
@@ -39,7 +39,7 @@ Agent tổng hợp:
 
 ```
 - Changed files list
-- Checklist từ /impl
+- Checklist từ /sk-impl
 - Architecture rules (từ context/architecture.md)
 - Template rules (từ context/templates/)
 ```
@@ -93,8 +93,8 @@ Agent phân loại findings:
 
 ## Template
 
-- Checklist: `../templates/review-checklist.md.template`
-- Summary: `../templates/review-summary.md.template`
+- Checklist: `../templates/sk-review-checklist.md.template`
+- Summary: `../templates/sk-review-summary.md.template`
 
 ## Gate sau bước này (Gate 3 — Ship Ready)
 

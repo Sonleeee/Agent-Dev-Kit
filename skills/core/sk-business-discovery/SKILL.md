@@ -1,5 +1,5 @@
 ---
-name: business-discovery
+name: sk-business-discovery
 description: |
   Lam ro yeu cau nghiep vu truoc khi lap plan hoac implement.
   Dung khi can chot problem statement, scope, risks, va open questions.

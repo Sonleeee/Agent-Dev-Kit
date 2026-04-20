@@ -1,5 +1,5 @@
 ---
-name: api-contract-guard
+name: sk-api-contract-guard
 description: |
   Bảo vệ API contract khi implement hoặc fix bug. Dùng khi thay đổi endpoint,
   DTO, status code, response shape để tránh breaking change ngoài ý muốn.

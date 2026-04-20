@@ -1,5 +1,5 @@
 ---
-name: solution-planning
+name: sk-solution-planning
 description: |
   Lap implementation plan ngan tu clarify record va project context.
   Dung de chot approach, impacted files, template selection, test obligations,

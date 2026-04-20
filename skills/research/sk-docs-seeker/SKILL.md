@@ -1,5 +1,5 @@
 ---
-name: docs-seeker
+name: sk-docs-seeker
 description: |
   Tìm và tổng hợp docs cho library/framework đang dùng trong project.
   Dùng khi: cần docs mới nhất, debug library issue, tìm API usage examples.

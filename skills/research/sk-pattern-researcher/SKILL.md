@@ -1,5 +1,5 @@
 ---
-name: pattern-researcher
+name: sk-pattern-researcher
 description: |
   Research design patterns phù hợp cho use case cụ thể — so sánh approaches.
   Dùng khi: chọn architecture pattern, compare libraries, evaluate trade-offs.

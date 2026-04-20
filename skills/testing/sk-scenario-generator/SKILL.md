@@ -1,5 +1,5 @@
 ---
-name: scenario-generator
+name: sk-scenario-generator
 description: |
   Generate test scenarios từ requirements — happy path, edge cases, error cases.
   Dùng khi: viết acceptance criteria, tạo QA checklist, generate test cases.

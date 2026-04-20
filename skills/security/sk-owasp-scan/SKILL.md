@@ -1,5 +1,5 @@
 ---
-name: owasp-scan
+name: sk-owasp-scan
 description: |
   Checklist OWASP Top 10 cho codebase — kiểm tra vulnerabilities phổ biến.
   Dùng khi: security review, trước deploy, sau khi thêm auth/input handling.

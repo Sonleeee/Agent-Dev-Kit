@@ -1,5 +1,5 @@
 ---
-name: ci-pipeline-check
+name: sk-ci-pipeline-check
 description: |
   Kiểm tra CI/CD pipeline config — thiếu step nào, best practices, security.
   Dùng khi: review CI config (GitHub Actions, GitLab CI, Azure DevOps),

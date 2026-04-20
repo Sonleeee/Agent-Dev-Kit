@@ -1,5 +1,5 @@
 ---
-name: docker-review
+name: sk-docker-review
 description: |
   Review Dockerfile và docker-compose — size, security, caching, best practices.
   Dùng khi: tạo Docker setup mới, optimize image size, debug container issues,

@@ -1,5 +1,5 @@
 ---
-name: skill-creator
+name: sk-skill-creator
 description: |
   Meta-skill để tạo mới skill hoặc onboard project vào global agent system.
   Dùng khi: tạo SKILL.md mới từ ý tưởng, onboard project mới vào registry,

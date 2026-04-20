@@ -1,5 +1,5 @@
 ---
-name: regression-checklist
+name: sk-regression-checklist
 description: |
   Checklist regression trước khi bàn giao. Dùng sau implement để xác nhận
   luồng chính, edge cases và các luồng liên quan không bị phá vỡ.

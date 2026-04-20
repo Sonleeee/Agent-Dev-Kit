@@ -1,5 +1,5 @@
 ---
-name: secret-detection
+name: sk-secret-detection
 description: |
   Tìm hardcoded secrets, API keys, passwords trong code và config files.
   Dùng khi: security audit, pre-commit check, review config files.

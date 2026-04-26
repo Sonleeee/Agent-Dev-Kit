@@ -28,8 +28,14 @@ agents-suggested:
 ## Input tối thiểu
 
 - Output từ `/sk-impl` (impl-summary)
-- Changed files list
+- Changed files list (Chỉ file diff)
 - Build verification result (PASS required)
+
+> **[QUAN TRỌNG] TẨY NÃO REVIEWER (CONTEXT ISOLATION):** 
+> Process Agent chạy Review LÀ MỘT INSTANCE HOÀN TOÀN MỚI. 
+> - **Tuyệt đối:** KHÔNG ĐƯỢC NẠP LỊCH SỬ CHAT của bước Plan/Impl.
+> - **Chỉ nạp:** Code Diff, Implementation Plan ban đầu, và Bộ Rules chuẩn của dự án.
+> - **Mục tiêu:** Đảm bảo tính khách quan cao nhất, triệt tiêu ảo giác luỹ kế từ các bước trước.
 
 ## Quy trình
 
@@ -109,5 +115,5 @@ Agent phân loại findings:
 - Nếu có FAIL → fix rồi chạy lại review
 - Nếu có UNPLANNED → báo user, KHÔNG tự động xóa/sửa
 
-> [Multi-agent] Nếu dùng swarm addon, có thể chạy dual review
-> (primary + secondary reviewer). Xem `addons/swarm/`.
+> [Terminal Orchestration] Antigravity tự động mở nhiều Terminal process
+> chạy dual review (primary + secondary reviewer) song song. Xem `addons/swarm/`.

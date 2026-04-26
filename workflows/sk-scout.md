@@ -31,15 +31,19 @@ Agent mapping:
 - External dependencies (DB, API, file system)
 - State mutations (nếu có)
 
-### Bước 2: Probe — Tìm edge cases
+### Bước 2: Probe — Tìm edge cases & patterns
 
-Agent kiểm tra theo categories:
+Agent kiểm tra theo categories (Inspiration: ck:scout):
+
+**Pattern Exploration [NEW]:**
+- Tìm các patterns "ngoại lai" không tuân thủ `.agents/context/`.
+- Phát hiện các đoạn code trùng lặp hoặc có thể refactor.
+- Kiểm tra tính nhất quán giữa các layers.
 
 **Data edge cases:**
 - Null / undefined / empty string
 - Boundary values (0, -1, MAX_INT, empty array)
 - Unicode, special characters trong input
-- Concurrent access / race conditions
 
 **Error handling:**
 - Missing try-catch blocks

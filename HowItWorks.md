@@ -255,7 +255,7 @@ graph LR
 
 | Addon                 | Mô tả                                                   | Khi nào cần                  |
 | --------------------- | --------------------------------------------------------- | ------------------------------ |
-| **swarm/**      | Fan-out tasks cho nhiều agents (Codex, Gemini, OpenCode) | Khi dùng multi-agent setup    |
+| **swarm/**      | Fan-out tasks qua Terminal (Codex, Gemini, OpenCode)| Khi dùng native orchestration |
 | **obsidian/**   | Obsidian vault lưu tri thức xuyên projects             | Khi muốn tích lũy knowledge |
 | **notebooklm/** | 14 skills research & synthesis                            | Khi cần deep research         |
 | **graphify/**   | Tự động tạo code structure graph                      | Khi muốn visualize codebase   |

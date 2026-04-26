@@ -13,7 +13,7 @@ skills-suggested:
 modifiers:
   --fast: Bỏ qua research, code luôn từ context sẵn có, self-check rút gọn
   --tdd: Viết test trước, rồi implement code cho pass tests
-  --parallel: Chạy multi-agent song song (cần swarm addon)
+  --parallel: Chạy multi-agent song song qua Terminal (Antigravity run_command)
   --no-test: Không bắt buộc test — dùng khi prototype/spike
 ---
 
@@ -39,17 +39,27 @@ Agent load project context:
 - `context/templates/` — code templates (ground truth)
 - `context/checklist.md` — checklist riêng (nếu có)
 
-### Bước 2: Implementation
+### Bước 2: Chuẩn bị Môi trường & Cách ly (Superpowers Isolation)
+
+1. **Git Worktree Isolation:** AI thực hiện task trên một phân vùng độc lập để bảo vệ mã nguồn chính.
+    - Lệnh khởi tạo: `git worktree add ../temp-[task_id] [branch_name] [base_branch]`
+    - **Lợi ích:** Tránh xung đột file với User, tạo sandbox an toàn cho AI thực thi các lệnh build/test.
+    - **Dọn dẹp:** Sau khi `/sk-review` hoàn tất (PASS hoặc FAIL), worktree và nhánh tạm này PHẢI được xóa bỏ để giải phóng tài nguyên.
+2. **Tẩy Não Cục Bộ (Local Brainwash):** Khi Antigravity điều phối các Sub-agent (qua `gemini-cli`, `opencode-cli`):
+    - **Minimal Context:** Chỉ truyền `implementation-plan-lite` và nội dung của **duy nhất** các file cần sửa.
+    - **No Chat History:** TUYỆT ĐỐI không gửi kèm lịch sử chat của phiên chính để triệt tiêu bias và ảo giác luỹ kế.
+
+### Bước 3: Implementation & TDD
 
 Agent thực hiện implement theo:
 
-1. Đọc plan đã approved
-2. Chọn đúng template từ `context/templates/` cho từng file
-3. Implement code **bám sát template pattern**
+1. Đọc plan đã approved và template tương ứng.
+2. **TDD Hybrid:** Viết Unit Test và ép chạy fail (Red) trước khi rờ vào logic chính (đặc biệt với Core Logic).
+3. Implement code **bám sát template pattern** để test pass (Green).
 4. Đảm bảo naming conventions theo `architecture.md`
 5. Không sửa files ngoài scope plan
 
-### Bước 3: Self-Check
+### Bước 4: Self-Check
 
 Agent tự verify:
 
@@ -59,7 +69,7 @@ Agent tự verify:
 - [ ] Không hardcode text (nếu project yêu cầu i18n)
 - [ ] Error handling đúng taxonomy
 
-### Bước 4: Build Verification
+### Bước 5: Build Verification
 
 Agent chạy build để verify:
 
@@ -74,7 +84,7 @@ cd [fe-path] && npm run build
 - **Build PASS** → sang `/sk-review`
 - **Build FAIL** → phân tích error, fix, retry (max 3 lần)
 
-### Bước 5: Dev Done
+### Bước 6: Dev Done
 
 Kết luận Dev Done khi:
 
@@ -108,8 +118,9 @@ Kết luận Dev Done khi:
 - Build verification là gate bắt buộc, không được skip
 - Không mở rộng scope ngoài plan đã approved
 
-> [Multi-agent] Nếu dùng swarm addon, có thể fan-out tasks cho
-> nhiều agents song song. Xem `addons/swarm/` để biết:
+> [Terminal Orchestration] Antigravity tự động fan-out tasks cho
+> nhiều agents song song bằng cách mở các process ẩn qua `run_command`.
+> Xem `addons/swarm/` để biết:
 > - Task matrix + assignment rules
 > - File conflict policy (không 2 agents cùng sửa 1 file)
 > - Cross-agent contracts

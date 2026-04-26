@@ -13,8 +13,8 @@ output: review-summary
 
 Tong hop review sau implement trong 1 lan goi, giu role ro rang:
 
-- Antigravity = route va tong hop
-- gemini-cli = reviewer fresh-eyes
+- Antigravity = route va tong hop (qua Terminal run_command)
+- gemini-cli / codex-cli = reviewer fresh-eyes (qua Terminal)
 
 ## Inputs toi thieu
 

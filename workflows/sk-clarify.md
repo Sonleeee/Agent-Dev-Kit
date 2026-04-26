@@ -66,5 +66,5 @@ User yêu cầu -> Agent nhận
 - Không generate task breakdown dài
 - Nếu task đã rất rõ, có thể rút gọn thành clarify-lite rồi sang `/sk-plan`
 
-> [Multi-agent] Nếu dùng swarm addon, có thể delegate research
-> cho sub-agent chuyên scan codebase. Xem `addons/swarm/`.
+> [Terminal Orchestration] Antigravity có thể mở Terminal delegate research
+> cho sub-agent chuyên scan codebase (ví dụ codex-cli). Xem `addons/swarm/`.

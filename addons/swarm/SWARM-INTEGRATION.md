@@ -12,12 +12,12 @@ Chi dung cac ten nay trong repo:
 | Role | Canonical name | Transport |
 |---|---|---|
 | Orchestrator | `antigravity` | — |
-| Implementer #1 | `codex-cli` | MCP |
-| Implementer #2 | `gemini-cli` | MCP (`gemini_run_task`) |
-| Implementer #3 | `opencode-cli` | Terminal cmd |
-| Reviewer (primary) | `codex-cli` | MCP |
-| Reviewer (secondary) | `gemini-cli` | MCP (`gemini_review_quality`) |
-| Knowledge | `notebooklm` | MCP |
+| Implementer #1 | `codex-cli` | Terminal (run_command) |
+| Implementer #2 | `gemini-cli` | Terminal (run_command) |
+| Implementer #3 | `opencode-cli` | Terminal (run_command) |
+| Reviewer (primary) | `codex-cli` | Terminal (run_command) |
+| Reviewer (secondary) | `gemini-cli` | Terminal (run_command) |
+| Knowledge | `notebooklm` | Terminal (run_command) |
 
 Khong dung lai cac ten mo ho:
 
@@ -43,10 +43,10 @@ Khong dung lai cac ten mo ho:
 
 ## 2.1. Transport
 
-- `antigravity` -> MCP server `codex-cli`
-- `antigravity` -> MCP server `gemini-cli` (`gemini_run_task` + `gemini_review_quality`)
+- `antigravity` -> Terminal command `codex-cli`
+- `antigravity` -> Terminal command `gemini-cli`
 - `antigravity` -> Terminal command `opencode-cli` (non-interactive)
-- `antigravity` -> MCP server `notebooklm`
+- `antigravity` -> Terminal command `notebooklm`
 
 Config mau:
 

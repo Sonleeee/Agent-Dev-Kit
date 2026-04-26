@@ -35,9 +35,9 @@ Stage 4: /sk-review  -> gemini-cli review + review-workflow
 
 ## Agent routing
 
-- `Antigravity` = orchestrator
-- `codex-cli` = implementer
-- `gemini-cli` = reviewer
+- `Antigravity` = orchestrator (natively dispatching tasks via Terminal)
+- `codex-cli` = implementer (via terminal command)
+- `gemini-cli` = reviewer (via terminal command)
 
 ## Gate checks
 

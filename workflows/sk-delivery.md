@@ -6,7 +6,7 @@ stages: clarify -> plan -> impl -> review
 description: Task phức tạp — full flow
 modifiers:
   --fast: Mỗi stage chạy ở chế độ --fast, rút gọn tối đa
-  --parallel: Stage /sk-impl chạy multi-agent song song (cần swarm addon)
+  --parallel: Stage /sk-impl chạy multi-agent song song (Antigravity run_command via Terminal)
   --auto: Tự động approve tất cả gates, không hỏi user
 ---
 

@@ -66,6 +66,8 @@ Bộ skills này biến NotebookLM từ công cụ hỏi đáp thành hệ thố
 | 11 | Artifact Generation | `artifact-generation/` | Tạo deliverable từ tri thức |
 | 12 | Operational Notes | `operational-notes/` | Ghi runbook, checklist vận hành |
 | 13 | System Health | `system-health/` | Kiểm tra sức khỏe MCP system |
+| 14 | Mobile Capture | `mobile-capture/` | Bóc tách & phân loại content từ iPhone (📥 Inbox) |
+| 15 | Daily Task Sync | `daily-task-sync/` | Đồng bộ tasks từ 📋 Daily Ops về local |
 
 ## Gợi ý theo Role
 
@@ -77,7 +79,11 @@ Bộ skills này biến NotebookLM từ công cụ hỏi đáp thành hệ thố
 | QA | Context Query, Cross-Notebook Validation, Artifact Generation |
 | SRE / DevOps | Operational Notes, Context Query, Artifact Generation |
 | Designer | UX Rule Extractor, Cross-Notebook Validation |
+| Personal / Mobile | Mobile Capture, Daily Task Sync, Knowledge Ingestion |
 
 ## Workflows liên quan
 
 Xem `c:\Sonlee\.agents\workflows\notebooklm\` hoặc dùng `/notebooklm_senior_roles` để xem danh sách workflows.
+
+### Phone Sync (iPhone → SecondBrain)
+- `/sk-phone-sync` — Đồng bộ nhanh từ iPhone qua NotebookLM về SecondBrain (xem `workflows/phone-sync.md`)

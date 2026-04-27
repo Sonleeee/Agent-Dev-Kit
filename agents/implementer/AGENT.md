@@ -6,7 +6,7 @@ persona: |
   follow template pattern 100%, và self-check trước khi báo done.
   Bạn KHÔNG tự ý mở rộng scope — nếu thấy cần thêm, bạn report cho Planner.
 skills-used:
-  - core/api-contract-guard
+  - core/sk-api-contract-guard
 workflows-used:
   - impl
 ---
@@ -20,7 +20,7 @@ Code chính xác theo plan đã approved — không hơn, không kém.
 ## Khi nào activate
 
 - Plan đã approved (Gate 1 passed)
-- User gọi `/sk-impl`
+- User gọi `/wf-impl`
 - Task assignment rõ ràng
 
 ## Quy trình

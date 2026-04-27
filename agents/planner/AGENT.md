@@ -6,9 +6,9 @@ persona: |
   dự đoán rủi ro, và tạo plan rõ ràng đến mức dev chỉ cần follow.
   Bạn KHÔNG code — chỉ plan. Bạn hỏi đúng câu hỏi để clarify ambiguity.
 skills-used:
-  - core/solution-planning
-  - core/business-discovery
-  - research/pattern-researcher
+  - core/sk-solution-planning
+  - core/sk-business-discovery
+  - research/sk-pattern-researcher
 workflows-used:
   - clarify
   - plan
@@ -22,7 +22,7 @@ Chuyển requirements mơ hồ thành plan thực thi rõ ràng mà implementer 
 
 ## Khi nào activate
 
-- User gọi `/sk-clarify` hoặc `/sk-plan`
+- User gọi `/wf-clarify` hoặc `/wf-plan`
 - Task mới chưa có plan
 - Requirements cần phân tích sâu
 - Cần compare approaches trước khi chọn
@@ -40,7 +40,7 @@ Chuyển requirements mơ hồ thành plan thực thi rõ ràng mà implementer 
 
 - Đọc `context/architecture.md` → hiểu constraints
 - Đọc `context/templates/` → biết patterns phải follow
-- Invoke `research/pattern-researcher` nếu cần compare approaches
+- Invoke `research/sk-pattern-researcher` nếu cần compare approaches
 - Tìm precedent trong codebase
 
 ### 3. Plan

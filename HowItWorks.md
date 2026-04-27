@@ -62,7 +62,7 @@ sequenceDiagram
     Agent->>Ctx: Đọc context/templates/<br/>→ code patterns (ground truth)
   
     Note over Agent: Bước 5: Chọn Workflow
-    Agent->>Kit: Chọn workflow phù hợp<br/>(clarify/sk-plan/sk-impl/sk-review)
+    Agent->>Kit: Chọn workflow phù hợp<br/>(clarify/wf-plan/wf-impl/wf-review)
   
     Agent->>User: Thực thi workflow...
 ```
@@ -83,13 +83,13 @@ sequenceDiagram
 
 ## 3. Workflow Flow (luồng chính)
 
-### Flow đầy đủ: `/sk-delivery`
+### Flow đầy đủ: `/wf-delivery`
 
 ```mermaid
 flowchart LR
-    C["/sk-clarify<br/>Làm rõ"] --> P["/sk-plan<br/>Lập kế hoạch"]
-    P --> I["/sk-impl<br/>Implement"]
-    I --> R["/sk-review<br/>Review 5 layers"]
+    C["/wf-clarify<br/>Làm rõ"] --> P["/wf-plan<br/>Lập kế hoạch"]
+    P --> I["/wf-impl<br/>Implement"]
+    I --> R["/wf-review<br/>Review 5 layers"]
   
     C -.->|Gate 0: Đủ thông tin?| P
     P -.->|Gate 1: Ready?| I
@@ -99,31 +99,31 @@ flowchart LR
     FIX --> R
 ```
 
-### Flow rút gọn: `/sk-delivery-lite`
+### Flow rút gọn: `/wf-delivery-lite`
 
 ```
-clarify-lite (1-2 câu) → plan-lite (approach + files) → /sk-impl → review-lite
+clarify-lite (1-2 câu) → plan-lite (approach + files) → /wf-impl → review-lite
 ```
 
 ### Các workflow khác
 
 | Workflow           | Khi nào dùng                           |
 | ------------------ | ---------------------------------------- |
-| `/sk-clarify`       | Task mơ hồ, cần hỏi đáp            |
-| `/sk-plan`          | Chốt approach + template selection      |
-| `/sk-impl`          | Code theo plan đã approved             |
-| `/sk-review`        | Review 5 layers với tri-state checklist |
-| `/sk-delivery`      | Full flow cho task phức tạp            |
-| `/sk-delivery-lite` | Shortcut cho task đơn giản            |
-| `/sk-enhance`       | Refactor/optimize có chủ đích        |
-| `/sk-brainstorm`    | So sánh options khi cần quyết định  |
-| `/sk-deploy`        | Deploy checklist                         |
+| `/wf-clarify`       | Task mơ hồ, cần hỏi đáp            |
+| `/wf-plan`          | Chốt approach + template selection      |
+| `/wf-impl`          | Code theo plan đã approved             |
+| `/wf-review`        | Review 5 layers với tri-state checklist |
+| `/wf-delivery`      | Full flow cho task phức tạp            |
+| `/wf-delivery-lite` | Shortcut cho task đơn giản            |
+| `/wf-enhance`       | Refactor/optimize có chủ đích        |
+| `/wf-brainstorm`    | So sánh options khi cần quyết định  |
+| `/wf-deploy`        | Deploy checklist                         |
 
 ---
 
 ## 4. Chi tiết từng Workflow
 
-### 4.1. `/sk-clarify` — Làm rõ requirements
+### 4.1. `/wf-clarify` — Làm rõ requirements
 
 ```
 Input:  User request (mơ hồ)
@@ -136,10 +136,10 @@ Agent làm:
 4. Output: clarify-record
 ```
 
-### 4.2. `/sk-plan` — Lập kế hoạch
+### 4.2. `/wf-plan` — Lập kế hoạch
 
 ```
-Input:  Output từ /sk-clarify
+Input:  Output từ /wf-clarify
 Output: Approach, file list, template selection, quality card
 
 Agent làm:
@@ -152,7 +152,7 @@ Agent làm:
 
 > **Gate 1 — Ready:** Không code nếu thiếu problem statement, scope, plan, quality card.
 
-### 4.3. `/sk-impl` — Implement code
+### 4.3. `/wf-impl` — Implement code
 
 ```
 Input:  Plan đã approved
@@ -163,13 +163,13 @@ Agent làm:
 2. Implement code BÁM SÁT template pattern
 3. Self-check: đúng template? đúng naming? đúng error handling?
 4. Build verification: dotnet build / npm run build
-5. Build PASS → sang /sk-review
+5. Build PASS → sang /wf-review
    Build FAIL → fix, retry (max 3 lần)
 ```
 
 > **Gate 2 — Dev Done:** Không review nếu build chưa pass, self-check chưa xong.
 
-### 4.4. `/sk-review` — Review 5 layers
+### 4.4. `/wf-review` — Review 5 layers
 
 ```mermaid
 flowchart TD
@@ -281,7 +281,7 @@ Bước 4 (optional): Tạo context
   → Điền architecture.md với kiến trúc project
 
 Bước 5: Bắt đầu dùng!
-  /sk-clarify "Tôi muốn thêm feature X..."
+  /wf-clarify "Tôi muốn thêm feature X..."
 ```
 
 ---
@@ -302,10 +302,10 @@ flowchart TD
     AGENT --> CHOOSE["⚡ Chọn Workflow"]
     CHOOSE --> WF{Loại task?}
   
-    WF -->|Phức tạp| DELIVERY["/sk-delivery<br/>clarify→plan→impl→review"]
-    WF -->|Đơn giản| LITE["/sk-delivery-lite<br/>Nhanh gọn"]
-    WF -->|Refactor| ENHANCE["/sk-enhance"]
-    WF -->|So sánh| BRAINSTORM["/sk-brainstorm"]
+    WF -->|Phức tạp| DELIVERY["/wf-delivery<br/>clarify→plan→impl→review"]
+    WF -->|Đơn giản| LITE["/wf-delivery-lite<br/>Nhanh gọn"]
+    WF -->|Refactor| ENHANCE["/wf-enhance"]
+    WF -->|So sánh| BRAINSTORM["/wf-brainstorm"]
   
     DELIVERY --> GATE["🚦 Quality Gates"]
     LITE --> GATE

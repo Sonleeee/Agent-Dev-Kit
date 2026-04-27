@@ -5,12 +5,12 @@
 ## Ý tưởng hooks
 
 ### 1. Post-Review Hook
-Sau `/sk-review`, agent tự động tạo note trong vault:
-- File: `brain/projects/[project]/sk-review-YYYY-MM-DD.md`
+Sau `/wf-review`, agent tự động tạo note trong vault:
+- File: `brain/projects/[project]/wf-review-YYYY-MM-DD.md`
 - Nội dung: summary findings, pass/fail status
 
 ### 2. ADR Auto-Create Hook
-Khi `/sk-brainstorm` chọn được approach, agent tạo ADR:
+Khi `/wf-brainstorm` chọn được approach, agent tạo ADR:
 - File: `brain/decisions/ADR-NNN-ten-decision.md`
 
 ### 3. Knowledge Extract Hook

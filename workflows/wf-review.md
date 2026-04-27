@@ -2,15 +2,15 @@
 id: review
 type: stage
 stage-number: 4
-entry-command: /sk-review
+entry-command: /wf-review
 next: null
 prev: impl
 input-from: impl-summary
 output-format: review-summary
 gate-after: gate-3
 skills-suggested:
-  - core/regression-checklist
-  - core/api-contract-guard
+  - core/sk-regression-checklist
+  - core/sk-api-contract-guard
 modifiers:
   --fast: Review-lite — checklist subset, bỏ Layer 4 (Unplanned), quick ship decision
   --deep: Full 5-layer review + kiểm tra cross-module impact
@@ -21,13 +21,13 @@ agents-suggested:
   - red-team
 ---
 
-# /sk-review
+# /wf-review
 
 **Mục tiêu:** Review code theo 5 layers với tri-state checklist.
 
 ## Input tối thiểu
 
-- Output từ `/sk-impl` (impl-summary)
+- Output từ `/wf-impl` (impl-summary)
 - Changed files list (Chỉ file diff)
 - Build verification result (PASS required)
 
@@ -45,7 +45,7 @@ Agent tổng hợp:
 
 ```
 - Changed files list
-- Checklist từ /sk-impl
+- Checklist từ /wf-impl
 - Architecture rules (từ context/architecture.md)
 - Template rules (từ context/templates/)
 ```
@@ -99,8 +99,8 @@ Agent phân loại findings:
 
 ## Template
 
-- Checklist: `../templates/sk-review-checklist.md.template`
-- Summary: `../templates/sk-review-summary.md.template`
+- Checklist: `../templates/wf-review-checklist.md.template`
+- Summary: `../templates/wf-review-summary.md.template`
 
 ## Gate sau bước này (Gate 3 — Ship Ready)
 

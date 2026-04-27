@@ -1,5 +1,5 @@
 ---
-name: Mobile Capture
+name: sk-mobile-capture
 description: Bóc tách và phân loại nội dung capture từ iPhone qua NotebookLM (📥 Inbox)
 ---
 
@@ -49,7 +49,7 @@ Truyền kết quả phân loại + nội dung cho `sk-vault-steward` (Hướng 
 ## Khi nào dùng
 - Mỗi sáng khi ngồi vào bàn làm việc
 - Khi có nhiều content chưa xử lý trong Inbox
-- Được gọi bởi workflow `/sk-phone-sync`
+- Được gọi bởi workflow `/wf-phone-sync`
 
 ## Lưu ý
 - Notebook `📥 Inbox` có tag `inbox` — dùng tag để tìm đúng notebook

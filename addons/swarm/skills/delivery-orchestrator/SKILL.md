@@ -1,5 +1,5 @@
 ---
-name: delivery-orchestrator
+name: sk-delivery-orchestrator
 description: |
   Dieu phoi quy trinh delivery gon theo flow clarify -> plan -> implement -> review.
   Dung khi can 1 lan goi de chay toan bo pipeline voi quality gates va phan vai
@@ -24,12 +24,12 @@ Dam bao moi task di qua dung flow ngan, khong quay lai mo hinh 6 buoc qua dai.
 ## Pipeline dieu phoi
 
 ```text
-Stage 1: /sk-clarify -> core/business-discovery
-Stage 2: /sk-plan    -> core/solution-planning + api-contract-guard neu can
+Stage 1: /wf-clarify -> core/sk-business-discovery
+Stage 2: /wf-plan    -> core/sk-solution-planning + api-contract-guard neu can
          [GATE 1 CHECK]
-Stage 3: /sk-impl    -> codex-cli implement voi domain skills
+Stage 3: /wf-impl    -> codex-cli implement voi domain skills
          [GATE 2 CHECK]
-Stage 4: /sk-review  -> gemini-cli review + review-workflow
+Stage 4: /wf-review  -> gemini-cli review + sk-review-workflow
          [GATE 3 CHECK]
 ```
 
@@ -65,7 +65,7 @@ Blocked neu con finding Critical.
 
 Neu `API contract changed = Yes` hoac `Unknown`:
 
-- bat buoc chay `core/api-contract-guard`
+- bat buoc chay `core/sk-api-contract-guard`
 
 Neu `task type = Bugfix`:
 
@@ -74,4 +74,4 @@ Neu `task type = Bugfix`:
 
 ## Output bat buoc
 
-Dung template `../../templates/sk-delivery-report.md.template`.
+Dung template `../../templates/wf-delivery-report.md.template`.

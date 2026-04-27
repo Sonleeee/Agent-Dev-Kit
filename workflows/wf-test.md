@@ -1,7 +1,7 @@
 ---
 id: test
 type: utility
-entry-command: /sk-test
+entry-command: /wf-test
 description: Generate tests cho module — unit, integration, edge cases
 modifiers:
   --unit: Chỉ unit tests
@@ -10,15 +10,15 @@ modifiers:
   --coverage: Phân tích coverage gaps trước khi generate
 ---
 
-# /sk-test
+# /wf-test
 
 **Mục tiêu:** Generate và chạy tests cho module — đảm bảo code coverage và correctness.
 
 ## Khi nào dùng
 
 - Module mới cần test
-- Sau `/sk-impl` — bổ sung tests
-- Trước `/sk-review` — tăng confidence
+- Sau `/wf-impl` — bổ sung tests
+- Trước `/wf-review` — tăng confidence
 - Tìm untested paths trong code đang có
 
 ## Quy trình

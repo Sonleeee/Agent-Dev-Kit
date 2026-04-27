@@ -38,13 +38,13 @@ Bộ agent dùng chung cho mọi project và mọi platform/IDE.
 Flow ưu tiên:
 
 ```text
-/sk-clarify -> /sk-plan -> /sk-impl -> /sk-review
+/wf-clarify -> /wf-plan -> /wf-impl -> /wf-review
 ```
 
 Shortcut:
 
-- `/sk-delivery-lite` — task rõ ràng, đi nhanh
-- `/sk-delivery` — task phức tạp, cần plan kỹ
+- `/wf-delivery-lite` — task rõ ràng, đi nhanh
+- `/wf-delivery` — task phức tạp, cần plan kỹ
 
 ## Mode Modifiers
 
@@ -70,11 +70,11 @@ Nhiều workflows hỗ trợ mode modifiers để điều chỉnh hành vi:
 | `--churn` | Focus files thay đổi nhiều nhất | retro |
 | `--full` | Phân tích đầy đủ tất cả dimensions | retro |
 
-Cách dùng: `/sk-impl --fast` hoặc `/sk-delivery --parallel --auto`
+Cách dùng: `/wf-impl --fast` hoặc `/wf-delivery --parallel --auto`
 
 ## Gates
 
-### Gate 1 — Ready (sau /sk-plan)
+### Gate 1 — Ready (sau /wf-plan)
 
 Không code nếu thiếu:
 
@@ -84,7 +84,7 @@ Không code nếu thiếu:
 - Quality card
 - Task assignment rõ (nếu multi-agent)
 
-### Gate 2 — Dev Done (sau /sk-impl)
+### Gate 2 — Dev Done (sau /wf-impl)
 
 Không review nếu thiếu:
 
@@ -92,7 +92,7 @@ Không review nếu thiếu:
 - Self-check pass
 - API contract status rõ
 
-### Gate 3 — Ship Ready (sau /sk-review)
+### Gate 3 — Ship Ready (sau /wf-review)
 
 Blocked nếu:
 
@@ -120,41 +120,41 @@ Blocked nếu:
 
 | Workflow | Mô tả | Gate |
 |---|---|---|
-| `/sk-clarify` | Thu thập requirements, xác nhận scope | — |
-| `/sk-plan` | Chốt approach, chọn template | Gate 1 |
-| `/sk-impl` | Implement code theo plan | Gate 2 |
-| `/sk-review` | Review 5-layer, ship decision | Gate 3 |
+| `/wf-clarify` | Thu thập requirements, xác nhận scope | — |
+| `/wf-plan` | Chốt approach, chọn template | Gate 1 |
+| `/wf-impl` | Implement code theo plan | Gate 2 |
+| `/wf-review` | Review 5-layer, ship decision | Gate 3 |
 
 ### Shortcuts & Auto-pipeline
 
 | Workflow | Mô tả |
 |---|---|
-| `/sk-delivery` | Full flow: clarify → plan → impl → review |
-| `/sk-delivery-lite` | Quick flow cho task đơn giản |
-| `/sk-cook` | Auto pipeline: clarify → plan → impl → test → review (1 lệnh) |
+| `/wf-delivery` | Full flow: clarify → plan → impl → review |
+| `/wf-delivery-lite` | Quick flow cho task đơn giản |
+| `/wf-cook` | Auto pipeline: clarify → plan → impl → test → review (1 lệnh) |
 
 ### Utilities
 
 | Workflow | Mô tả |
 |---|---|
-| `/sk-brainstorm` | So sánh options, trade-off analysis |
-| `/sk-enhance` | Enhancement/refactor có chủ đích |
-| `/sk-deploy` | Deploy checklist |
-| `/sk-fix` | Debug pipeline: scout → diagnose → fix → verify → prevent |
-| `/sk-test` | Generate & run tests cho module |
-| `/sk-docs` | Generate/update documentation |
-| `/sk-git` | Git commit messages, PR descriptions, changelog |
-| `/sk-scout` | Edge case discovery, error path analysis |
-| `/sk-security` | Security scan: OWASP, secrets, auth review |
-| `/sk-research` | Research docs, best practices, compare approaches |
+| `/wf-brainstorm` | So sánh options, trade-off analysis |
+| `/wf-enhance` | Enhancement/refactor có chủ đích |
+| `/wf-deploy` | Deploy checklist |
+| `/wf-fix` | Debug pipeline: scout → diagnose → fix → verify → prevent |
+| `/wf-test` | Generate & run tests cho module |
+| `/wf-docs` | Generate/update documentation |
+| `/wf-git` | Git commit messages, PR descriptions, changelog |
+| `/wf-scout` | Edge case discovery, error path analysis |
+| `/wf-security` | Security scan: OWASP, secrets, auth review |
+| `/wf-research` | Research docs, best practices, compare approaches |
 
 ### Advanced
 
 | Workflow | Mô tả |
 |---|---|
-| `/sk-predict` | Expert debate: 5 personas tranh luận impact trước khi implement |
-| `/sk-xia` | Port features từ external repos (compare/port/copy/improve) |
-| `/sk-retro` | Sprint retrospective: git metrics → health scores → action items |
+| `/wf-predict` | Expert debate: 5 personas tranh luận impact trước khi implement |
+| `/wf-xia` | Port features từ external repos (compare/port/copy/improve) |
+| `/wf-retro` | Sprint retrospective: git metrics → health scores → action items |
 
 ## Nếu project chưa có AGENTS.md
 
@@ -170,12 +170,12 @@ Kit cung cấp 6 agent personas trong `agents/`. Mỗi agent là 1 `AGENT.md` ch
 
 | Agent | Role | Khi nào dùng |
 |---|---|---|
-| `planner` | Lập plan, phân tích scope, chọn approach | `/sk-clarify`, `/sk-plan` |
-| `implementer` | Code theo plan, bám sát template | `/sk-impl` |
-| `reviewer` | Review 5-layer, ship decision | `/sk-review` |
-| `debugger` | Debug root cause, không patch bừa | `/sk-fix` |
-| `tester` | Generate tests, coverage analysis | `/sk-test` |
-| `red-team` | 4 adversarial personas tấn công code | `/sk-review --red-team` |
+| `planner` | Lập plan, phân tích scope, chọn approach | `/wf-clarify`, `/wf-plan` |
+| `implementer` | Code theo plan, bám sát template | `/wf-impl` |
+| `reviewer` | Review 5-layer, ship decision | `/wf-review` |
+| `debugger` | Debug root cause, không patch bừa | `/wf-fix` |
+| `tester` | Generate tests, coverage analysis | `/wf-test` |
+| `red-team` | 4 adversarial personas tấn công code | `/wf-review --red-team` |
 
 **IDE-agnostic:** `AGENT.md` chỉ chứa persona + instructions dạng markdown.
 - IDE hỗ trợ subagent → tự invoke agent phù hợp

@@ -2,7 +2,7 @@
 description: "Đồng bộ nhanh iPhone → NotebookLM → SecondBrain (quét Inbox + Daily Ops)"
 ---
 
-# /sk-phone-sync
+# /wf-phone-sync
 
 Workflow sync dữ liệu từ iPhone (qua NotebookLM) về SecondBrain local.
 
@@ -36,12 +36,12 @@ Gọi `sk-vault-steward` (Hướng C: Phone-Direct):
 ```
 [PROTOCOL REPORT]
 - Context: [[02_Brain/Projects]]
-- Action: /sk-phone-sync
+- Action: /wf-phone-sync
 - Result: X items từ Inbox, Y tasks từ Daily Ops
 - Files changed: [danh sách]
 - Next Step: [đề xuất]
 ```
 
 ## Khi nào dùng
-- Mỗi sáng: "check đầu ngày" hoặc gọi trực tiếp `/sk-phone-sync`
+- Mỗi sáng: "check đầu ngày" hoặc gọi trực tiếp `/wf-phone-sync`
 - Khi thấy Inbox trên NotebookLM có nhiều items chưa xử lý

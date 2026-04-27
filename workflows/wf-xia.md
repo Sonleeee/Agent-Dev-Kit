@@ -1,7 +1,7 @@
 ---
 id: xia
 type: utility
-entry-command: /sk-xia
+entry-command: /wf-xia
 description: Phân tích external repo → port feature vào local project theo local conventions
 modifiers:
   --compare: Chỉ so sánh kiến trúc 2 repos — không port code
@@ -10,7 +10,7 @@ modifiers:
   --improve: Copy + refactor + áp dụng best practices
 ---
 
-# /sk-xia
+# /wf-xia
 
 **Mục tiêu:** Phân tích feature từ external repo → port vào local project, đảm bảo phù hợp conventions và architecture local.
 

@@ -1,5 +1,5 @@
 ---
-name: session-start
+name: sk-session-start
 description: |
   Khởi động session với pipeline cố định clarify -> plan -> impl -> review.
   Gọi 1 lần đầu session. AI tự quản lý stage và tự chuyển khi user chốt.
@@ -59,10 +59,10 @@ Ví dụ:
 
 | Lệnh | Hành động |
 |---|---|
-| `/sk-clarify` | Quay lại CLARIFY bất cứ lúc nào — không cần gate |
-| `/sk-plan` | Chuyển sang PLAN (kiểm tra Gate 1, báo nếu fail) |
-| `/sk-impl` | Chuyển sang IMPL (kiểm tra Gate 2, báo nếu fail) |
-| `/sk-review` | Chuyển sang REVIEW |
+| `/wf-clarify` | Quay lại CLARIFY bất cứ lúc nào — không cần gate |
+| `/wf-plan` | Chuyển sang PLAN (kiểm tra Gate 1, báo nếu fail) |
+| `/wf-impl` | Chuyển sang IMPL (kiểm tra Gate 2, báo nếu fail) |
+| `/wf-review` | Chuyển sang REVIEW |
 | `/status` | Hiển thị trạng thái stage và gate hiện tại |
 
 ---
@@ -75,7 +75,7 @@ Ví dụ:
 
 Mục tiêu: làm rõ bài toán — không thiết kế, không code.
 
-Skill gọi bên trong: `core/business-discovery`
+Skill gọi bên trong: `core/sk-business-discovery`
 
 Checklist cần pass trước khi sang PLAN:
 - [ ] Problem statement rõ
@@ -99,7 +99,7 @@ KHÔNG tự chuyển sang PLAN khi checklist chưa pass — hỏi thêm.
 
 Mục tiêu: chốt approach và ràng buộc implement.
 
-Skill gọi bên trong: `core/solution-planning`, `core/api-contract-guard` (nếu API đổi)
+Skill gọi bên trong: `core/sk-solution-planning`, `core/sk-api-contract-guard` (nếu API đổi)
 
 Output bắt buộc:
 - [ ] Chosen approach

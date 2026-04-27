@@ -2,17 +2,17 @@
 id: clarify
 type: stage
 stage-number: 1
-entry-command: /sk-clarify
+entry-command: /wf-clarify
 next: plan
 prev: null
 input-from: user
 output-format: clarify-record
 gate-after: null
 skills-suggested:
-  - core/business-discovery
+  - core/sk-business-discovery
 ---
 
-# /sk-clarify
+# /wf-clarify
 
 **Mục tiêu:** Làm rõ đủ để code đúng, không cần analysis dài quá mức cần thiết.
 
@@ -58,13 +58,13 @@ User yêu cầu -> Agent nhận
 
 ## Template
 
-`../templates/sk-clarify-record.md.template`
+`../templates/wf-clarify-record.md.template`
 
 ## Guardrails
 
 - Không chốt design chi tiết trong bước này
 - Không generate task breakdown dài
-- Nếu task đã rất rõ, có thể rút gọn thành clarify-lite rồi sang `/sk-plan`
+- Nếu task đã rất rõ, có thể rút gọn thành clarify-lite rồi sang `/wf-plan`
 
 > [Terminal Orchestration] Antigravity có thể mở Terminal delegate research
 > cho sub-agent chuyên scan codebase (ví dụ codex-cli). Xem `addons/swarm/`.

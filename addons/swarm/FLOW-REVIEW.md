@@ -7,7 +7,7 @@ Review này dựa trên:
 - Global repo `.agents/`
 - Project-specific `.agents/` của `TL_BIOMASS_full`
 
-Mục tiêu là đánh giá vì sao flow hiện tại tạo ma sát trong thực tế, đặc biệt ở bước `/sk-impl`, và đề xuất hướng rút gọn mà vẫn giữ được sức mạnh của project context (`architecture.md`, `checklist.md`, `templates/`).
+Mục tiêu là đánh giá vì sao flow hiện tại tạo ma sát trong thực tế, đặc biệt ở bước `/wf-impl`, và đề xuất hướng rút gọn mà vẫn giữ được sức mạnh của project context (`architecture.md`, `checklist.md`, `templates/`).
 
 ---
 
@@ -20,7 +20,7 @@ Thiết kế hiện tại tách:
 - global `.agents/` = workflow logic chung, quality gates, reusable skills
 - project `.agents/` = pattern thật của codebase, template thật, checklist riêng
 
-Đây là hướng đúng. Với dự án như TL_BIOMASS, phần quyết định `/sk-impl` code có đúng hay không nằm ở:
+Đây là hướng đúng. Với dự án như TL_BIOMASS, phần quyết định `/wf-impl` code có đúng hay không nằm ở:
 
 - `AGENTS.md`
 - `context/architecture.md`
@@ -50,7 +50,7 @@ Project này không chỉ có `architecture.md`, mà còn có template BE/FE r�
 - FE template guide chỉ rõ naming, request/response split, service/page pattern
 - Checklist project có các pattern checks rất sát thực tế
 
-Đây mới là thứ giúp `/sk-impl` bám pattern.
+Đây mới là thứ giúp `/wf-impl` bám pattern.
 
 ---
 
@@ -60,7 +60,7 @@ Project này không chỉ có `architecture.md`, mà còn có template BE/FE r�
 
 Flow hiện tại:
 
-`/biz-research -> /sk-brainstorm -> /solution -> /solution-plan -> /sk-impl -> /preview`
+`/biz-research -> /wf-brainstorm -> /solution -> /solution-plan -> /wf-impl -> /preview`
 
 Trên thực tế, nhiều task chỉ cần:
 
@@ -71,21 +71,21 @@ Trên thực tế, nhiều task chỉ cần:
 
 Hai cặp bước đang chồng nghĩa rõ nhất:
 
-- `/biz-research` và `/sk-brainstorm`
+- `/biz-research` và `/wf-brainstorm`
 - `/solution` và `/solution-plan`
 
 Hệ quả là user phải “điền form nhiều lần”, còn agent thì tốn context window nhưng không tăng độ đúng tương ứng.
 
-### 2. `/sk-impl` đang bị nhồi quá nhiều trách nhiệm
+### 2. `/wf-impl` đang bị nhồi quá nhiều trách nhiệm
 
-Hiện tại `/sk-impl` vừa phải:
+Hiện tại `/wf-impl` vừa phải:
 
 - đọc plan
 - load context
 - gọi subagent implement
 - review spec
 - review quality
-- chạy build/sk-test
+- chạy build/wf-test
 - loop retry
 
 Đây là nơi dễ timeout nhất, đặc biệt khi subagent là Gemini-CLI qua MCP/stdio.
@@ -109,7 +109,7 @@ Nhưng repo hiện tại mới mô tả flow nhiều hơn là định nghĩa ope
 
 Khi integration không ổn định, flow dài sẽ sập trước.
 
-### 4. Global repo chưa đặt project template đúng vị trí trung tâm của `/sk-impl`
+### 4. Global repo chưa đặt project template đúng vị trí trung tâm của `/wf-impl`
 
 Trong thực tế của TL_BIOMASS:
 
@@ -158,7 +158,7 @@ Trong khi usage thực tế của bạn đang là:
 
 - hỏi đáp/risk discovery
 - chốt hướng
-- `/sk-impl`
+- `/wf-impl`
 
 Tức là tài liệu và hành vi thật đang lệch nhau.
 
@@ -179,23 +179,23 @@ Tức là tài liệu và hành vi thật đang lệch nhau.
    - anti-pattern riêng
    - checklist riêng
 
-3. `/sk-impl` phải là bước thi hành hẹp, không phải “siêu pipeline”.
+3. `/wf-impl` phải là bước thi hành hẹp, không phải “siêu pipeline”.
 
 ### Flow mới nên rút về 4 bước
 
-`/sk-clarify -> /sk-plan -> /sk-impl -> /sk-review`
+`/wf-clarify -> /wf-plan -> /wf-impl -> /wf-review`
 
 Trong đó:
 
-- `/sk-clarify`: làm rõ problem, scope, risks, open questions, root cause nếu là bug
-- `/sk-plan`: chốt approach, impacted modules, pattern constraints, template selection, test obligations
-- `/sk-impl`: implement task đã bounded, dựa trên project context và template
-- `/sk-review`: verify theo checklist subset/full tùy task
+- `/wf-clarify`: làm rõ problem, scope, risks, open questions, root cause nếu là bug
+- `/wf-plan`: chốt approach, impacted modules, pattern constraints, template selection, test obligations
+- `/wf-impl`: implement task đã bounded, dựa trên project context và template
+- `/wf-review`: verify theo checklist subset/full tùy task
 
 ### Shortcut nên có 2 loại
 
-- `/sk-delivery-lite`: task rõ, đi thẳng `clarify-lite -> plan-lite -> impl -> review`
-- `/sk-delivery`: task phức tạp, cho phép hỏi đáp và plan kỹ hơn
+- `/wf-delivery-lite`: task rõ, đi thẳng `clarify-lite -> plan-lite -> impl -> review`
+- `/wf-delivery`: task phức tạp, cho phép hỏi đáp và plan kỹ hơn
 
 ---
 
@@ -203,7 +203,7 @@ Trong đó:
 
 - Ít bước hơn nhưng không bỏ quality gate
 - Đúng cách bạn đang làm thật
-- Đẩy trọng tâm của `/sk-impl` sang project template thay vì generic plan text
+- Đẩy trọng tâm của `/wf-impl` sang project template thay vì generic plan text
 - Giảm nguy cơ timeout khi gọi Gemini-CLI
 - Dễ dạy user cách dùng hơn
 
@@ -214,15 +214,15 @@ Trong đó:
 ### Nên làm ngay
 
 - Thêm workflow V2 song song với flow cũ
-- Định nghĩa `/sk-clarify`, `/sk-plan`, `/sk-delivery-lite`
-- Ghi rõ project templates là mandatory input của `/sk-impl`
-- Giới hạn `/sk-impl` chỉ nhận task đã bounded
+- Định nghĩa `/wf-clarify`, `/wf-plan`, `/wf-delivery-lite`
+- Ghi rõ project templates là mandatory input của `/wf-impl`
+- Giới hạn `/wf-impl` chỉ nhận task đã bounded
 
 ### Nên làm tiếp theo
 
 - Chuẩn hóa naming cho MCP server/tool
 - Tách policy timeout/retry cho Gemini-CLI ra tài liệu riêng
-- Đổi `/preview` thành `/sk-review`, giữ alias cũ để tương thích
+- Đổi `/preview` thành `/wf-review`, giữ alias cũ để tương thích
 
 ### Không nên làm
 
@@ -239,6 +239,6 @@ Repo này có nền tốt, nhưng đang thiên về “workflow completeness” 
 Hướng đúng không phải là thêm rule, mà là:
 
 - rút bớt stage
-- đưa project templates lên trung tâm của `/sk-impl`
+- đưa project templates lên trung tâm của `/wf-impl`
 - giảm orchestration giả định
 - dùng flow theo đúng hành vi làm việc thực tế của bạn

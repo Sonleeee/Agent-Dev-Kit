@@ -1,7 +1,7 @@
 ---
 id: git
 type: utility
-entry-command: /sk-git
+entry-command: /wf-git
 description: Git operations — commit message, PR description, changelog
 modifiers:
   --commit: Chỉ tạo commit message (conventional commit format)
@@ -9,13 +9,13 @@ modifiers:
   --changelog: Update changelog từ commits
 ---
 
-# /sk-git
+# /wf-git
 
 **Mục tiêu:** Tự động hóa git operations — commit messages, PR descriptions, changelog.
 
 ## Khi nào dùng
 
-- Sau `/sk-impl` — tạo commit message chuẩn
+- Sau `/wf-impl` — tạo commit message chuẩn
 - Chuẩn bị submit PR — tạo PR description
 - Release — compile changelog
 

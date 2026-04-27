@@ -33,12 +33,12 @@ Khong dung lai cac ten mo ho:
 
 ### Serial (default):
 ```text
-/sk-clarify -> /sk-plan -> /sk-impl -> /sk-review
+/wf-clarify -> /wf-plan -> /wf-impl -> /wf-review
 ```
 
 ### Parallel (khi impl co nhieu task):
 ```text
-/sk-clarify -> /sk-plan -> /sk-impl (fan-out 3 agents) -> build verify -> /sk-review
+/wf-clarify -> /wf-plan -> /wf-impl (fan-out 3 agents) -> build verify -> /wf-review
 ```
 
 ## 2.1. Transport
@@ -79,8 +79,8 @@ Lam:
 - doc project templates
 - implement bounded BE/logic task
 - self-check
-- research codebase (cho /sk-clarify)
-- draft plan (cho /sk-plan)
+- research codebase (cho /wf-clarify)
+- draft plan (cho /wf-plan)
 - structured 4-layer review (reviewer chinh)
 
 Khong lam:
@@ -300,13 +300,13 @@ Day la source of truth cho naming va role mapping.
 
 | Workflow | Output | Template |
 |---|---|---|
-| `/sk-clarify` | `clarify-record` | `templates/sk-clarify-record.md.template` |
-| `/sk-plan` | `implementation-plan-lite` | `templates/implementation-plan-lite.md.template` |
-| `/sk-impl` | `impl-summary` | `templates/sk-impl-summary.md.template` |
-| `/sk-impl` (parallel) | `impl-task-matrix` | `templates/sk-impl-task-matrix.md.template` |
-| `/sk-review` | `review-summary` | `templates/sk-review-summary.md.template` |
-| `/sk-review` (checklist) | `review-checklist` | `templates/sk-review-checklist.md.template` |
-| `/sk-delivery` | `delivery-report` | `templates/sk-delivery-report.md.template` |
+| `/wf-clarify` | `clarify-record` | `templates/wf-clarify-record.md.template` |
+| `/wf-plan` | `implementation-plan-lite` | `templates/implementation-plan-lite.md.template` |
+| `/wf-impl` | `impl-summary` | `templates/wf-impl-summary.md.template` |
+| `/wf-impl` (parallel) | `impl-task-matrix` | `templates/wf-impl-task-matrix.md.template` |
+| `/wf-review` | `review-summary` | `templates/wf-review-summary.md.template` |
+| `/wf-review` (checklist) | `review-checklist` | `templates/wf-review-checklist.md.template` |
+| `/wf-delivery` | `delivery-report` | `templates/wf-delivery-report.md.template` |
 
 ---
 
@@ -315,7 +315,7 @@ Day la source of truth cho naming va role mapping.
 ### Van de he thong cu (da fix):
 
 - flow qua dai (6 buoc), nhieu buoc chong nghia
-- `/sk-impl` om qua nhieu trach nhiem
+- `/wf-impl` om qua nhieu trach nhiem
 - role implement va review chua tach ro
 - Gemini vua code vua review
 - project templates chua duoc dua vao trung tam
@@ -343,7 +343,7 @@ De khong bi tro lai he thong cu:
 1. Khong tao lai `solution` va `solution-plan` thanh stage bat buoc
 2. `gemini-cli` la implementer #2, KHONG phai sole reviewer
 3. `codex-cli` la reviewer chinh voi structured checklist
-4. Khong bo qua project templates trong `/sk-impl`
+4. Khong bo qua project templates trong `/wf-impl`
 5. Khong mo rong report/template theo huong bang bieu dai va formal
 6. Khong de utility workflow bien thanh main path
 7. File conflict: **bat buoc tach file**, khong co 2 agents cung sua 1 file

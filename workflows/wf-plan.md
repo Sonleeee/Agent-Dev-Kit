@@ -2,27 +2,27 @@
 id: plan
 type: stage
 stage-number: 2
-entry-command: /sk-plan
+entry-command: /wf-plan
 next: impl
 prev: clarify
 input-from: clarify-record
 output-format: implementation-plan-lite
 gate-after: gate-1
 skills-suggested:
-  - core/solution-planning
+  - core/sk-solution-planning
 modifiers:
   --fast: Bỏ qua phân tích sâu, plan-lite 3-5 dòng, không quality card chi tiết
   --deep: Research kỹ trước khi plan — đọc thêm docs, tìm precedent trong codebase
   --auto: Tự động approve plan, không hỏi user confirmation
 ---
 
-# /sk-plan
+# /wf-plan
 
 **Mục tiêu:** Chốt approach, chọn template, xác định scope thay đổi.
 
 ## Input tối thiểu
 
-- Output từ `/sk-clarify` (hoặc clarify-lite)
+- Output từ `/wf-clarify` (hoặc clarify-lite)
 - Project context đã load (architecture.md, templates/)
 
 ## Quy trình

@@ -79,7 +79,7 @@ No cho thay huong trien khai thuc te la MCP stdio server.
 
 ### OpenAI docs
 
-- [Docs MCP](https://developers.openai.com/learn/sk-docs-mcp)
+- [Docs MCP](https://developers.openai.com/learn/wf-docs-mcp)
 - [Codex CLI](https://developers.openai.com/codex/cli)
 
 ### GitHub / issue public
@@ -268,7 +268,7 @@ Them `gemini-cli` MCP server cho review lane.
 
 Muc tieu:
 
-- tach role code/sk-review
+- tach role code/wf-review
 - khong lam phuc tap implement lane ngay tu dau
 
 ### Giai doan 3
@@ -283,7 +283,7 @@ Chuan hoa payload contracts:
 Va gan vao flow:
 
 ```text
-/sk-clarify -> /sk-plan -> /sk-impl -> /sk-review
+/wf-clarify -> /wf-plan -> /wf-impl -> /wf-review
 ```
 
 ---

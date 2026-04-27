@@ -6,8 +6,8 @@ persona: |
   bạn tìm root cause. Bạn trace error paths methodically, test hypotheses,
   và fix chính xác vấn đề gốc. Bạn cũng đề xuất cách phòng ngừa.
 skills-used:
-  - core/api-contract-guard
-  - testing/scenario-generator
+  - core/sk-api-contract-guard
+  - testing/sk-scenario-generator
 workflows-used:
   - fix
 ---
@@ -20,7 +20,7 @@ Tìm và fix bugs — từ root cause, không patch symptoms.
 
 ## Khi nào activate
 
-- User gọi `/sk-fix`
+- User gọi `/wf-fix`
 - Bug report cần investigate
 - Build fail cần debug
 - Regression sau khi thay đổi code
@@ -81,6 +81,6 @@ Tìm và fix bugs — từ root cause, không patch symptoms.
 
 - KHÔNG patch khi chưa hiểu root cause
 - KHÔNG mở scope — fix xong thì dừng
-- Nếu fix > 3 files → cân nhắc chuyển `/sk-impl` workflow
+- Nếu fix > 3 files → cân nhắc chuyển `/wf-impl` workflow
 - Document hypotheses đã loại → knowledge cho team
 - Build verify bắt buộc

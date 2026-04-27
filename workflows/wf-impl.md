@@ -2,14 +2,14 @@
 id: impl
 type: stage
 stage-number: 3
-entry-command: /sk-impl
+entry-command: /wf-impl
 next: review
 prev: plan
 input-from: implementation-plan-lite
 output-format: impl-summary
 gate-after: gate-2
 skills-suggested:
-  - core/api-contract-guard
+  - core/sk-api-contract-guard
 modifiers:
   --fast: Bỏ qua research, code luôn từ context sẵn có, self-check rút gọn
   --tdd: Viết test trước, rồi implement code cho pass tests
@@ -17,13 +17,13 @@ modifiers:
   --no-test: Không bắt buộc test — dùng khi prototype/spike
 ---
 
-# /sk-impl
+# /wf-impl
 
 **Mục tiêu:** Implement code theo plan đã approved, build verification tự động.
 
 ## Input tối thiểu
 
-- Output từ `/sk-plan` (approved)
+- Output từ `/wf-plan` (approved)
 - Danh sách files/modules cần thay đổi
 - Pre-Implementation Quality Card
 - Template selection cho từng scope
@@ -44,7 +44,7 @@ Agent load project context:
 1. **Git Worktree Isolation:** AI thực hiện task trên một phân vùng độc lập để bảo vệ mã nguồn chính.
     - Lệnh khởi tạo: `git worktree add ../temp-[task_id] [branch_name] [base_branch]`
     - **Lợi ích:** Tránh xung đột file với User, tạo sandbox an toàn cho AI thực thi các lệnh build/test.
-    - **Dọn dẹp:** Sau khi `/sk-review` hoàn tất (PASS hoặc FAIL), worktree và nhánh tạm này PHẢI được xóa bỏ để giải phóng tài nguyên.
+    - **Dọn dẹp:** Sau khi `/wf-review` hoàn tất (PASS hoặc FAIL), worktree và nhánh tạm này PHẢI được xóa bỏ để giải phóng tài nguyên.
 2. **Tẩy Não Cục Bộ (Local Brainwash):** Khi Antigravity điều phối các Sub-agent (qua `gemini-cli`, `opencode-cli`):
     - **Minimal Context:** Chỉ truyền `implementation-plan-lite` và nội dung của **duy nhất** các file cần sửa.
     - **No Chat History:** TUYỆT ĐỐI không gửi kèm lịch sử chat của phiên chính để triệt tiêu bias và ảo giác luỹ kế.
@@ -81,7 +81,7 @@ dotnet build [project path]
 cd [fe-path] && npm run build
 ```
 
-- **Build PASS** → sang `/sk-review`
+- **Build PASS** → sang `/wf-review`
 - **Build FAIL** → phân tích error, fix, retry (max 3 lần)
 
 ### Bước 6: Dev Done
@@ -103,7 +103,7 @@ Kết luận Dev Done khi:
 
 ## Template
 
-- Output: `../templates/sk-impl-summary.md.template`
+- Output: `../templates/wf-impl-summary.md.template`
 
 ## Gate sau bước này (Gate 2 — Dev Done)
 
@@ -113,7 +113,7 @@ Kết luận Dev Done khi:
 
 ## Guardrails
 
-- `/sk-impl` không phải là review step
+- `/wf-impl` không phải là review step
 - Nếu project có `context/templates/`, đây là input bắt buộc
 - Build verification là gate bắt buộc, không được skip
 - Không mở rộng scope ngoài plan đã approved

@@ -6,9 +6,9 @@ persona: |
   evidence, không theo cảm tính. Bạn KHÔNG tự sửa code — chỉ report findings
   với severity rõ ràng và fix suggestions cụ thể.
 skills-used:
-  - core/regression-checklist
-  - core/api-contract-guard
-  - security/owasp-scan
+  - core/sk-regression-checklist
+  - core/sk-api-contract-guard
+  - security/sk-owasp-scan
 workflows-used:
   - review
 ---
@@ -21,8 +21,8 @@ Review code theo 5-layer process — đảm bảo quality trước khi ship.
 
 ## Khi nào activate
 
-- Sau `/sk-impl` (Gate 2 passed)
-- User gọi `/sk-review`
+- Sau `/wf-impl` (Gate 2 passed)
+- User gọi `/wf-review`
 - Code đã build pass
 
 ## Quy trình
@@ -31,7 +31,7 @@ Review code theo 5-layer process — đảm bảo quality trước khi ship.
 
 Thu thập:
 
-- Changed files list từ `/sk-impl` output
+- Changed files list từ `/wf-impl` output
 - Checklist từ quality card
 - Architecture rules từ `context/architecture.md`
 - Template patterns từ `context/templates/`

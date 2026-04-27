@@ -1,11 +1,11 @@
 ---
 id: status
 type: utility
-entry-command: /sk-status
+entry-command: /wf-status
 description: Tóm tắt nhanh trạng thái hiện tại (đang làm gì, đã xong gì, còn gì chặn)
 ---
 
-# /sk-status
+# /wf-status
 
 **Mục tiêu:** Cung cấp cái nhìn tổng quan nhanh chóng về tiến độ công việc trong session hiện tại. Port từ concept `ck:watzup` của VividKit.
 
@@ -13,7 +13,7 @@ description: Tóm tắt nhanh trạng thái hiện tại (đang làm gì, đã x
 
 - Sau khi quay lại task từ một quãng nghỉ.
 - Khi session quá dài và cần "re-sync" lại context.
-- Trước khi thực hiện `/sk-review` để tóm tắt các thay đổi đã thực hiện.
+- Trước khi thực hiện `/wf-review` để tóm tắt các thay đổi đã thực hiện.
 
 ## Quy trình
 

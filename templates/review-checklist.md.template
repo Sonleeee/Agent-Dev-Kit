@@ -9,11 +9,11 @@
 
 ## Layer 1: Implementation Checklist
 
-Verify tung item tu checklist da tao o /sk-impl.
+Verify tung item tu checklist da tao o /wf-impl.
 
 | # | Item | Status | Evidence |
 |---|---|---|---|
-| 1 | [checklist item from /sk-impl] | ✅ PASS / ❌ FAIL / ⚠️ UNPLANNED | [file:line] |
+| 1 | [checklist item from /wf-impl] | ✅ PASS / ❌ FAIL / ⚠️ UNPLANNED | [file:line] |
 
 ---
 

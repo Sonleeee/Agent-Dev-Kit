@@ -1,5 +1,5 @@
 ---
-name: Daily Task Sync
+name: sk-daily-task-sync
 description: Đồng bộ tasks từ notebook 📋 Daily Ops về SecondBrain local
 ---
 
@@ -48,7 +48,7 @@ Ghi output vào `02_Brain/Task Systems.md`:
 ## Khi nào dùng
 - Khi cần snapshot tasks về local
 - Khi cần review tuần qua
-- Được gọi bởi workflow `/sk-phone-sync`
+- Được gọi bởi workflow `/wf-phone-sync`
 
 ## Lưu ý
 - Notes trong Daily Ops dùng format checkbox markdown: `- [ ]` / `- [x]`

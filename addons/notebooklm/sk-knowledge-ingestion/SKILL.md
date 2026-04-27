@@ -1,5 +1,5 @@
 ---
-name: Knowledge Ingestion
+name: sk-knowledge-ingestion
 description: Đưa tài liệu thô vào notebook để tạo nền tri thức
 ---
 

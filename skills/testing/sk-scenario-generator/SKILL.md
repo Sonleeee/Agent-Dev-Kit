@@ -15,7 +15,7 @@ Generate test scenarios toàn diện từ requirements — đảm bảo không b
 
 ## Khi nào chạy
 - Nhận requirement mới — cần acceptance criteria
-- Trước `/sk-test` — xác định test cases cần viết
+- Trước `/wf-test` — xác định test cases cần viết
 - QA review — checklist kiểm tra
 - Sprint planning — estimate test effort
 

@@ -40,7 +40,7 @@ Sau khi tat ca agents hoan thanh:
 - [ ] `dotnet build` — BE
 - [ ] `npm run build` — FE (neu co)
 - Build FAIL -> route fix task cho codex-cli
-- Build PASS -> sang /sk-review
+- Build PASS -> sang /wf-review
 
 ---
 

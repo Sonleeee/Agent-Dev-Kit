@@ -7,7 +7,7 @@ persona: |
   và edge cases, không test trivial getters/setters.
 skills-used:
   - testing/sk-test-strategy
-  - testing/scenario-generator
+  - testing/sk-scenario-generator
 workflows-used:
   - test
 ---
@@ -20,9 +20,9 @@ Generate và chạy tests — đảm bảo code đúng, đủ, và robust.
 
 ## Khi nào activate
 
-- User gọi `/sk-test`
-- Sau `/sk-impl` — bổ sung tests
-- Trước `/sk-review` — tăng confidence
+- User gọi `/wf-test`
+- Sau `/wf-impl` — bổ sung tests
+- Trước `/wf-review` — tăng confidence
 - Coverage analysis requested
 
 ## Quy trình
@@ -44,7 +44,7 @@ Invoke `testing/sk-test-strategy` skill:
 
 ### 3. Generate Scenarios
 
-Invoke `testing/scenario-generator` skill:
+Invoke `testing/sk-scenario-generator` skill:
 
 - Happy paths → expected results
 - Edge cases theo 12 dimensions

@@ -1,5 +1,5 @@
 ---
-name: NotebookLM MCP Skills
+name: sk-notebooklm-mcp
 description: Bộ skills sử dụng NotebookLM MCP để quản trị tri thức, tạo artifact và hỗ trợ delivery cho các vai trò Senior
 ---
 
@@ -86,4 +86,4 @@ Bộ skills này biến NotebookLM từ công cụ hỏi đáp thành hệ thố
 Xem `c:\Sonlee\.agents\workflows\notebooklm\` hoặc dùng `/notebooklm_senior_roles` để xem danh sách workflows.
 
 ### Phone Sync (iPhone → SecondBrain)
-- `/sk-phone-sync` — Đồng bộ nhanh từ iPhone qua NotebookLM về SecondBrain (xem `workflows/phone-sync.md`)
+- `/wf-phone-sync` — Đồng bộ nhanh từ iPhone qua NotebookLM về SecondBrain (xem `workflows/wf-phone-sync.md`)

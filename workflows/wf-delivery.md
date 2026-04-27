@@ -1,16 +1,16 @@
 ---
 id: delivery
 type: shortcut
-entry-command: /sk-delivery
+entry-command: /wf-delivery
 stages: clarify -> plan -> impl -> review
 description: Task phức tạp — full flow
 modifiers:
   --fast: Mỗi stage chạy ở chế độ --fast, rút gọn tối đa
-  --parallel: Stage /sk-impl chạy multi-agent song song (Antigravity run_command via Terminal)
+  --parallel: Stage /wf-impl chạy multi-agent song song (Antigravity run_command via Terminal)
   --auto: Tự động approve tất cả gates, không hỏi user
 ---
 
-# /sk-delivery
+# /wf-delivery
 
 **Mục tiêu:** Full delivery flow cho task phức tạp.
 
@@ -24,11 +24,11 @@ modifiers:
 ## Flow
 
 ```text
-/sk-clarify → /sk-plan → /sk-impl → /sk-review
+/wf-clarify → /wf-plan → /wf-impl → /wf-review
 ```
 
 Mỗi stage chạy đầy đủ theo workflow riêng.
 
 ## Output
 
-`../templates/sk-delivery-report.md.template`
+`../templates/wf-delivery-report.md.template`

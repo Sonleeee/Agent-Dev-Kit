@@ -13,7 +13,7 @@ Không được bắt đầu code khi chưa có:
 - [ ] Scope in/out rõ ràng
 - [ ] UI/UX constraints đã được mô tả trong quality card
 - [ ] Validation + error handling constraints đã được mô tả
-- [ ] Permission/sk-security constraints đã được mô tả
+- [ ] Permission/wf-security constraints đã được mô tả
 - [ ] Performance expectation đã được xác định
 - [ ] API contract impact đã được đánh dấu (`Yes / No / Unknown`)
 - [ ] Implementation plan + task order đã có

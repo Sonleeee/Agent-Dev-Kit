@@ -35,7 +35,7 @@ Liet ke risk va edge cases chinh.
 
 ### Buoc 4 - Questions / Assumptions
 
-Chi ghi nhung gi can de sang `/sk-plan`.
+Chi ghi nhung gi can de sang `/wf-plan`.
 
 ### Buoc 5 - API Contract Flag
 
@@ -47,7 +47,7 @@ Danh dau:
 
 ## Output
 
-Dung template `templates/sk-clarify-record.md.template`.
+Dung template `templates/wf-clarify-record.md.template`.
 
 ## Guardrails
 

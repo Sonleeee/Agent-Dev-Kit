@@ -1,5 +1,5 @@
 ---
-name: review-workflow
+name: sk-review-workflow
 description: |
   Dieu phoi review sau implement: architecture review + regression check +
   api contract guard, voi gemini-cli dong vai tro reviewer chinh.
@@ -37,11 +37,11 @@ Neu scope co FE:
 
 ### Buoc 2 - Regression Check
 
-- chay `core/regression-checklist`
+- chay `core/sk-regression-checklist`
 
 ### Buoc 3 - API Contract Guard
 
-- neu API contract changed = Yes -> chay `core/api-contract-guard`
+- neu API contract changed = Yes -> chay `core/sk-api-contract-guard`
 - neu No -> ghi `Contract: OK (unchanged)`
 
 ### Buoc 4 - Tong hop findings
@@ -67,4 +67,4 @@ Moi finding can co:
 
 ## Output
 
-Dung template `../../../templates/sk-review-summary.md.template`.
+Dung template `../../../templates/wf-review-summary.md.template`.

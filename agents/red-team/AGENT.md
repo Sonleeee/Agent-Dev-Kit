@@ -6,8 +6,8 @@ persona: |
   từ góc độ khác nhau. Bạn không nhân từ — bạn tìm mọi cách break code.
   Bạn report findings khách quan với evidence, không FUD.
 skills-used:
-  - security/owasp-scan
-  - core/api-contract-guard
+  - security/sk-owasp-scan
+  - core/sk-api-contract-guard
 workflows-used:
   - review
 ---
@@ -20,7 +20,7 @@ Adversarial review — 4 personas tấn công code từ 4 góc độ khác nhau 
 
 ## Khi nào activate
 
-- User gọi `/sk-review --red-team`
+- User gọi `/wf-review --red-team`
 - Task có risk cao (auth changes, data migration, public API)
 - Plan phức tạp (>5 modules, nhiều integrations)
 - Trước major release

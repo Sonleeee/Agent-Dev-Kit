@@ -1,18 +1,18 @@
 ---
 id: security
 type: utility
-entry-command: /sk-security
+entry-command: /wf-security
 description: Quét bảo mật cơ bản — OWASP top 10, secrets, auth issues
 skills-suggested:
-  - security/owasp-scan
-  - security/secret-detection
+  - security/sk-owasp-scan
+  - security/sk-secret-detection
 modifiers:
   --owasp: Chỉ OWASP top 10 checks
   --secrets: Chỉ tìm hardcoded secrets
   --auth: Chỉ kiểm tra auth/authorization flow
 ---
 
-# /sk-security
+# /wf-security
 
 **Mục tiêu:** Quét bảo mật cơ bản cho codebase — phát hiện vulnerabilities phổ biến.
 
@@ -92,4 +92,4 @@ Agent output:
 - Security scan KHÔNG sửa code — chỉ report
 - KHÔNG log hoặc output sensitive data (keys, passwords) trong report
 - False positives phải được ghi rõ — đừng gây panic
-- Nếu có Critical finding → recommend KHÔNG deploy, chuyển `/sk-fix`
+- Nếu có Critical finding → recommend KHÔNG deploy, chuyển `/wf-fix`

@@ -25,7 +25,7 @@ Dùng để xác định checklist subset cần verify dựa trên đặc điể
 **Lý do:** Destructive actions cần confirmation + permission + behavior sau action.
 
 ### IF task-features includes "api-change"
-**Required checklist items:** chạy `core/api-contract-guard` đầy đủ
+**Required checklist items:** chạy `core/sk-api-contract-guard` đầy đủ
 **Lý do:** API change là nguồn gốc của FE/BE drift — phải guard riêng.
 
 ### IF task-features includes "auth" OR "permission"

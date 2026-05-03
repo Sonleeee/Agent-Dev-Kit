@@ -40,6 +40,21 @@ modifiers:
   │  └─ Nếu task rõ → skip (clarify-lite 1 câu)
   │  └─ Nếu task mơ hồ → hỏi user tối đa 3 câu
   │
+  ├─ Step 1.5: Cook Proposal — Trình User Phê Duyệt
+  │  Agent trình bày COOK PROPOSAL:
+  │
+  │  | Mục | Nội dung |
+  │  |---|---|
+  │  | **🎯 Task** | [Mô tả task sau clarify] |
+  │  | **📐 Approach** | [Hướng tiếp cận chính] |
+  │  | **📁 Files ảnh hưởng** | [Danh sách files dự kiến] |
+  │  | **🧪 Test plan** | [Sẽ test gì, hoặc SKIP nếu --no-test] |
+  │  | **⚠️ Risks** | [Rủi ro nếu có, "Không" nếu không] |
+  │
+  │  > ⏸️ PAUSE — Chờ user approve.
+  │  > Reject → dừng pipeline, quay lại clarify.
+  │  > User có thể chỉnh sửa Proposal trước khi approve.
+  │
   ├─ Step 2: Auto Plan
   │  └─ Plan-lite: approach + files + template selection
   │  └─ Quality card subset
@@ -60,6 +75,11 @@ modifiers:
   │  └─ Review-lite: checklist + build + architecture
   │  └─ Ship decision
   │  └─ Gate 3 check
+  │
+  ├─ Step 6: Knowledge Checkpoint
+  │  Agent hỏi: "📝 Lưu tri thức từ task này vào SecondBrain không?"
+  │  └─ Có → chạy sk-vault-steward
+  │  └─ Không → skip
   │
   └─ Output: Delivery Report
 ```
@@ -122,3 +142,5 @@ Delivery report tổng hợp:
 - Nếu task phức tạp (>5 files, nhiều modules) → recommend `/wf-delivery` thay vì `/wf-cook`
 - Không swallow errors — mọi failure phải visible trong report
 - User có thể interrupt bất kỳ lúc nào → agent dừng + report progress
+- TUYỆT ĐỐI không chạy pipeline khi user chưa approve Cook Proposal
+- User có thể chỉnh sửa Cook Proposal (thêm/bỏ file, đổi approach) trước khi approve

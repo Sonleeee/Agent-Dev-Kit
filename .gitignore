@@ -46,5 +46,6 @@ node_modules/
 
 # Logs
 *.log
+CHANGELOG.md
 
 

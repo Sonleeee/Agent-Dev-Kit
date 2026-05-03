@@ -1,4 +1,4 @@
----
+﻿---
 id: research
 type: utility
 entry-command: /wf-research
@@ -69,6 +69,18 @@ Agent ghi lại research notes:
 - Sources đã tìm (URLs, doc versions)
 - Key takeaways
 - Decision record (nếu đã chọn approach)
+
+
+### Bước 6: Knowledge Checkpoint
+
+Agent hỏi user: **"📝 Lưu research này vào SecondBrain không?"**
+
+- **Có** → chạy `sk-vault-steward`:
+  - Ghi findings vào `00_Raw/[topic]/`
+  - Nếu liên quan bài Wiki cũ → append
+  - Nếu concept mới → tạo bài Wiki
+  - Ghi log vào `02_Brain/log.md`
+- **Không** → skip
 
 ## Output bắt buộc
 

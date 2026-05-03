@@ -46,6 +46,27 @@ Shortcut:
 - `/wf-delivery-lite` — task rõ ràng, đi nhanh
 - `/wf-delivery` — task phức tạp, cần plan kỹ
 
+## Auto-Route (Intent → Workflow)
+
+Khi user mô tả task bằng ngôn ngữ tự nhiên (không gõ `/wf-`),
+agent phân loại intent và chọn workflow phù hợp.
+Agent **THÔNG BÁO** cho user workflow đang dùng trước khi bắt đầu.
+
+| Tín hiệu từ user | Workflow |
+|---|---|
+| fix, bug, lỗi, crash, exception, sai | `/wf-fix` |
+| thêm, tạo mới, feature, implement | `/wf-delivery` hoặc `/wf-delivery-lite` |
+| refactor, optimize, cải thiện | `/wf-clarify` → `/wf-plan` → `/wf-impl` |
+| nghiên cứu, research, tìm hiểu | `/wf-research` |
+| review, kiểm tra code | `/wf-review` |
+| test, viết test | `/wf-test` |
+| deploy, release | `/wf-deploy` |
+| commit, PR, changelog | `/wf-git` |
+| NLM, notebook, sync | `/wf-vault-sync` |
+| trạng thái, đang làm gì | `/wf-status` |
+
+> Nếu intent không rõ → hỏi user. Không đoán bừa.
+
 ## Mode Modifiers
 
 Nhiều workflows hỗ trợ mode modifiers để điều chỉnh hành vi:

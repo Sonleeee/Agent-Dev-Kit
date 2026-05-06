@@ -1,0 +1,44 @@
+# Conflict Report
+
+**Task:** [task-name]
+**Date:** [date]
+**Detected at:** Layer 4 — Scope & Drift Detection
+
+---
+
+## ⚠️ CONFLICT DETECTED
+
+### Conflict #[N]: [Tên ngắn gọn]
+
+| Nguồn | Nội dung |
+|-------|----------|
+| **Code (diff)** | `[code snippet từ diff]` — file: [file:line] |
+| **Context** | Rule: "[rule trích dẫn]" — source: [architecture.md / template / checklist] |
+
+**Phân tích:**
+[Giải thích tại sao code khác context. Code follow legacy pattern? Hay code là evolution mới?]
+
+**Options:**
+- [ ] **A: Fix code theo Context** — [mô tả ngắn cách fix] *(recommended nếu context mới hơn)*
+- [ ] **B: Update Context theo code** — [mô tả ngắn update gì] *(recommended nếu code là evolution)*
+- [ ] **C: Giữ cả hai, tag [Legacy]** — [giữ rule cũ, thêm note] *(recommended nếu migration dần)*
+
+→ **CHỜ user chọn.**
+
+---
+
+## Sau User Decision — Sync Actions
+
+| User chọn | Hành động tự động |
+|-----------|-------------------|
+| A: Fix theo Context | Agent fix code, re-review Layer 1 |
+| B: Update Context | Agent cập nhật context files (chạy sk-context-update) |
+| C: Keep Both | Agent thêm tag [Legacy] vào context entry |
+
+---
+
+## Escalation
+
+Nếu conflict lặp ≥ 2 lần (cùng pattern vi phạm ở 2+ reviews):
+→ Đề xuất: "Thêm Pitfall P{n+1} vào architecture.md? [Y/N]"
+→ Nếu Y: append vào Known Pitfalls section với provenance.

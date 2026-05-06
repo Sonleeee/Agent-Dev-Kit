@@ -2,60 +2,57 @@
 
 **Task:** [task-name]
 **Date:** [date]
-**Review Mode:** Single (codex-cli) / Dual (codex-cli + gemini-cli)
+**Review Mode:** Single / Dual
+**Change Size:** Patch | Small Fix | Feature | Architecture
+**Accelerators Used:** None | GitNexus | Graphify | Both
 
 ---
 
 ## Layer Summary
 
-| Layer | Items | Pass | Fail | Unplanned |
-|---|---|---|---|---|
-| 1. Checklist Verification | [count] | [count] | [count] | [count] |
-| 2. Code Existence | [count] | [count] | [count] | — |
-| 3. Architecture Compliance | [count] | [count] | [count] | — |
-| 4. Unplanned Code | [count] | — | — | [count] |
-| 5. Cross-Agent Contracts | [count] | [count] | [count] | — |
+| Layer | Items | Pass | Fail | Partial |
+|-------|:-----:|:----:|:----:|:-------:|
+| 1. Completeness & Existence | [count] | [count] | [count] | [count] |
+| 2. Architecture & Pattern | [count] | [count] | [count] | — |
+| 3. Logic, Quality & Edge Cases | [count] | [count] | [count] | — |
+| 4. Scope & Drift | [count] | — | — | — |
 
 ---
 
 ## Findings
 
-### ❌ FAIL Items
-- [item]: [evidence] → Fix suggestion: [fix]
+### 🔴 Critical
+- [item]: [evidence] → Fix: [suggestion]
 
-### ⚠️ UNPLANNED Items
-- [item]: [description] → Needs human review
+### 🟠 Major
+- [item]: [evidence] → Fix: [suggestion]
 
-### Critical
-- [none or item]
+### 🟡 Minor
+- [item]: [detail]
 
-### Major
-- [none or item]
-
-### Minor
-- [none or item]
+### 🔵 Info
+- [item]: [suggestion]
 
 ---
 
-## Cross-Agent Contract Status
+## Conflicts Detected
 
-| # | Provider → Consumer | Function | Match? |
-|---|---|---|---|
-| 1 | [agent → agent] | [func(params)] | ✅ / ❌ |
+| # | Code vs Context | Type | User Decision |
+|---|----------------|------|:-------------:|
+| 1 | [conflict summary] | Legacy / Evolution | Pending / Resolved |
 
 ---
-
-## Contract Status
-`OK / Risk`
 
 ## Residual Risks
+
 - [item]
 
 ## Ship Decision
 
-`Ready / Blocked / Needs Review`
+`Ready / Blocked / Pending`
 
-### Action Required (neu co)
-- [ ] Fix FAIL items
-- [ ] User review UNPLANNED items
-- [ ] Align cross-agent contract mismatches
+### Action Required (nếu có)
+
+- [ ] Fix Critical/Major items
+- [ ] User resolve conflict(s)
+- [ ] Re-review after fix

@@ -1,81 +1,89 @@
 # Review Checklist
 
 **Task:** [task-name]
-**Reviewer:** codex-cli [+ gemini-cli neu dual review]
+**Reviewer:** [reviewer-agent]
 **Review Mode:** single | dual
 **Date:** [date]
+**Change Size:** Patch | Small Fix | Feature | Architecture
+**Layers Applied:** [1, 2, 3, 4]
 
 ---
 
-## Layer 1: Implementation Checklist
+## Bước 0: Preparation
 
-Verify tung item tu checklist da tao o /wf-impl.
-
-| # | Item | Status | Evidence |
-|---|---|---|---|
-| 1 | [checklist item from /wf-impl] | ✅ PASS / ❌ FAIL / ⚠️ UNPLANNED | [file:line] |
+**Task-Features Detected:** [data-table, form-submit, api-change, ...]
+**Mapping Rules Applied:** [#7, #8, #10, ...]
+**Accelerators:** None | GitNexus | Graphify | Both
 
 ---
 
-## Layer 2: Code Existence
+## Layer 1: Completeness & Existence
 
-Verify code thuc su ton tai trong files, khong phai chi "planned".
+Verify code đã implement đúng và đủ theo plan.
 
-| # | Expected Code | Actually Exists? | Location |
-|---|---|---|---|
-| 1 | [description of expected code] | Yes / No | [file:line] |
-
----
-
-## Layer 3: Architecture Compliance
-
-So sanh code vs template pattern, bat architecture drift.
-
-| # | Template Rule | Compliant? | Detail |
-|---|---|---|---|
-| 1 | [rule from project template] | ✅ / ❌ | [explanation] |
+| # | Checklist Item | Status | Evidence |
+|---|----------------|--------|----------|
+| 1 | [item from /wf-impl] | ✅ PASS / ❌ FAIL / ⚠️ PARTIAL | [file:line + code snippet] |
 
 ---
 
-## Layer 4: Unplanned Code
+## Layer 2: Architecture & Pattern Compliance
 
-Phat hien code CO nhung KHONG NAM trong plan/template.
+So sánh code vs kiến trúc và pattern dự án.
 
-| # | Found Code | In Plan? | In Template? | Verdict |
-|---|---|---|---|---|
-| 1 | [description of found code] | No | No | ⚠️ UNPLANNED |
+**Pre-check Result:** CLEAN / FLAGGED
 
----
-
-## Layer 5: Cross-Agent Contract Verification
-
-Verify cross-agent func name + params match giua cac agents.
-
-| # | Provider Agent | Consumer Agent | Function | Params Match? | Status |
-|---|---|---|---|---|---|
-| 1 | codex-cli | gemini-cli | [func_name] | ✅ / ❌ | [detail] |
+| # | Rule (from context) | Compliant? | Severity | Detail |
+|---|---------------------|:----------:|:--------:|--------|
+| 1 | [architecture rule] | ✅ / ❌ | 🟠 Major / 🟡 Minor | [explanation + evidence] |
 
 ---
 
-## Summary
+## Layer 3: Logic, Quality & Edge Cases
 
-| Category | Count |
-|---|---|
-| ✅ Pass | [count] |
-| ❌ Fail | [count] |
-| ⚠️ Unplanned | [count] |
+Kiểm tra business logic, error handling, edge cases theo task-features.
+
+| # | Check Item | Source | Status | Severity | Detail |
+|---|-----------|--------|:------:|:--------:|--------|
+| 1 | [check description] | mapping-rules / requirements | ✅ / ❌ | [severity] | [evidence] |
+
+---
+
+## Layer 4: Scope & Drift Detection
+
+### Part A: Unplanned Code
+
+| # | Found Code | Concerning? | Reason |
+|---|-----------|:-----------:|--------|
+| 1 | [description] | Yes / No | [why it's concerning or acceptable] |
+
+### Part B: Conflict Detection (Code vs Context)
+
+| # | Code Pattern | Context Rule | Type | Status |
+|---|-------------|-------------|------|--------|
+| 1 | [code pattern found] | [context rule] | Legacy / Evolution | ⚠️ CONFLICT / ✅ ALIGNED |
+
+---
+
+## Severity Summary
+
+| Severity | Count |
+|----------|:-----:|
+| 🔴 Critical | [count] |
+| 🟠 Major | [count] |
+| 🟡 Minor | [count] |
+| 🔵 Info | [count] |
 
 ## Ship Decision
 
-`Ready / Blocked / Needs Review`
+`Ready / Blocked / Pending`
 
-### Neu Blocked
+### Nếu Blocked
 
-- [ ] Fail items can fix
-- [ ] Unplanned items can review manual
-- [ ] Cross-agent contract mismatch can align
+- [ ] Fix Critical/Major items
+- [ ] Re-review after fix
 
-### Neu Needs Review
+### Nếu Pending
 
-- [ ] User can review unplanned items
-- [ ] User can approve ship
+- [ ] User resolve Conflict Reports
+- [ ] Re-evaluate ship decision after resolution

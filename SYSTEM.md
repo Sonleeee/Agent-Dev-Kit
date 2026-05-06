@@ -193,7 +193,7 @@ Kit cung cấp 6 agent personas trong `agents/`. Mỗi agent là 1 `AGENT.md` ch
 |---|---|---|
 | `planner` | Lập plan, phân tích scope, chọn approach | `/wf-clarify`, `/wf-plan` |
 | `implementer` | Code theo plan, bám sát template | `/wf-impl` |
-| `reviewer` | Review 5-layer, ship decision | `/wf-review` |
+| `reviewer` | Review 4-layer, severity-based, ship decision | `/wf-review` |
 | `debugger` | Debug root cause, không patch bừa | `/wf-fix` |
 | `tester` | Generate tests, coverage analysis | `/wf-test` |
 | `red-team` | 4 adversarial personas tấn công code | `/wf-review --red-team` |
@@ -202,6 +202,30 @@ Kit cung cấp 6 agent personas trong `agents/`. Mỗi agent là 1 `AGENT.md` ch
 - IDE hỗ trợ subagent → tự invoke agent phù hợp
 - IDE không hỗ trợ → user copy persona prompt thủ công
 - Swarm setup → xem `addons/swarm/README.md`
+
+## Truth Hierarchy — Dual Mode
+
+### Lookup Order (tìm thông tin ở đâu trước? → tiết kiệm token)
+
+1. 🥇 `.agents/context/` — tóm tắt rules, đã curate
+2. 🥈 Code thực tế — ground truth nhưng tốn token
+
+> Wiki/SecondBrain: pending — sẽ thêm sau khi integrate.
+
+### Review Priority (check pattern compliance theo thứ tự nào?)
+
+1. 🥇 Code mới impl (diff) — subject đang review
+2. 🥈 `.agents/context/` — tiêu chuẩn check
+
+> Wiki/SecondBrain: pending.
+
+### Khi có Conflict (Code ≠ Context)
+
+- KHÔNG tự quyết định
+- Luôn trình **Conflict Report** cho user (xem `templates/conflict-report.md.template`)
+- User chọn: Fix code / Update context / Keep both + tag [Legacy]
+
+---
 
 ## Multi-Agent (tùy chọn)
 

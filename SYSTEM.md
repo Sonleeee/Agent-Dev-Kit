@@ -125,7 +125,7 @@ Blocked nếu:
 
 | Nhóm | Mô tả | Cần project context? |
 |---|---|---|
-| `core/` | Discovery, planning, guard, regression | Không |
+| `core/` | Discovery, planning, guard, regression, context management, vault sync | Không |
 | `meta/` | Tạo/cải thiện agent system | Không |
 | `devops/` | CI/CD pipeline, Docker review | Không |
 | `security/` | OWASP scan, secret detection | Không |
@@ -203,21 +203,43 @@ Kit cung cấp 6 agent personas trong `agents/`. Mỗi agent là 1 `AGENT.md` ch
 - IDE không hỗ trợ → user copy persona prompt thủ công
 - Swarm setup → xem `addons/swarm/README.md`
 
+## Tiered Context Loading
+
+Khi project có `architecture.md` theo TIER format, agent load theo nhu cầu:
+
+| Tier | Nội dung | Load khi nào | Token ước tính |
+|------|---------|-------------|:--------------:|
+| **TIER-0** | Core rules, naming, folder, anti-pattern index | Luôn luôn | ≤1,000 |
+| **TIER-1** | Pattern detail theo [TAG] | Theo task-feature | ~500-1,000 |
+| **TIER-2** | Full examples, decision tree, legacy notes | On-demand | ~0-2,000 |
+
+### Loading Protocol
+
+```
+1. LUÔN đọc TIER-0 (≤200 lines)
+2. Xác định task-feature → tìm [TAG] phù hợp → đọc TIER-1 section đó
+3. Chỉ đọc TIER-2 khi:
+   - Cần ✅/❌ code examples
+   - Cần decision tree cho pattern có variants
+   - Cần kiểm tra baseline modules
+```
+
+> Nếu `architecture.md` CHƯA theo TIER format → đọc toàn bộ (fallback).
+
+---
+
 ## Truth Hierarchy — Dual Mode
 
 ### Lookup Order (tìm thông tin ở đâu trước? → tiết kiệm token)
 
-1. 🥇 `.agents/context/` — tóm tắt rules, đã curate
-2. 🥈 Code thực tế — ground truth nhưng tốn token
-
-> Wiki/SecondBrain: pending — sẽ thêm sau khi integrate.
+1. 🥇 `SecondBrain/03_Cache/` — cached analysis (nếu có, check TTL)
+2. 🥈 `.agents/context/` — tóm tắt rules, đã curate
+3. 🥉 Code thực tế — ground truth nhưng tốn token
 
 ### Review Priority (check pattern compliance theo thứ tự nào?)
 
 1. 🥇 Code mới impl (diff) — subject đang review
 2. 🥈 `.agents/context/` — tiêu chuẩn check
-
-> Wiki/SecondBrain: pending.
 
 ### Khi có Conflict (Code ≠ Context)
 

@@ -39,6 +39,16 @@ clarify-lite → plan-lite → /wf-impl → review-lite
 - Build pass check
 - Quick ship decision
 
+## Knowledge Checkpoint
+
+Áp dụng `SYSTEM.md` → Brain Writeback Policy.
+
+| Điều kiện | Mode | Hành động |
+|-----------|------|-----------|
+| Bug nhỏ nhưng root cause/pitfall có thể lặp lại | `AUTO` | Gọi `sk-vault-steward` với `type: bugfix`, target `cache:patterns` |
+| Feature đơn giản có lesson/pattern mới | `ASK` | Trình Memory Candidate |
+| Task thường ngày, không có lesson mới | `SKIP` | Không ghi |
+
 ## Output
 
 `../templates/wf-delivery-report.md.template`

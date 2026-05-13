@@ -251,6 +251,26 @@ Agent phân loại MỖI finding theo 4 mức:
 
 ---
 
+## Bước 4: Knowledge Checkpoint
+
+Áp dụng `SYSTEM.md` → Brain Writeback Policy.
+
+| Điều kiện | Mode | Hành động |
+|-----------|------|-----------|
+| Có Critical/Major finding, architecture violation, hoặc context drift | `AUTO` | Gọi `sk-vault-steward` với `type: review`, target `cache:reviews` |
+| Review clean nhưng phát hiện pattern/pitfall có thể tái sử dụng | `ASK` | Trình Memory Candidate |
+| Review clean, không có insight mới | `SKIP` | Không ghi |
+
+Khi ghi, chỉ lưu finding đã chưng cất:
+- Finding title + severity
+- Evidence file/line
+- Rule/context liên quan
+- Fix suggestion
+- Ship impact
+- Nếu là repeated finding, thêm tags `recurring`, `pattern`
+
+---
+
 ## Output bắt buộc
 
 - Review checklist 4 layers
@@ -258,6 +278,7 @@ Agent phân loại MỖI finding theo 4 mức:
 - Ship decision: Ready / Blocked / Pending
 - Fix suggestions cho mỗi Critical/Major finding
 - Conflict Report (nếu có)
+- Knowledge Checkpoint: AUTO / ASK / SKIP + target
 
 ## Templates
 

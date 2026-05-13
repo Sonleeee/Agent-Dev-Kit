@@ -31,6 +31,14 @@
 - **rule-overrides:** `.agents/context/rule-overrides.approved.md`
   > Xóa dòng này nếu dùng global rules hoàn toàn
 
+## Integrations
+
+> Dùng để Agent-Dev-Kit ghi ngược tri thức có giá trị vào SecondBrain.
+
+- **kit-path:** `.agents/`
+- **vault-path:** `C:\Sonlee\AI\SecondBrain`
+  > Sửa lại nếu SecondBrain vault nằm ở đường dẫn khác. Để trống nếu project không dùng writeback.
+
 ## Reference Modules
 
 > Agent dùng các module này như "ground truth" khi sinh code.

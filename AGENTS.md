@@ -31,6 +31,11 @@
 - **project type registry:** `registry/index.md`
 - **mẫu passport cho app (Tầng 2):** `_project-template/AGENTS.md` — copy ra root repo dự án rồi điền theo app
 
+## Integrations
+
+- **kit-path:** `C:\Sonlee\AI\Agent-Dev-Kit`
+- **vault-path:** `C:\Sonlee\AI\SecondBrain`
+
 ## Nội dung chính trong repo
 
 | Khu vực | Vai trò |

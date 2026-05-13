@@ -93,6 +93,17 @@ Kết luận Dev Done khi:
 - [ ] Self-check pass theo quality card
 - [ ] API contract status rõ
 
+### Bước 7: Implementation Knowledge Checkpoint
+
+`/wf-impl` mặc định không ghi vào SecondBrain vì implementation summary thường là trạng thái tạm thời. Áp dụng `SYSTEM.md` → Brain Writeback Policy:
+
+| Điều kiện | Mode | Hành động |
+|-----------|------|-----------|
+| Trong lúc implement phát hiện reusable pattern, pitfall, hoặc context drift rõ ràng | `ASK` | Trình Memory Candidate, target `03_Cache/patterns` hoặc `03_Cache/decisions` |
+| Không có lesson mới ngoài thay đổi code theo plan | `SKIP` | Không ghi |
+
+Nếu workflow cha là `/wf-delivery` hoặc `/wf-cook`, để workflow cha tổng hợp writeback cuối flow.
+
 ## Output bắt buộc
 
 - Danh sách thay đổi đã implement
@@ -100,6 +111,7 @@ Kết luận Dev Done khi:
 - Kết quả self-check theo quality card
 - `API contract: OK / Risk`
 - Danh sách assumptions/blockers (nếu có)
+- Implementation Knowledge Checkpoint: ASK / SKIP
 
 ## Template
 

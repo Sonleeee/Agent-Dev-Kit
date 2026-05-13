@@ -29,6 +29,23 @@ modifiers:
 
 Mỗi stage chạy đầy đủ theo workflow riêng.
 
+## Knowledge Checkpoint
+
+`/wf-delivery` không ghi từng stage riêng lẻ. Sau khi `/wf-review` kết thúc, agent tổng hợp writeback theo `SYSTEM.md` → Brain Writeback Policy:
+
+| Điều kiện | Mode | Hành động |
+|-----------|------|-----------|
+| Review tạo AUTO checkpoint hoặc delivery sinh architecture decision | `AUTO` | Gọi `sk-vault-steward` một lần với summary cuối flow |
+| Task có lesson/pattern đáng nhớ nhưng không critical | `ASK` | Trình Memory Candidate |
+| Task thường ngày, không có lesson mới | `SKIP` | Không ghi |
+
+Nội dung ghi tối đa:
+- Task objective
+- Decision/pattern/lesson mới
+- Files/modules liên quan
+- Verification result
+- Link tới review/fix finding nếu có
+
 ## Output
 
 `../templates/wf-delivery-report.md.template`

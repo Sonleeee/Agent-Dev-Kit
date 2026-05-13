@@ -182,6 +182,22 @@ Output: Markdown report gọn gàng chứa:
 - {module} — vẫn dùng pattern cũ
 ```
 
+### Bước 5: Brain Writeback
+
+Áp dụng `SYSTEM.md` → Brain Writeback Policy.
+
+| Điều kiện | Mode | Hành động |
+|-----------|------|-----------|
+| Có approved update thuộc architecture evolution, legacy rule, hoặc recurring pitfall | `AUTO` | Gọi `sk-vault-steward` hoặc `sk-context-cache`, target `03_Cache/decisions` hoặc `03_Cache/patterns` |
+| Chỉ có minor wording/template cleanup | `SKIP` | Không ghi |
+
+Nội dung ghi:
+- Approved update summary
+- Before/After ngắn
+- Evidence modules
+- Confidence/provenance
+- Legacy impact nếu có
+
 ---
 
 ## Guardrails

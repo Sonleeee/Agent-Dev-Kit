@@ -52,6 +52,15 @@ Tạo Pre-Implementation Quality Card:
 - API contract risk assessment
 - Known pitfalls liên quan
 
+### Bước 4: Decision Checkpoint
+
+Áp dụng `SYSTEM.md` → Brain Writeback Policy.
+
+| Điều kiện | Mode | Hành động |
+|-----------|------|-----------|
+| Plan chốt architecture decision, library mới, API contract lớn, hoặc migration approach | `ASK` | Trình Memory Candidate với `type: decision`, target `03_Cache/decisions` |
+| Plan chỉ chia task thực thi thông thường | `SKIP` | Không ghi |
+
 ## Output bắt buộc
 
 - Approach (1 câu)
@@ -60,6 +69,7 @@ Tạo Pre-Implementation Quality Card:
 - Task breakdown (theo thứ tự)
 - Pre-Implementation Quality Card
 - `API contract risk: None / Low / High`
+- Decision Checkpoint: ASK / SKIP nếu có quyết định đáng lưu
 
 ## Template
 

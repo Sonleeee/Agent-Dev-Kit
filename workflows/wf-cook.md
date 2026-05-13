@@ -77,9 +77,10 @@ modifiers:
   │  └─ Gate 3 check
   │
   ├─ Step 6: Knowledge Checkpoint
-  │  Agent hỏi: "📝 Lưu tri thức từ task này vào SecondBrain không?"
-  │  └─ Có → chạy sk-vault-steward
-  │  └─ Không → skip
+  │  Áp dụng SYSTEM.md → Brain Writeback Policy
+  │  ├─ ASK nếu task sinh lesson/pattern/decision đáng nhớ
+  │  │  └─ trình Memory Candidate rồi chờ user duyệt
+  │  └─ SKIP nếu chỉ là task thường ngày
   │
   └─ Output: Delivery Report
 ```

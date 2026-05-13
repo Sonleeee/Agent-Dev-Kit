@@ -54,8 +54,10 @@ Bước 4: Debate Summary
   └─ Verdict: PROCEED / PROCEED WITH CAUTION / BLOCK
 
 Bước 5: Knowledge Checkpoint
-  Agent hỏi: "📝 Lưu kết quả debate vào SecondBrain không?"
-  └─ Có → chạy sk-vault-steward (type: research)
+  Áp dụng SYSTEM.md → Brain Writeback Policy.
+  ├─ ASK nếu debate tạo decision, risk model, hoặc pattern đáng nhớ
+  │  └─ trình Memory Candidate rồi chờ user duyệt
+  └─ SKIP nếu chỉ là phân tích tạm thời cho task hiện tại
 ```
 
 ## Output

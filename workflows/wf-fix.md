@@ -64,6 +64,24 @@ Agent đề xuất (tùy chọn):
 - Guard / validation bổ sung
 - Documentation update nếu lỗi do hiểu sai
 
+### Bước 6: Knowledge Checkpoint
+
+Áp dụng `SYSTEM.md` → Brain Writeback Policy.
+
+| Điều kiện | Mode | Hành động |
+|-----------|------|-----------|
+| Root cause đã xác nhận và fix verify PASS | `AUTO` | Gọi `sk-vault-steward` với `type: bugfix`, target `cache:patterns` hoặc `raw+wiki` |
+| Bug chưa verify PASS nhưng có hypothesis đáng lưu | `ASK` | Trình Memory Candidate, hỏi user trước khi ghi |
+| Lỗi tạm thời, build noise, typo nhỏ không có lesson | `SKIP` | Không ghi |
+
+Nội dung tối thiểu khi ghi:
+- Root cause
+- Symptom ban đầu
+- Files liên quan
+- Fix summary
+- Prevention recommendation
+- Verification result
+
 ## Output bắt buộc
 
 - Root cause (1-2 câu rõ ràng)
@@ -71,6 +89,7 @@ Agent đề xuất (tùy chọn):
 - Files đã sửa + tóm tắt thay đổi
 - Build verification result
 - Prevention recommendation (nếu có)
+- Knowledge Checkpoint: AUTO / ASK / SKIP + target
 
 ## Guardrails
 
@@ -78,3 +97,4 @@ Agent đề xuất (tùy chọn):
 - KHÔNG mở rộng scope — fix xong thì dừng, refactor là task riêng
 - Nếu fix > 3 files → cân nhắc chuyển sang `/wf-impl` workflow
 - Build verify là bắt buộc
+- Chỉ AUTO ghi khi root cause đã có evidence và fix đã verify PASS

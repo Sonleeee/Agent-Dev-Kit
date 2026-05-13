@@ -73,14 +73,18 @@ Agent ghi lại research notes:
 
 ### Bước 6: Knowledge Checkpoint
 
-Agent hỏi user: **"📝 Lưu research này vào SecondBrain không?"**
+Áp dụng `SYSTEM.md` → Brain Writeback Policy.
 
-- **Có** → chạy `sk-vault-steward`:
-  - Ghi findings vào `00_Raw/[topic]/`
-  - Nếu liên quan bài Wiki cũ → append
-  - Nếu concept mới → tạo bài Wiki
-  - Ghi log vào `02_Brain/log.md`
-- **Không** → skip
+| Điều kiện | Mode | Hành động |
+|-----------|------|-----------|
+| Research có source tốt và ảnh hưởng tới decision/implementation | `ASK` | Trình Memory Candidate; nếu user duyệt thì chạy `sk-vault-steward` |
+| Research chỉ phục vụ câu trả lời tức thời | `SKIP` | Không ghi |
+
+Khi user duyệt:
+- Ghi findings vào `00_Raw/[topic]/`
+- Nếu liên quan bài Wiki cũ → append
+- Nếu concept mới → tạo bài Wiki
+- Ghi log vào `02_Brain/log.md`
 
 ## Output bắt buộc
 

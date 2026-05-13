@@ -17,7 +17,7 @@ vault-path: (đọc từ AGENTS.md hoặc hỏi user)
 
 ## Khi nào được gọi?
 
-Skill này được gọi bởi các workflows qua **Knowledge Checkpoint** (bước cuối):
+Skill này được gọi bởi các workflows qua **Knowledge Checkpoint** (bước cuối) và tuân thủ `SYSTEM.md` → **Brain Writeback Policy**:
 
 | Workflow | Loại tri thức | Hướng xử lý |
 |----------|--------------|-------------|
@@ -28,6 +28,14 @@ Skill này được gọi bởi các workflows qua **Knowledge Checkpoint** (bư
 | `/wf-retro` | Sprint insights, health metrics | Hướng A |
 | `/wf-vault-sync` (Cloud) | NotebookLM content | Hướng B |
 | `/wf-vault-sync` (Phone) | iPhone quick captures | Hướng C |
+
+### Writeback Mode
+
+| Mode | Khi dùng | Hành vi |
+|------|----------|---------|
+| `AUTO` | Workflow đã xác định tri thức high-value theo Brain Writeback Policy | Ghi ngay, sau đó report file đã tạo/cập nhật |
+| `ASK` | Tri thức có thể hữu ích nhưng còn cần user duyệt | Trình Memory Candidate, chỉ ghi khi user đồng ý |
+| `SKIP` | Không đủ giá trị dài hạn | Không ghi, chỉ report lý do skip |
 
 ## Bước 0: Vault Discovery
 
@@ -45,16 +53,23 @@ Agent xác định vault path:
 ### Input
 
 Agent nhận từ workflow:
+- **mode**: `AUTO` | `ASK` | `SKIP`
 - **type**: `bugfix` | `research` | `review` | `implementation` | `retro`
 - **title**: Tiêu đề ngắn
 - **summary**: Tóm tắt tiếng Việt (≤5 câu)
 - **content**: Nội dung chi tiết
 - **project**: Tên project (từ AGENTS.md)
 - **tags**: Danh sách tags liên quan
+- **target**: `raw+wiki` | `cache:patterns` | `cache:reviews` | `cache:decisions` | `log-only`
 
 ### Flow
 
 ```
+Bước 0: Mode Gate
+  ├─ SKIP → report lý do, không ghi
+  ├─ ASK → trình Memory Candidate, chờ user đồng ý
+  └─ AUTO → tiếp tục ghi
+
 Bước 1: Tạo Raw Entry
   ├─ File: 00_Raw/01_AI_Agents/{project}_{title_snake_case}.md
   ├─ Format: raw_source_template
@@ -142,5 +157,6 @@ Bước 3: Update Log
 - **Wikilinks**: Sử dụng `[[...]]` cho mọi thực thể. Note không có link = "lỗi hệ thống".
 - **Không ghi đè**: Nếu file đã tồn tại → append, không overwrite.
 - **Traceability**: Mọi Wiki entry PHẢI link về Raw source.
-- **Hỏi trước khi ghi**: Workflow hỏi user "Lưu tri thức vào SecondBrain không?" → chỉ ghi khi user đồng ý.
-- **Scope**: Focus 100% vào Kiến trúc AI Agent (theo GEMINI.md §5). Nội dung ngoài scope → Archive.
+- **Mode-aware**: `AUTO` được ghi ngay theo policy; `ASK` phải hỏi user; `SKIP` không ghi.
+- **Không ghi rác**: Không lưu raw command output, progress tạm thời, hoặc failed attempt không có lesson rõ.
+- **Scope**: Focus 100% vào Kiến trúc AI Agent (theo AI_INSTRUCTIONS.md §5). Nội dung ngoài scope → Archive.

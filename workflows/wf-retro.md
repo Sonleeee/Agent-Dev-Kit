@@ -52,8 +52,10 @@ Bước 4: Insights & Action Items
   └─ Prioritize: Quick Win / Medium / Long-term
 
 Bước 5: Knowledge Checkpoint
-  Agent hỏi: "📝 Lưu kết quả retro vào SecondBrain không?"
-  └─ Có → chạy sk-vault-steward (type: retro)
+  Áp dụng `SYSTEM.md` → Brain Writeback Policy.
+  ├─ AUTO nếu có health insight, hotspot, recurring issue, hoặc action item đáng theo dõi
+  │  └─ chạy sk-vault-steward (type: retro, target: cache:reviews hoặc log-only)
+  └─ SKIP nếu không có insight mới ngoài số liệu tạm thời
 ```
 
 ## Bước 1: Git Metrics Collection

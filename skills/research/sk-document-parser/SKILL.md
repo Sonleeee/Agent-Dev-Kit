@@ -2,68 +2,44 @@
 name: sk-document-parser
 description: |
   Kỹ năng tự động parse tài liệu nghiệp vụ (PDF, Word, Excel, PowerPoint, HTML) sang định dạng Markdown.
-  Giúp Agent nạp tài liệu thiết kế thô trực tiếp vào context mà không bị ô nhiễm định dạng nhị phân.
+  Hoạt động theo cơ chế Lai (Hybrid): Ưu tiên parse native zero-dependency, nâng cấp thông qua Microsoft MarkItDown.
 inputs:
   - doc-path: Đường dẫn tuyệt đối đến file cần parse (.pdf, .docx, .xlsx, .pptx, .html)
 output: markdown (Lưu tại .agents/context/temp_spec.md)
 ---
 
-# 📄 Bộ Chuyển Đổi Tài Liệu Nghiệp Vụ — sk-document-parser
+# 📄 Bộ Chuyển Đổi Tài Liệu Nghiệp Vụ Lai — sk-document-parser
 
 ## 🎯 Mục tiêu
 
-Giúp AI Agent tự động phân tích cấu trúc cấu tệp tin nghiệp vụ thô của khách hàng (hoặc tài liệu thiết kế hệ thống) và chuyển đổi chúng thành định dạng Markdown sạch sẽ để làm dữ liệu ngữ cảnh (ground truth context) phục vụ lập trình.
+Giúp AI Agent tự động phân tích cấu trúc tệp tin nghiệp vụ thô của khách hàng (hoặc tài liệu thiết kế hệ thống) và chuyển đổi chúng thành định dạng Markdown sạch sẽ để làm ngữ cảnh (ground truth context) phục vụ lập trình.
 
 ---
 
-## 🛠️ Nguyên lý Phân tích cấu trúc (Parser Engine)
+## 🏗️ Thiết Kế Lai (Hybrid Architecture)
 
-Để tránh phụ thuộc vào các framework bên thứ ba, Agent sẽ áp dụng các thuật toán parse cấu trúc tệp tin như sau:
+Kỹ năng này hoạt động thông qua một file script chạy chung đặt tại **[parser.py](file:///c:/Sonlee/AI/Agent-Dev-Kit/skills/research/sk-document-parser/parser.py)** với cơ chế thông minh:
 
-### 1. Với tệp Word (.docx) & PowerPoint (.pptx)
-*   **Bản chất:** Đây là các file nén dạng Zip chứa các cấu trúc XML bên trong.
-*   **Thuật toán parse của Agent:**
-    1.  Giải nén file `.docx` / `.pptx` tạm thời vào thư mục scratch.
-    2.  Đọc file XML chứa nội dung chính (ví dụ `word/document.xml` đối với Word).
-    3.  Ánh xạ (map) các thẻ XML của Word sang cú pháp Markdown:
-        *   `<w:pStyle w:val="Heading1">` ➔ Map thành Heading `#`
-        *   `<w:p>` ➔ Map thành đoạn văn (Paragraph)
-        *   `<w:r>` ➔ Trích xuất text run bên trong
-        *   `<w:tbl>` ➔ Map thành bảng Markdown (`|`)
-        *   `<w:numPr>` ➔ Map thành danh sách có thứ tự/không thứ tự (`-` hoặc `1.`)
+### 1. Phân Tích Native (Zero-Dependency)
+*   **Định dạng hỗ trợ:** Word (`.docx`), HTML (`.html`, `.htm`).
+*   **Nguyên lý:** Giải nén XML cấu trúc (đối với Word) hoặc parse cấu trúc cây DOM (đối với HTML) trực tiếp thông qua thư viện chuẩn có sẵn của Python (`zipfile`, `xml.etree`, `html.parser`).
+*   **Đặc điểm:** Không yêu cầu cài đặt thêm thư viện ngoài, chạy được ở mọi nơi, bảo đảm tính di động tuyệt đối.
 
-### 2. Với tệp Excel (.xlsx)
-*   **Bản chất:** Bảng tính 2 chiều.
-*   **Thuật toán parse của Agent:**
-    1.  Đọc các ô (cells) dữ liệu của từng Sheet.
-    2.  Trích xuất hàng đầu tiên làm tiêu đề cột (Headers).
-    3.  Dựng lại toàn bộ grid dữ liệu dưới dạng bảng Markdown chuẩn, ngăn cách bởi ký tự `|`.
-    4.  Bỏ qua các ô trống hoặc định dạng style màu sắc, chỉ giữ lại text/number và liên kết.
-
-### 3. Với tệp PDF
-*   **Bản chất:** Tài liệu hiển thị theo tọa độ tĩnh.
-*   **Thuật toán parse của Agent:**
-    1.  Sử dụng thư viện đọc PDF cục bộ để trích xuất text kèm theo tọa độ.
-    2.  Nhóm các dòng text có khoảng cách dòng (line spacing) gần nhau thành các Paragraph blocks.
-    3.  Nhận diện Heading dựa trên kích thước font chữ (font size) lớn hơn thông thường.
-    4.  Nhận diện các cột dữ liệu thẳng hàng theo tọa độ X để dựng thành Table.
-
-### 4. Với tệp HTML
-*   **Bản chất:** Cấu trúc cây DOM.
-*   **Thuật toán parse của Agent:**
-    1.  Parse cây DOM, loại bỏ các thẻ script, style, head, nav, footer.
-    2.  Ánh xạ trực tiếp các thẻ Semantic HTML sang Markdown:
-        *   `<h1>` đến `<h6>` ➔ `#` đến `######`
-        *   `<p>` ➔ Đoạn văn
-        *   `<a>` ➔ Link `[text](url)`
-        *   `<ul>`, `<li>` ➔ Danh sách `-`
+### 2. Phân Tích Nâng Cao (Microsoft MarkItDown Integration)
+*   **Định dạng hỗ trợ:** PDF (`.pdf`), Excel (`.xlsx`), PowerPoint (`.pptx`), Zip (`.zip`), v.v.
+*   **Nguyên lý:** Script sẽ tự động kiểm tra sự tồn tại của thư viện `markitdown` trong môi trường:
+    *   *Nếu có:* Gọi thư viện `MarkItDown` để trích xuất dữ liệu với độ chính xác cao nhất.
+    *   *Nếu chưa có:* Xuất cảnh báo hướng dẫn User cài đặt bằng lệnh `pip install markitdown` hoặc đề xuất chuyển đổi file sang định dạng Word/HTML để chạy ở chế độ Native.
 
 ---
 
-## 🚀 Quy trình thực thi của Agent
+## 🚀 Quy Trình Thực Thi Của Agent
 
-1.  **Bước 1: Kiểm tra định dạng:** Agent nhận diện extension của file đầu vào tại `doc-path`.
-2.  **Bước 2: Kích hoạt Parser tương ứng:**
-    *   Sử dụng script Python hoặc Node.js cục bộ (nếu có sẵn) hoặc tự áp dụng thuật toán đọc file nhị phân/XML tương ứng để trích xuất văn bản thô.
-3.  **Bước 3: Xuất file Markdown:** Lưu file Markdown kết quả tại `.agents/context/temp_spec.md`.
-4.  **Bước 4: Summary Context:** Đọc lại file Markdown vừa tạo, tóm tắt 3 điểm cốt lõi (Mục tiêu, Yêu cầu chức năng, Cấu trúc dữ liệu) và trình bày cho User trước khi đưa vào context làm việc.
+1.  **Bước 1: Gọi script thực thi:** Agent chạy lệnh command line để kích hoạt script lai:
+    ```bash
+    python c:/Sonlee/AI/Agent-Dev-Kit/skills/research/sk-document-parser/parser.py <doc-path> c:/Sonlee/AI/Agent-Dev-Kit/context/temp_spec.md
+    ```
+2.  **Bước 2: Xử lý phản hồi:**
+    *   *Trường hợp thành công:* Agent đọc file `.agents/context/temp_spec.md` vừa được tạo ra.
+    *   *Trường hợp lỗi thiếu thư viện:* Agent hiển thị hướng dẫn cài đặt `markitdown` của script cho User và chờ User cài đặt, hoặc đề xuất đổi định dạng file.
+3.  **Bước 3: Tóm tắt ngữ cảnh:** Agent phân tích file Markdown kết quả, tóm tắt các thông tin quan trọng nhất (Yêu cầu chức năng, Cấu trúc DB, Giao diện) để nạp vào bộ nhớ làm việc.

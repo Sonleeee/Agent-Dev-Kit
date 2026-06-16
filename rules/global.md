@@ -45,6 +45,17 @@ Luôn ưu tiên tuân thủ kiến trúc và convention hiện có của project
 
 ---
 
+## Nhóm 4 — Codebase Exploration [PROTECTED]
+
+### Graph-First Principle [PROTECTED]
+Khi làm việc trên codebase, TUYỆT ĐỐI không sử dụng các công cụ quét thô (`grep`, `grep_search`, `list_dir`, `find`, `read_file`...) một cách mù quáng để khám phá cấu trúc hoặc tìm kiếm file.
+Hãy tuân thủ quy trình **Graph-First**:
+1. Sử dụng các công cụ của **CodeGraph MCP Server** (như `codegraph.search_symbols`, `codegraph.get_definition`, `codegraph.get_callers`, `codegraph.get_callees`) để định vị chính xác vị trí của class, function, api route, hoặc luồng gọi.
+2. Chỉ sử dụng công cụ đọc file (`view_file` hoặc `read_file`) khi đã biết chính xác đường dẫn file và dòng code cần đọc/sửa từ kết quả của CodeGraph.
+3. Việc lạm dụng quét thô (`grep_search`) trên toàn bộ codebase lớn mà không gọi CodeGraph trước sẽ bị coi là vi phạm chất lượng nghiêm trọng.
+
+---
+
 ## Cách AI đọc rules
 1. **Global Rules**: Luôn load đầu tiên.
 2. **Modular Rules**: Tự động load thêm `frontend.md` hoặc `backend.md` dựa vào path của file đang làm việc.

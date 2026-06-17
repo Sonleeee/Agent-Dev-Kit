@@ -33,6 +33,17 @@ Bộ agent dùng chung cho mọi project và mọi platform/IDE.
 5. Load `.agents/context/templates/*` nếu có
 6. Chọn workflow phù hợp
 
+### CodeGraph-First Scout
+
+Khi task cần đọc, hiểu, sửa, review hoặc debug source code, agent phải scout bằng CodeGraph trước khi dùng công cụ đọc/tìm truyền thống:
+
+1. Dùng `mcp__codegraph.codegraph_explore` cho feature/flow/khu vực code liên quan.
+2. Dùng `mcp__codegraph.codegraph_node` khi đã biết file hoặc symbol cụ thể cần đọc.
+3. Dùng `mcp__codegraph.codegraph_callers` để phân tích impact trước khi đổi behavior, signature, hoặc contract.
+4. Chỉ fallback sang `rg`, `Get-Content`, `ls`, `find` khi CodeGraph không phù hợp: docs/config/assets, literal text/i18n key, git diff/status, hoặc file chưa được index.
+
+Output từ CodeGraph có source hiện tại thì được xem như đã đọc file; không đọc lại cùng nội dung bằng tool khác nếu không có lý do rõ ràng.
+
 ## Flow chuẩn
 
 Flow ưu tiên:

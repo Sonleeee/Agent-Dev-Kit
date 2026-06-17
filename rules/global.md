@@ -1,7 +1,3 @@
----
-trigger: glob
----
-
 # Global Rules
 
 Tất cả rules trong file này áp dụng cho mọi project và mọi platform. Những quy tắc này là "tòa tối cao" của hệ thống.
@@ -48,11 +44,35 @@ Luôn ưu tiên tuân thủ kiến trúc và convention hiện có của project
 ## Nhóm 4 — Codebase Exploration [PROTECTED]
 
 ### Graph-First Principle [PROTECTED]
-Khi làm việc trên codebase, TUYỆT ĐỐI không sử dụng các công cụ quét thô (`grep`, `grep_search`, `list_dir`, `find`, `read_file`...) một cách mù quáng để khám phá cấu trúc hoặc tìm kiếm file.
+Khi làm việc trên source code, TUYỆT ĐỐI không sử dụng các công cụ quét thô (`grep`, `grep_search`, `list_dir`, `find`, `read_file`, `Get-Content`, `ls`...) một cách mù quáng để khám phá cấu trúc hoặc tìm kiếm file.
+
 Hãy tuân thủ quy trình **Graph-First**:
-1. Sử dụng các công cụ của **CodeGraph MCP Server** (như `codegraph.search_symbols`, `codegraph.get_definition`, `codegraph.get_callers`, `codegraph.get_callees`) để định vị chính xác vị trí của class, function, api route, hoặc luồng gọi.
-2. Chỉ sử dụng công cụ đọc file (`view_file` hoặc `read_file`) khi đã biết chính xác đường dẫn file và dòng code cần đọc/sửa từ kết quả của CodeGraph.
-3. Việc lạm dụng quét thô (`grep_search`) trên toàn bộ codebase lớn mà không gọi CodeGraph trước sẽ bị coi là vi phạm chất lượng nghiêm trọng.
+
+1. Gọi **CodeGraph MCP Server trước** để định vị class, function, method, component, api route, hoặc luồng gọi liên quan.
+2. Dùng đúng tool theo mục đích:
+   - `mcp__codegraph.codegraph_explore`: lựa chọn mặc định cho câu hỏi "X hoạt động thế nào?", "flow này đi qua đâu?", hoặc trước khi sửa nhiều symbol liên quan.
+   - `mcp__codegraph.codegraph_node`: đọc một file đã biết hoặc một symbol cụ thể, ưu tiên hơn đọc file truyền thống.
+   - `mcp__codegraph.codegraph_callers`: phân tích impact/caller trước khi đổi behavior, signature, hoặc contract.
+   - `mcp__codegraph.codegraph_search`: tìm nhanh vị trí symbol khi chưa đủ thông tin để explore.
+3. Nếu CodeGraph đã trả về source của file/symbol, coi đó như nội dung đã đọc từ disk; không đọc lại bằng `read_file`, `Get-Content`, hoặc tool tương đương trừ khi có lý do cụ thể.
+4. Chỉ fallback sang công cụ truyền thống khi:
+   - File không phải source code/symbol tốt, ví dụ `.md`, `.json`, `.yml`, `.env.example`, migration raw SQL, asset, generated file.
+   - Cần tìm literal text, i18n key, config key, hoặc nội dung không có symbol rõ ràng.
+   - Cần kiểm tra git status/diff/log hoặc thao tác filesystem.
+   - CodeGraph không index được khu vực cần xem hoặc trả thiếu thông tin.
+5. Việc lạm dụng quét thô trên toàn bộ codebase lớn mà không gọi CodeGraph trước sẽ bị coi là vi phạm chất lượng nghiêm trọng.
+
+Decision table nhanh:
+
+| Nhu cầu | Tool ưu tiên |
+|---|---|
+| Hiểu feature/flow/khu vực code | `mcp__codegraph.codegraph_explore` |
+| Tìm class/function/component | `mcp__codegraph.codegraph_explore` hoặc `mcp__codegraph.codegraph_search` |
+| Đọc source một symbol | `mcp__codegraph.codegraph_node` với `includeCode=true` |
+| Đọc source một file đã biết | `mcp__codegraph.codegraph_node` với `file` |
+| Xem ai gọi function/method | `mcp__codegraph.codegraph_callers` |
+| Tìm text/config/docs không phải symbol | `rg` hoặc tool đọc file phù hợp |
+| Kiểm tra thay đổi git | `git status`, `git diff`, `git log` |
 
 ---
 

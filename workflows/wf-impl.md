@@ -12,7 +12,6 @@ skills-suggested:
   - core/sk-api-contract-guard
 modifiers:
   --fast: Bỏ qua research, code luôn từ context sẵn có, self-check rút gọn
-  --tdd: Viết test trước, rồi implement code cho pass tests
   --parallel: Chạy multi-agent song song qua Terminal (Antigravity run_command)
   --no-test: Không bắt buộc test — dùng khi prototype/spike
 ---
@@ -49,31 +48,34 @@ Agent load project context:
     - **Minimal Context:** Chỉ truyền `implementation-plan-lite` và nội dung của **duy nhất** các file cần sửa.
     - **No Chat History:** TUYỆT ĐỐI không gửi kèm lịch sử chat của phiên chính để triệt tiêu bias và ảo giác luỹ kế.
 
-### Bước 3: Implementation & TDD
+### Bước 3: Implementation
 
 Agent thực hiện implement theo:
 
 1. Đọc plan đã approved và template tương ứng.
-2. **TDD Hybrid:** Viết Unit Test và ép chạy fail (Red) trước khi rờ vào logic chính (đặc biệt với Core Logic).
-3. Implement code **bám sát template pattern** để test pass (Green).
-4. Đảm bảo naming conventions theo `architecture.md`
-5. Không sửa files ngoài scope plan
+2. Implement code **bám sát template pattern** để đảm bảo tính nhất quán.
+3. Đảm bảo naming conventions theo `architecture.md`
+4. Không sửa files ngoài scope plan.
 
-### Bước 4: Self-Check
+### Bước 4: Self-Check & Reflexion Hook
 
-Agent tự verify:
-
-- [ ] Code follow template pattern
-- [ ] Không vi phạm anti-patterns trong architecture.md
-- [ ] Naming conventions đúng
-- [ ] Không hardcode text (nếu project yêu cầu i18n)
-- [ ] Error handling đúng taxonomy
+1. **Reflexion Hook (Tự phản biện nội bộ):** Ngay sau khi code xong, trước khi chạy build, Agent chạy prompt tự phản biện để tìm lỗi logic thô:
+   - Check xem có import/using dư thừa không (nếu có, tự xóa).
+   - Kiểm tra xem code có đúng conventions đặt tên (naming conventions) của dự án không.
+   - Phát hiện các lỗi cú pháp hoặc gõ nhầm tên thuộc tính/biến (nếu phát hiện, tự động sửa đổi ngay).
+2. **Self-Check Checklist:**
+   - [ ] Code follow template pattern
+   - [ ] Không vi phạm anti-patterns trong architecture.md
+   - [ ] Naming conventions đúng
+   - [ ] Không hardcode text (nếu project yêu cầu i18n)
+   - [ ] Error handling đúng taxonomy
+   - [ ] Đã chạy Reflexion và tự động fix hết lỗi thô.
 
 ### Bước 5: Build Verification
 
 Agent chạy build để verify:
 
-```
+```bash
 # Ví dụ BE (.NET)
 dotnet build [project path]
 
@@ -129,11 +131,3 @@ Nếu workflow cha là `/wf-delivery` hoặc `/wf-cook`, để workflow cha tổ
 - Nếu project có `context/templates/`, đây là input bắt buộc
 - Build verification là gate bắt buộc, không được skip
 - Không mở rộng scope ngoài plan đã approved
-
-> [Terminal Orchestration] Antigravity tự động fan-out tasks cho
-> nhiều agents song song bằng cách mở các process ẩn qua `run_command`.
-> Xem `addons/swarm/` để biết:
-> - Task matrix + assignment rules
-> - File conflict policy (không 2 agents cùng sửa 1 file)
-> - Cross-agent contracts
-> - Fan-in merge + build verify

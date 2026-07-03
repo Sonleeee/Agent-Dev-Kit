@@ -185,35 +185,38 @@ Agent tổng hợp:
    - Permission/auth changes không được đề cập
    - Dependency mới
 
-**Part B: Conflict Detection (Code vs Context)**
+**Part B: Conflict Detection & Design Evolution**
 
 > Chỉ chạy khi project có `.agents/context/` files.
 
-1. So sánh code change vs context rules
-2. Nếu KHÁC:
-   - Code dùng pattern **LEGACY** mà context đã update → Flag violation
-   - Code dùng pattern **MỚI** mà context chưa có → Flag potential evolution
-
-3. Nếu phát hiện conflict → sinh **Conflict Report**:
+1. **So sánh code change vs context rules:** Đối chiếu mã nguồn thực tế với quy tắc trong context.
+2. **Dynamic Pattern Discovery (Quét mẫu động):** Trích xuất các pattern thực tế đang vận hành ở các commit/module gần nhất để đối chiếu, tránh chỉ tin vào tài liệu tĩnh đã lỗi thời.
+3. **Phân loại sự khác biệt:**
+   - Code dùng pattern **LEGACY (cũ/lỗi thời)** mà context đã update → Đánh dấu là Architecture Violation (Severity: Major/Minor).
+   - Code dùng pattern **MỚI / ĐANG TIẾN HÓA** tối ưu hơn mà context chưa cập nhật → Đánh dấu là **[Design Evolution Candidate]** thay vì báo lỗi FAIL cứng nhắc.
+4. **Báo cáo và Tiến hóa thiết kế (Design Evolution Report):**
+   - Sinh **Conflict & Evolution Report**:
 
 ```markdown
-## ⚠️ CONFLICT DETECTED
+## ⚠️ CONFLICT & DESIGN EVOLUTION DETECTED
 
 ### Conflict #1: {Tên}
 | Nguồn | Nội dung |
 |-------|----------|
-| **Code (diff)** | `{code snippet}` |
-| **Context** | Rule: "{rule trích dẫn}" |
+| **Code mới (diff)** | `{code snippet}` |
+| **Quy chuẩn context** | Rule: "{rule trích dẫn}" |
 
-**Phân tích:** {Giải thích tại sao conflict}
+**Phân tích sự tiến hóa:** {So sánh sự tối ưu của thiết kế mới vs quy chuẩn cũ trong tài liệu}
 
 **Options:**
-- [ ] A: Fix code theo Context (recommended nếu context mới hơn)
-- [ ] B: Update Context theo code (nếu code là evolution)
-- [ ] C: Giữ cả hai, tag [Legacy] trong Context
+- [ ] A: Sửa lại code theo đúng Context quy chuẩn cũ.
+- [ ] B: Chấp nhận thiết kế mới và tự động cập nhật Context (recommended nếu code là cải tiến tối ưu).
+- [ ] C: Giữ cả hai cách viết, đánh dấu tag [Legacy] đối với quy chuẩn cũ trong Context.
 
 → **CHỜ user chọn.**
 ```
+
+5. **Auto-Update on Approval:** Nếu User chọn Option B, Agent tự động kích hoạt kỹ năng `sk-context-update` để cập nhật lại `architecture.md` và caching lại pattern mới này vào `03_Cache/patterns/`.
 
 **Khi có accelerator:**
 - Graphify: Dependency graph → blast radius: file X changed → files Y, Z bị ảnh hưởng

@@ -2,6 +2,10 @@
 id: plan
 type: stage
 stage-number: 2
+---
+id: plan
+type: stage
+stage-number: 2
 entry-command: /wf-plan
 next: impl
 prev: clarify
@@ -10,6 +14,7 @@ output-format: implementation-plan-lite
 gate-after: gate-1
 skills-suggested:
   - core/sk-solution-planning
+  - core/sk-sdd
 modifiers:
   --fast: Bỏ qua phân tích sâu, plan-lite 3-5 dòng, không quality card chi tiết
   --deep: Research kỹ trước khi plan — đọc thêm docs, tìm precedent trong codebase
@@ -61,6 +66,13 @@ Tạo Pre-Implementation Quality Card:
 | Plan chốt architecture decision, library mới, API contract lớn, hoặc migration approach | `ASK` | Trình Memory Candidate với `type: decision`, target `03_Cache/decisions` |
 | Plan chỉ chia task thực thi thông thường | `SKIP` | Không ghi |
 
+### Bước 5: SDD Gate (Spec-Driven Development)
+
+Đối với các task phức tạp (có thay đổi DB, thêm API, đổi logic luồng chính hoặc cấu trúc dữ liệu):
+1. Agent gọi `sk-sdd` để lập thiết kế kỹ thuật (Technical Spec) chi tiết.
+2. Ghi nhận spec vào file `[project-root]/.agents/sdd/design_spec.md`.
+3. Trình Spec cho User và dừng lại chờ User duyệt (Approved/Proceed) mới chuyển sang `/wf-impl`.
+
 ## Output bắt buộc
 
 - Approach (1 câu)
@@ -69,6 +81,7 @@ Tạo Pre-Implementation Quality Card:
 - Task breakdown (theo thứ tự)
 - Pre-Implementation Quality Card
 - `API contract risk: None / Low / High`
+- Technical Spec file (`.agents/sdd/design_spec.md`) nếu có
 - Decision Checkpoint: ASK / SKIP nếu có quyết định đáng lưu
 
 ## Template
@@ -81,6 +94,7 @@ Tạo Pre-Implementation Quality Card:
 - [ ] Scope in/out xác định
 - [ ] Plan có thứ tự task
 - [ ] Quality card tồn tại
+- [ ] Technical Spec (`design_spec.md`) đã được tạo và User approved (nếu task phức tạp)
 
 ## Guardrails
 

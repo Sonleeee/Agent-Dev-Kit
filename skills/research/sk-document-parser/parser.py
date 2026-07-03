@@ -145,8 +145,38 @@ def main():
         print(f"[Parser] Checking MarkItDown for {ext} format...")
         try:
             from markitdown import MarkItDown
-            print("[Parser] MarkItDown found. Running conversion...")
-            md = MarkItDown()
+            print("[Parser] MarkItDown found. Initializing...")
+            
+            # Check for API keys to enable LLM-powered OCR and Image Description
+            openai_key = os.environ.get("OPENAI_API_KEY")
+            gemini_key = os.environ.get("GEMINI_API_KEY")
+            md = None
+            
+            if openai_key:
+                try:
+                    from openai import OpenAI
+                    print("[Parser] OPENAI_API_KEY found. Enabling LLM mode (gpt-4o)...")
+                    client = OpenAI(api_key=openai_key)
+                    md = MarkItDown(llm_client=client, llm_model="gpt-4o")
+                except Exception as ex:
+                    print(f"[Parser] Failed to init OpenAI client: {ex}. Falling back to standard mode.")
+            
+            if not md and gemini_key:
+                try:
+                    from openai import OpenAI
+                    print("[Parser] GEMINI_API_KEY found. Enabling LLM mode (gemini-2.5-flash) via OpenAI endpoint...")
+                    client = OpenAI(
+                        api_key=gemini_key,
+                        base_url="https://generativelanguage.googleapis.com/v1beta/openai"
+                    )
+                    md = MarkItDown(llm_client=client, llm_model="gemini-2.5-flash")
+                except Exception as ex:
+                    print(f"[Parser] Failed to init Gemini client: {ex}. Falling back to standard mode.")
+                    
+            if not md:
+                print("[Parser] Running MarkItDown in offline standard mode (no LLM)...")
+                md = MarkItDown()
+                
             result = md.convert(input_path)
             markdown_content = result.text_content
         except ImportError:

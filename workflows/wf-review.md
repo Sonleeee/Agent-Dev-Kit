@@ -9,6 +9,7 @@ input-from: impl-summary
 output-format: review-summary
 gate-after: gate-3
 skills-suggested:
+  - core/sk-execution-contract
   - core/sk-regression-checklist
   - core/sk-api-contract-guard
 modifiers:
@@ -40,7 +41,14 @@ agents-suggested:
 
 ---
 
-## Bước 0: Chuẩn Bị Review
+## Bước 0: Contract & evidence check
+
+Đọc execution contract/ledger của task. Đối chiếu acceptance criteria, changed files,
+unplanned changes và verification evidence trước khi đi vào 4 layer review. Thiếu
+contract không tự động FAIL code, nhưng ship decision phải là `Pending` cho tới khi
+agent bổ sung evidence hoặc user quyết định.
+
+## Bước 1: Chuẩn Bị Review
 
 ### 0.1 — Severity Routing
 
@@ -68,11 +76,11 @@ Agent xác định task-features từ changed files:
 Agent tự check:
 
 - Có `.gitnexus/` → dùng GitNexus cho targeted pattern lookup (Layer 2) + cross-reference (Layer 4)
-- Có `graphify-out/GRAPH_REPORT.md` → dùng Graphify cho god node detection (Bước 0.1 auto-escalate) + blast radius (Layer 4)
+- Có Archify snapshot → dùng để đối chiếu layer/flow và architecture delta; không thay thế source evidence
 - Không có → manual scan (hoạt động đầy đủ, chỉ chậm hơn)
 
 > **Lưu ý:** Accelerators là **optional enhancement**, không phải dependency.
-> Review PHẢI hoạt động đầy đủ không cần Graphify/GitNexus.
+> Review PHẢI hoạt động đầy đủ không cần architecture snapshot/GitNexus.
 
 ### 0.4 — Review Package Assembly
 
@@ -87,11 +95,11 @@ Agent tổng hợp:
 ```
 
 > Nếu project chưa có `.agents/context/` → hỏi user:
-> "Project chưa có context files. Bạn muốn tạo bằng sk-context-create trước, hay review generic?"
+> "Project chưa có context files. Bạn muốn bổ sung context manifest/architecture từ template trước, hay review generic?"
 
 ---
 
-## Bước 1: Review 4 Layers
+## Bước 2: Review 4 Layers
 
 ### Layer 1 — Completeness & Existence
 
@@ -138,7 +146,7 @@ Agent tổng hợp:
 
 **Khi có accelerator:**
 - GitNexus: `query("pattern for [type of changed code]")` → so sánh targeted, tiết kiệm tokens
-- Graphify: Cluster membership → load đúng context section
+- Archify: snapshot/tag → load đúng context section
 
 ---
 
@@ -216,10 +224,10 @@ Agent tổng hợp:
 → **CHỜ user chọn.**
 ```
 
-5. **Auto-Update on Approval:** Nếu User chọn Option B, Agent tự động kích hoạt kỹ năng `sk-context-update` để cập nhật lại `architecture.md` và caching lại pattern mới này vào `03_Cache/patterns/`.
+5. **Context Update on Approval:** Nếu User chọn Option B, Agent chỉ cập nhật context manifest/architecture sau khi ghi rõ thay đổi trong execution contract và nhận được approval.
 
 **Khi có accelerator:**
-- Graphify: Dependency graph → blast radius: file X changed → files Y, Z bị ảnh hưởng
+- Archify: architecture delta → xác định các layer/flow đã thay đổi; blast radius vẫn phải kiểm tra từ source
 - GitNexus: `query("other modules using same pattern")` → detect drift scope
 
 ---
@@ -260,7 +268,7 @@ Agent phân loại MỖI finding theo 4 mức:
 
 | Điều kiện | Mode | Hành động |
 |-----------|------|-----------|
-| Có Critical/Major finding, architecture violation, hoặc context drift | `AUTO` | Gọi `sk-vault-steward` với `type: review`, target `cache:reviews` |
+| Có Critical/Major finding, architecture violation, hoặc context drift | `AUTO` | Nếu Knowledge addon bật, gọi `sk-vault-steward` với `type: review`, target `cache:reviews`; nếu không thì report `SKIP` |
 | Review clean nhưng phát hiện pattern/pitfall có thể tái sử dụng | `ASK` | Trình Memory Candidate |
 | Review clean, không có insight mới | `SKIP` | Không ghi |
 

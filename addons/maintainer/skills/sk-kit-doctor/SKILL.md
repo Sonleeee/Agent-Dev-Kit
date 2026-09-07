@@ -13,9 +13,8 @@ output: markdown (Bản báo cáo sức khỏe Health Report và danh sách các
 Đảm bảo môi trường làm việc của AI Agent (cổng kết nối MCP, các file rules cấu hình, file passport) luôn hoạt động hoàn hảo và đúng quy chuẩn, giúp phát hiện sớm các lỗi khiến Agent hoạt động sai hoặc mất kiểm soát.
 
 > [!NOTE]
-> **Phân biệt với [sk-context-update/SKILL.md](file:///c:/Sonlee/AI/Agent-Dev-Kit/skills/core/sk-context-update/SKILL.md):** 
-> *   `sk-context-update` dùng để cập nhật tri thức nghiệp vụ và code templates của dự án.
-> *   `sk-kit-doctor` dùng để kiểm tra lỗi hạ tầng và kết nối công cụ của Kit.
+> **Phạm vi:** `sk-kit-doctor` chỉ kiểm tra lỗi hạ tầng và kết nối công cụ của Kit.
+> Việc cập nhật context project phải đi qua execution contract và approval của user.
 
 ---
 

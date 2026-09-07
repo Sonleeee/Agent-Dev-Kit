@@ -10,7 +10,7 @@ Sau `/wf-review`, agent tự động tạo note trong vault:
 - Nội dung: summary findings, pass/fail status
 
 ### 2. ADR Auto-Create Hook
-Khi `/wf-brainstorm` chọn được approach, agent tạo ADR:
+Khi `/wf-clarify --compare` chốt được approach, agent tạo ADR:
 - File: `brain/decisions/ADR-NNN-ten-decision.md`
 
 ### 3. Knowledge Extract Hook

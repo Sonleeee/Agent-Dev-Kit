@@ -37,7 +37,7 @@ Review code theo 4-layer process — đảm bảo quality trước khi ship.
 
 2. **Task-Feature Detection**: Scan diff → detect features → tra `quality/mapping-rules.md` → merge vào review checklist
 
-3. **Accelerator Detection**: Check GitNexus/Graphify → dùng nếu có
+3. **Accelerator Detection**: Check GitNexus/Archify snapshot → dùng nếu có
 
 4. **Review Package**: Thu thập diff, checklist, architecture rules, template patterns
 

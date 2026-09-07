@@ -21,6 +21,8 @@ _archive/
 # Project-specific context (thuộc về project, không thuộc core kit)
 # Thể hiện dữ liệu riêng của dự án, KHÔNG push lên repo Agent-Dev-Kit
 context/
+!_project-template/.agents/context/
+!_project-template/.agents/context/**
 AGENTS.md
 AGENT.md
 rule-overrides.approved.md
@@ -34,6 +36,8 @@ walkthrough*.md
 implementation_plan*.md
 clarify-record*.md
 delivery-report*.md
+.agents/runtime/
+.agents/scratch/
 
 # Môi trường / IDE ẩn
 .env

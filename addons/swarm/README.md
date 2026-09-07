@@ -14,12 +14,9 @@
 | File | Mô tả |
 |------|--------|
 | `SWARM-INTEGRATION.md` | Contracts, routing rules, payload formats |
-| `FLOW-REVIEW.md` | Phân tích flow và đề xuất cải tiến |
 | `mcp-servers.example.json` | Config mẫu cho MCP servers |
 | `swarm.config.example.json` | Config mẫu cho swarm orchestration |
 | `skills/orchestration/` | Skills cho delivery orchestrator + review workflow |
-| `codex-cli-research.md` | Research về Codex CLI MCP integration |
-| `architecture-analysis.md` | Phân tích kiến trúc multi-agent |
 
 ## Setup
 

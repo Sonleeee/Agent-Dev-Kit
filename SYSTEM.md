@@ -19,6 +19,7 @@ Bộ agent dùng chung cho mọi project và mọi platform/IDE.
 [project-root]/
     ├── AGENTS.md       ← "Passport" của project
     └── .agents/context/
+        ├── manifest.md          ← Context map L0
         ├── architecture.md   ← Kiến trúc project
         ├── checklist.md      ← Checklist riêng
         └── templates/        ← Code templates
@@ -29,9 +30,48 @@ Bộ agent dùng chung cho mọi project và mọi platform/IDE.
 1. Đọc `AGENTS.md` ở project root
 2. Tra `registry/index.md`
 3. Load `rules/global.md`
-4. Load `.agents/context/architecture.md`
-5. Load `.agents/context/templates/*` nếu có
-6. Chọn workflow phù hợp
+4. Load `.agents/context/manifest.md` nếu có
+5. Load `.agents/context/architecture.md` theo TIER-1 tag liên quan
+6. Load `.agents/context/templates/*` nếu có
+7. Chọn workflow phù hợp và ghi vào execution contract
+
+### Execution Contract — Always-On
+
+Đây là lớp bắt buộc để agent không “trôi” khỏi yêu cầu sau nhiều lượt hoặc sau
+context compaction. Chi tiết nằm ở `skills/core/sk-execution-contract/SKILL.md`.
+
+Trước hành động đầu tiên của task có thay đổi, agent phải:
+
+1. Đọc `AGENTS.md`, `SYSTEM.md`, `rules/global.md` và `context/manifest.md` nếu có.
+2. Chọn workflow/skill phù hợp và nêu ngắn mục đích.
+3. Tạo execution contract trong `.agents/runtime/<task-id>/` với objective, scope,
+   acceptance criteria, risk, context pack và verification commands.
+4. Giữ progress ledger; khi resume sau compaction đọc ledger trước và không chạy lại
+   task đã complete.
+
+Mỗi task implementation phải có bước verify độc lập. Chỉ báo `READY` khi có
+acceptance evidence, changed files, unplanned-change decision và review result.
+
+### Skill routing trước hành động
+
+Agent phải kiểm tra skill/workflow liên quan trước khi hỏi, đọc code hoặc sửa file.
+Nếu host không hỗ trợ invocation tự động, dùng skill markdown tương ứng như SOP và
+ghi tên skill vào execution contract. User instruction luôn có quyền ưu tiên cao nhất.
+
+### Plan và subtask contract
+
+Plan nhiều bước phải chia thành task bounded, có file/symbol, output và lệnh verify cụ
+thể; không dùng placeholder kiểu “implement later”. Khi task độc lập, dùng fresh
+subagent với context tối thiểu; sau mỗi subtask chạy **spec compliance review** rồi
+**code quality review**. Không fan-out nếu các task cùng sửa một file hoặc contract
+chưa rõ. Host không có subagent thì chạy inline theo cùng contract và review gates.
+
+### Minimality checkpoint
+
+Trước khi thêm abstraction/dependency, agent phải kiểm tra: có cần tồn tại không,
+đã có helper/pattern chưa, standard library/native feature có đủ không, và cách nào
+ít file/state nhất. Không được giản lược validation ở trust boundary, security,
+accessibility, error handling chống mất dữ liệu hoặc yêu cầu user nêu rõ.
 
 ### CodeGraph-First Scout
 
@@ -54,8 +94,8 @@ Flow ưu tiên:
 
 Shortcut:
 
-- `/wf-delivery-lite` — task rõ ràng, đi nhanh
-- `/wf-delivery` — task phức tạp, cần plan kỹ
+- `/wf-delivery --fast` — task rõ ràng, đi nhanh
+- `/wf-delivery` — task cần plan và verification đầy đủ
 
 ## Auto-Route (Intent → Workflow)
 
@@ -66,7 +106,7 @@ Agent **THÔNG BÁO** cho user workflow đang dùng trước khi bắt đầu.
 | Tín hiệu từ user | Workflow |
 |---|---|
 | fix, bug, lỗi, crash, exception, sai | `/wf-fix` |
-| thêm, tạo mới, feature, implement | `/wf-delivery` hoặc `/wf-delivery-lite` |
+| thêm, tạo mới, feature, implement | `/wf-delivery` |
 | refactor, optimize, cải thiện | `/wf-clarify` → `/wf-plan` → `/wf-impl` |
 | nghiên cứu, research, tìm hiểu | `/wf-research` |
 | review, kiểm tra code | `/wf-review` |
@@ -84,15 +124,14 @@ Nhiều workflows hỗ trợ mode modifiers để điều chỉnh hành vi:
 
 | Modifier | Ý nghĩa | Dùng ở |
 |---|---|---|
-| `--fast` | Rút gọn, bỏ bước không critical | plan, impl, review, delivery, delivery-lite, cook, predict |
+| `--fast` | Rút gọn, bỏ bước không critical | plan, impl, review, delivery |
 | `--deep` | Research kỹ, kiểm tra sâu | plan, review, predict |
 | `--auto` | Tự approve gates, không hỏi user | plan, review, delivery |
-| `--tdd` | Viết test trước rồi code | impl, cook |
+| `--tdd` | Viết test trước rồi code | impl, delivery |
 | `--parallel` | Multi-agent song song (cần swarm) | impl, delivery |
-| `--no-test` | Bỏ test obligations | impl, delivery-lite, cook |
+| `--no-test` | Bỏ test obligations | impl, delivery |
 | `--red-team` | Adversarial review 4 personas | review |
 | `--no-review` | Bỏ review step | cook |
-| `--focus` | Chỉ chạy personas liên quan nhất | predict |
 | `--compare` | Chỉ so sánh, không port code | xia |
 | `--port` | Lấy ý tưởng, code lại (default) | xia |
 | `--copy` | Bê nguyên structure, adapt naming | xia |
@@ -136,12 +175,15 @@ Blocked nếu:
 
 | Nhóm | Mô tả | Cần project context? |
 |---|---|---|
-| `core/` | Discovery, planning, guard, regression, context management, vault sync | Không |
+| `core/` | Discovery, planning, execution contract, guard, regression | Không |
 | `meta/` | Tạo/cải thiện agent system | Không |
 | `devops/` | CI/CD pipeline, Docker review | Không |
 | `security/` | OWASP scan, secret detection | Không |
 | `testing/` | Test strategy, scenario generation | Tùy chọn |
-| `research/` | Docs lookup, pattern research | Không |
+| `research/` | Docs lookup, document parsing, pattern research | Không |
+
+> Context cache, vault writeback, database inspection và kit maintenance nằm trong
+> các addon tùy chọn dưới `addons/`; core không yêu cầu chúng để chạy delivery.
 
 > **Ghi chú:** Domain skills (backend/frontend) không nằm trong core kit.
 > Mỗi project tự tạo domain skills riêng trong `.agents/context/` hoặc repo riêng.
@@ -162,21 +204,18 @@ Blocked nếu:
 | Workflow | Mô tả |
 |---|---|
 | `/wf-delivery` | Full flow: clarify → plan → impl → review |
-| `/wf-delivery-lite` | Quick flow cho task đơn giản |
-| `/wf-cook` | Auto pipeline: clarify → plan → impl → test → review (1 lệnh) |
+| `/wf-delivery` | Full flow; dùng `--fast` cho task nhỏ và `--deep` cho task rủi ro cao |
 
 ### Utilities
 
 | Workflow | Mô tả |
 |---|---|
-| `/wf-brainstorm` | So sánh options, trade-off analysis |
 | `/wf-enhance` | Enhancement/refactor có chủ đích |
 | `/wf-deploy` | Deploy checklist |
 | `/wf-fix` | Debug pipeline: scout → diagnose → fix → verify → prevent |
 | `/wf-test` | Generate & run tests cho module |
 | `/wf-docs` | Generate/update documentation |
 | `/wf-git` | Git commit messages, PR descriptions, changelog |
-| `/wf-scout` | Edge case discovery, error path analysis |
 | `/wf-security` | Security scan: OWASP, secrets, auth review |
 | `/wf-research` | Research docs, best practices, compare approaches |
 
@@ -184,7 +223,6 @@ Blocked nếu:
 
 | Workflow | Mô tả |
 |---|---|
-| `/wf-predict` | Expert debate: 5 personas tranh luận impact trước khi implement |
 | `/wf-xia` | Port features từ external repos (compare/port/copy/improve) |
 | `/wf-retro` | Sprint retrospective: git metrics → health scores → action items |
 
@@ -277,7 +315,7 @@ Khi workflow cần ghi về SecondBrain:
 
 | Level | Khi dùng | Hành vi |
 |---|---|---|
-| **AUTO** | Root cause đã xác nhận, bug/pitfall lặp, architecture decision, context drift đã approved, pattern có thể tái sử dụng | Gọi `sk-vault-steward` hoặc `sk-context-cache`, ghi summary ngắn rồi report lại |
+| **AUTO** | Root cause đã xác nhận, bug/pitfall lặp, architecture decision, context drift đã approved, pattern có thể tái sử dụng | Nếu bật Knowledge addon thì gọi `sk-vault-steward` hoặc `sk-context-cache`; nếu không thì report `SKIP` |
 | **ASK** | Research summary, delivery summary, prediction/debate, plan có quyết định chưa chắc chắn | Tạo Memory Candidate và hỏi user trước khi ghi |
 | **SKIP** | Status tạm thời, raw command output, progress nhỏ, failed attempt không có lesson rõ | Không ghi |
 
@@ -288,11 +326,8 @@ Khi workflow cần ghi về SecondBrain:
 | `/wf-fix` | AUTO nếu root cause confirmed | root cause, prevention, bug pattern |
 | `/wf-review` | AUTO nếu có Critical/Major hoặc repeated finding; ASK nếu review clean nhưng có insight | review pattern, architecture violation, drift |
 | `/wf-retro` | AUTO | health insight, hotspot, action items |
-| `sk-context-update` | AUTO với items user approved | context drift, legacy rule, new pattern |
-| `sk-context-cache` | AUTO khi trigger cache match | pattern/review/decision cache |
-| `/wf-cook` | ASK | delivery lesson hoặc reusable pattern |
+| `sk-context-cache` (Knowledge addon) | AUTO khi trigger cache match | pattern/review/decision cache |
 | `/wf-research` | ASK | sourced research finding hoặc decision record |
-| `/wf-predict` | ASK | debate outcome và risks |
 | `/wf-plan` | ASK nếu có architecture decision | decision rationale |
 | `/wf-status`, `/wf-test`, `/wf-git`, `/wf-clarify` | SKIP mặc định | chỉ ghi nếu workflow phát hiện lesson rõ và nâng lên ASK |
 

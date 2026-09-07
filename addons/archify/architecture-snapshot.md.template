@@ -1,0 +1,19 @@
+# Architecture Snapshot — [project] — [YYYY-MM-DD]
+
+> Snapshot được sinh từ Archify và JSON IR đã validate. Code/test vẫn là ground
+> truth; snapshot chỉ dùng để giao tiếp và review.
+
+- **Archify version:** [version]
+- **Diagram type:** [architecture | workflow | sequence | dataflow | lifecycle]
+- **JSON source:** [path tới snapshot.json]
+- **Input revision:** [git SHA]
+- **HTML output:** [path tới architecture.html]
+- **Validation receipt:** [path hoặc command output]
+- **Refresh trigger:** [commit/architecture change/weekly]
+
+## Review notes
+
+- **Source evidence:** [files/symbols/lines hoặc `none`]
+- **Primary path:** [mô tả]
+- **Changed facts:** [added/removed/changed/moved/rerouted hoặc `none`]
+- **Open questions:** [câu hỏi hoặc `none`]

@@ -22,7 +22,7 @@ Skill này được gọi bởi các workflows qua **Knowledge Checkpoint** (bư
 | Workflow | Loại tri thức | Hướng xử lý |
 |----------|--------------|-------------|
 | `/wf-fix` | Root cause analysis, pitfall mới | Hướng A |
-| `/wf-cook` | Tóm tắt implementation, lessons learned | Hướng A |
+| `/wf-delivery` | Tóm tắt implementation, lessons learned | Hướng A |
 | `/wf-research` | Research findings, best practices | Hướng A |
 | `/wf-review` | Review findings, pattern violations | Hướng A |
 | `/wf-retro` | Sprint insights, health metrics | Hướng A |

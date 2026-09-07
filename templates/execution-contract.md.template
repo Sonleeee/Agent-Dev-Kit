@@ -1,0 +1,59 @@
+# Execution Contract — [task-id]
+
+> Tạo bản sao trong `.agents/runtime/<task-id>/execution-contract.md` cho mỗi
+> task có thay đổi hoặc quyết định kỹ thuật. Đây là ledger chống drift và mất
+> vị trí sau compaction; không phải nơi ghi toàn bộ chat.
+
+## 1. Task contract
+
+- **Objective:** [một câu đo được]
+- **User request:** [tóm tắt ngắn]
+- **Workflow:** [/wf-delivery | /wf-fix | /wf-modernize | ...]
+- **Mode:** [standard | fast | deep | auto]
+- **In scope:**
+  - [file/module/behavior]
+- **Out of scope:**
+  - [explicitly excluded]
+- **Acceptance criteria:**
+  - [ ] [tiêu chí có thể verify]
+- **Risk:** [low | medium | high]
+
+## 2. Context pack
+
+- **Passport:** `AGENTS.md`
+- **Manifest:** `.agents/context/manifest.md`
+- **Rules:** `.agents/rules/global.md`
+- **Architecture sections:** [section/tag]
+- **Templates:** [paths hoặc `none`]
+- **Architecture evidence:** [Archify HTML/JSON snapshot hoặc `none`]
+
+## 3. Plan and decisions
+
+### Tasks
+
+- [ ] Task 1 — [bounded action] — owner: [agent/person]
+- [ ] Task 2 — [bounded action] — owner: [agent/person]
+
+### Rulings
+
+- `Ruling:` [quyết định] — [lý do] — [chi phí nếu sai]
+
+### Simplification checkpoint
+
+- Existing helper/pattern reused: [path hoặc `none`]
+- Standard library/native feature considered: [kết quả]
+- New dependency/abstraction: [none hoặc lý do bắt buộc]
+
+## 4. Progress ledger
+
+| Time | Phase | Status | Evidence / next action |
+|---|---|---|---|
+| YYYY-MM-DD HH:mm | bootstrap | started | [context loaded] |
+
+## 5. Verification evidence
+
+- **Tests/build:** [command + result]
+- **Review:** [spec compliance + code quality]
+- **Changed files:** [list]
+- **Unplanned changes:** [none hoặc list + ruling]
+- **Final status:** `READY | BLOCKED | NEEDS_USER_DECISION`

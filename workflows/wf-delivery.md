@@ -35,7 +35,7 @@ Mỗi stage chạy đầy đủ theo workflow riêng.
 
 | Điều kiện | Mode | Hành động |
 |-----------|------|-----------|
-| Review tạo AUTO checkpoint hoặc delivery sinh architecture decision | `AUTO` | Gọi `sk-vault-steward` một lần với summary cuối flow |
+| Review tạo AUTO checkpoint hoặc delivery sinh architecture decision | `AUTO` | Nếu Knowledge addon bật, gọi `sk-vault-steward` một lần với summary cuối flow; nếu không thì report `SKIP` |
 | Task có lesson/pattern đáng nhớ nhưng không critical | `ASK` | Trình Memory Candidate |
 | Task thường ngày, không có lesson mới | `SKIP` | Không ghi |
 

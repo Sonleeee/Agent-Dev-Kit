@@ -39,7 +39,7 @@ Dùng `notebook_query` để hỏi AI:
 - **Drive Sources** → `source_get_content` để lấy nội dung doc
 
 ### Bước 4: Handoff
-Truyền kết quả phân loại + nội dung cho `sk-vault-steward` (Hướng C: Phone-Direct)
+Nếu Knowledge addon đã bật, truyền kết quả phân loại + nội dung cho `sk-vault-steward` (Hướng C: Phone-Direct)
 để ghi vào SecondBrain.
 
 ## Output

@@ -7,12 +7,12 @@ graph TB
     subgraph L3["Tầng 3: SECOND BRAIN (tùy chọn)"]
         OBS["📓 Obsidian Vault<br/>Tri thức xuyên projects"]
         NLM["🔬 NotebookLM<br/>Research & Synthesis"]
-        GRA["📊 Graphify<br/>Code structure graph"]
+        GRA["🗺️ Archify<br/>Architecture HTML artifacts"]
     end
 
     subgraph L2["Tầng 2: PROJECT LAYER (per-project)"]
         AGT["📋 AGENTS.md<br/>Project passport"]
-        CTX["📂 .agents/context/<br/>Architecture, templates, checklist"]
+        CTX["📂 .agents/context/<br/>Manifest L0, architecture L1/L2, templates, checklist"]
     end
 
     subgraph L1["Tầng 1: CORE KIT (clone từ repo)"]
@@ -58,6 +58,7 @@ sequenceDiagram
     Agent->>Kit: Đọc rules/global.md<br/>→ quality gates & guardrails
   
     Note over Agent: Bước 4: Load Context
+    Agent->>Ctx: Đọc context/manifest.md<br/>→ biết context nào cần nạp
     Agent->>Ctx: Đọc context/architecture.md<br/>→ biết kiến trúc project
     Agent->>Ctx: Đọc context/templates/<br/>→ code patterns (ground truth)
   
@@ -74,10 +75,12 @@ sequenceDiagram
 | 1      | Đọc passport    | `AGENTS.md`                     | Biết tên project, tech stack, reference modules       |
 | 2      | Tra registry      | `registry/index.md`             | Biết project-type → cần load files nào              |
 | 3      | Load rules        | `rules/global.md`               | Biết quality gates, guardrails, PROTECTED/OVERRIDABLE  |
-| 4a     | Load architecture | `context/architecture.md`       | Biết kiến trúc, anti-patterns, naming conventions    |
-| 4b     | Load templates    | `context/templates/be/` `fe/` | Biết code pattern chuẩn (ground truth để sinh code) |
-| 4c     | Load checklist    | `context/checklist.md`          | Biết checklist items riêng của project               |
-| 5      | Chọn workflow    | `workflows/*.md`                | Thực thi đúng flow cho loại task                    |
+| 4a     | Load manifest    | `context/manifest.md`          | Chọn đúng TIER-1/TIER-2, tránh nạp thừa             |
+| 4b     | Load architecture | `context/architecture.md`       | Biết kiến trúc, anti-patterns, naming conventions    |
+| 4c     | Load templates    | `context/templates/be/` `fe/` | Biết code pattern chuẩn (ground truth để sinh code) |
+| 4d     | Load checklist    | `context/checklist.md`          | Biết checklist items riêng của project               |
+| 5      | Tạo contract     | `.agents/runtime/<task-id>/`   | Giữ objective, scope, progress và evidence          |
+| 6      | Chọn workflow    | `workflows/*.md`                | Thực thi đúng flow cho loại task                    |
 
 ---
 
@@ -99,10 +102,10 @@ flowchart LR
     FIX --> R
 ```
 
-### Flow rút gọn: `/wf-delivery-lite`
+### Flow nhanh: `/wf-delivery --fast`
 
 ```
-clarify-lite (1-2 câu) → plan-lite (approach + files) → /wf-impl → review-lite
+/wf-delivery --fast: clarify ngắn → plan bounded → /wf-impl → /wf-review
 ```
 
 ### Các workflow khác
@@ -114,9 +117,9 @@ clarify-lite (1-2 câu) → plan-lite (approach + files) → /wf-impl → review
 | `/wf-impl`          | Code theo plan đã approved             |
 | `/wf-review`        | Review 5 layers với tri-state checklist |
 | `/wf-delivery`      | Full flow cho task phức tạp            |
-| `/wf-delivery-lite` | Shortcut cho task đơn giản            |
+| `/wf-delivery --fast` | Shortcut cho task đơn giản          |
 | `/wf-enhance`       | Refactor/optimize có chủ đích        |
-| `/wf-brainstorm`    | So sánh options khi cần quyết định  |
+| `/wf-clarify --compare` | So sánh options khi cần quyết định |
 | `/wf-deploy`        | Deploy checklist                         |
 
 ---
@@ -187,6 +190,24 @@ flowchart TD
 
 > **Gate 3 — Ship Ready:** Blocked nếu còn Critical finding hoặc FAIL items chưa fix.
 
+### 4.5. Execution Contract — chống drift
+
+Mỗi task có thay đổi phải giữ một contract ngắn trong `.agents/runtime/<task-id>/`:
+
+```text
+objective + scope + acceptance
+        ↓
+context pack + plan + bounded tasks
+        ↓
+progress ledger + rulings
+        ↓
+verification evidence + spec/quality review
+        ↓
+READY / BLOCKED / NEEDS_USER_DECISION
+```
+
+Nếu phiên bị compaction, agent đọc ledger trước và không chạy lại task đã complete.
+
 ---
 
 ## 5. Hệ thống Rules (Quality Gates)
@@ -250,7 +271,7 @@ graph LR
     CORE -.->|optional| SW["🤖 Swarm Addon<br/>Multi-agent orchestration"]
     CORE -.->|optional| OB["📓 Obsidian Addon<br/>Second Brain"]
     CORE -.->|optional| NL["🔬 NotebookLM Addon<br/>Research & Synthesis"]
-    CORE -.->|optional| GR["📊 Graphify Addon<br/>Code structure graph"]
+    CORE -.->|optional| GR["🗺️ Archify Addon<br/>Architecture HTML"]
 ```
 
 | Addon                 | Mô tả                                                   | Khi nào cần                  |
@@ -258,7 +279,7 @@ graph LR
 | **swarm/**      | Fan-out tasks qua Terminal (Codex, Gemini, OpenCode)| Khi dùng native orchestration |
 | **obsidian/**   | Obsidian vault lưu tri thức xuyên projects             | Khi muốn tích lũy knowledge |
 | **notebooklm/** | 14 skills research & synthesis                            | Khi cần deep research         |
-| **graphify/**   | Tự động tạo code structure graph                      | Khi muốn visualize codebase   |
+| **archify/**    | Tạo architecture/workflow HTML đã validate           | Khi cần giải thích/review kiến trúc |
 
 ---
 
@@ -303,9 +324,9 @@ flowchart TD
     CHOOSE --> WF{Loại task?}
   
     WF -->|Phức tạp| DELIVERY["/wf-delivery<br/>clarify→plan→impl→review"]
-    WF -->|Đơn giản| LITE["/wf-delivery-lite<br/>Nhanh gọn"]
+    WF -->|Đơn giản| LITE["/wf-delivery --fast<br/>Nhanh gọn"]
     WF -->|Refactor| ENHANCE["/wf-enhance"]
-    WF -->|So sánh| BRAINSTORM["/wf-brainstorm"]
+    WF -->|So sánh| BRAINSTORM["/wf-clarify --compare"]
   
     DELIVERY --> GATE["🚦 Quality Gates"]
     LITE --> GATE

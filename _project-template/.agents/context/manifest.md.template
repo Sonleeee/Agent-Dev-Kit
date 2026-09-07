@@ -1,0 +1,58 @@
+---
+kind: project-context-manifest
+version: 1.1.0
+updated: YYYY-MM-DD
+---
+
+# Project Context Manifest (L0)
+
+> Đây là bản đồ context ngắn. Agent phải đọc file này trước khi nạp các tài liệu
+> chi tiết. Manifest là chỉ mục, không thay thế source code hay architecture.md.
+
+## Objective & invariants
+
+- **Project objective:** [project làm gì]
+- **Non-negotiable constraints:** [bảo mật, dữ liệu, latency, compatibility]
+- **Definition of done:** [build/test/review/deploy checks]
+- **Current risks:** [rủi ro đang theo dõi hoặc `none`]
+
+## Context loading map
+
+### TIER-0 — luôn đọc
+
+- `AGENTS.md` — passport, stack, phạm vi.
+- `.agents/SYSTEM.md` — execution contract và workflow routing.
+- `.agents/rules/global.md` — protected gates.
+- `.agents/context/manifest.md` — file này.
+
+### TIER-1 — đọc theo task tag
+
+| Tag | Khi nào | File/section |
+|---|---|---|
+| `[ARCH]` | đổi cấu trúc, layer, module | `architecture.md` → section liên quan |
+| `[BE]` | backend/API/data | `architecture.md`, `templates/be/` |
+| `[FE]` | UI/state/form | `architecture.md`, `templates/fe/` |
+| `[TEST]` | test/regression | `checklist.md`, test strategy của project |
+| `[SECURITY]` | auth/input/secrets | `rule-overrides.approved.md`, security checklist |
+
+### TIER-2 — chỉ đọc khi có evidence cần thiết
+
+- Code examples và baseline modules trong `architecture.md`.
+- Template chi tiết trong `.agents/context/templates/`.
+- `GRAPH_REPORT*.md` hoặc architecture HTML snapshot nếu cần impact map.
+
+## Ground truth order
+
+1. Code và test đang chạy.
+2. `AGENTS.md` + manifest + architecture rules đã approved.
+3. Templates/checklists.
+4. Cache/SecondBrain và research bên ngoài — chỉ dùng như evidence tham khảo.
+
+Nếu code mâu thuẫn với context, tạo Conflict Report; không tự âm thầm đổi chuẩn.
+
+## Context freshness
+
+- **Last architecture review:** YYYY-MM-DD
+- **Known legacy areas:** [module/rule hoặc `none`]
+- **Architecture map:** [đường dẫn file HTML/report hoặc `none`]
+- **Owner for context changes:** [người/team]

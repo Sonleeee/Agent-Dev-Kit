@@ -37,6 +37,10 @@ cp -r .agents/_project-template/.agents/context/* .agents/context/
 
 Điền `architecture.md` với kiến trúc cụ thể của project.
 
+Đổi `manifest.md.template` thành `manifest.md` và điền mục tiêu, invariants,
+context tags, architecture snapshot và definition of done. Đây là context L0 ngắn
+để agent biết phải đọc gì trước khi nạp tài liệu sâu.
+
 ### 5. Cấu hình cho Cursor IDE (Khuyên dùng)
 
 Tạo file `.cursorrules` tại thư mục gốc của project với nội dung:
@@ -47,7 +51,8 @@ Tạo file `.cursorrules` tại thư mục gốc của project với nội dung:
 Trước khi thực hiện bất kỳ task nào, bạn BẮT BUỘC phải:
 1. Đọc file `AGENTS.md` ở root directory để hiểu ngữ cảnh dự án.
 2. Đọc file `.agents/SYSTEM.md` để nắm các workflow (/wf-clarify, /wf-plan, /wf-impl, /wf-review).
-3. Tuân thủ bộ luật tại `.agents/rules/global.md`.
+3. Nếu có, đọc `.agents/context/manifest.md` để chọn context TIER-1/TIER-2.
+4. Tạo execution contract cho task có thay đổi và tuân thủ `.agents/rules/global.md`.
 ```
 
 ---
@@ -60,29 +65,34 @@ Trước khi thực hiện bất kỳ task nào, bạn BẮT BUỘC phải:
 ├── SYSTEM.md                     ← Agent behavior specification
 ├── rules/
 │   └── global.md                 ← Quality gates & guardrails
-├── workflows/                    ← 20 workflows (4 nhóm)
+├── workflows/                    ← 17 workflows (stage, utility, advanced)
 ├── agents/                       ← 6 system agent personas
-├── skills/                       ← 13 skills (6 categories)
+├── skills/                       ← 20 skills (6 categories)
 │   ├── core/                     ← Discovery, planning, guard, regression
 │   ├── meta/                     ← Tạo/cải thiện agent system
 │   ├── devops/                   ← CI/CD pipeline, Docker review
 │   ├── security/                 ← OWASP scan, secret detection
 │   ├── testing/                  ← Test strategy, scenario generator
 │   └── research/                 ← Docs seeker, pattern researcher
-├── templates/                    ← Output templates
+├── templates/                    ← Output + execution contract templates
 ├── quality/                      ← Master checklists
+├── docs/                         ← Research/rationale và decisions của kit
+├── tools/                        ← Kiểm tra consistency của kit
 ├── registry/                     ← Project type registry
 ├── _project-template/            ← Template cho project mới
 └── addons/                       ← Mở rộng tùy chọn
     ├── swarm/                    ← Multi-agent orchestration
     ├── obsidian/                 ← Second Brain integration
     ├── notebooklm/               ← Research & Synthesis
-    └── graphify/                 ← Code structure graph
+    ├── archify/                  ← Architecture HTML artifacts
+    ├── knowledge/                ← Context cache, memory, vault writeback
+    ├── database/                 ← Database/schema inspection
+    └── maintainer/               ← Kit maintenance skills
 ```
 
 ---
 
-## 📋 Workflows (20)
+## 📋 Workflows (23)
 
 ### Stage Pipeline (core flow)
 
@@ -97,9 +107,17 @@ Trước khi thực hiện bất kỳ task nào, bạn BẮT BUỘC phải:
 
 | Lệnh | Mô tả |
 |-------|--------|
-| `/wf-delivery` | Full flow: clarify → plan → impl → review |
-| `/wf-delivery-lite` | Quick flow cho task đơn giản |
-| `/wf-cook` | Auto pipeline: 1 lệnh chạy hết clarify → plan → impl → test → review |
+| `/wf-delivery` | Full flow: clarify → plan → impl → review; hỗ trợ `--fast`, `--deep`, `--tdd`, `--auto`, `--parallel` |
+
+### Execution discipline
+
+Mọi task có thay đổi dùng `skills/core/sk-execution-contract/SKILL.md`:
+
+1. Đọc passport, rules và context manifest trước công cụ đầu tiên.
+2. Tạo execution contract với objective, scope, acceptance criteria và risk.
+3. Ghi progress ledger sau từng phase; task đã `complete` không chạy lại sau compaction.
+4. Với task độc lập, subagent mới nhận context tối thiểu và qua hai review: spec compliance, code quality.
+5. Chỉ báo `READY` khi có build/test/review evidence.
 
 ---
 
@@ -112,14 +130,12 @@ Mỗi project type sẽ có bộ quy tắc (rules) và template riêng. Tra danh
 
 | Lệnh | Mô tả |
 |-------|--------|
-| `/wf-brainstorm` | So sánh options, trade-off analysis |
 | `/wf-enhance` | Refactor/optimize có chủ đích |
 | `/wf-deploy` | Deploy checklist |
 | `/wf-fix` | Debug pipeline: scout → diagnose → fix → verify → prevent |
 | `/wf-test` | Generate & run tests cho module |
 | `/wf-docs` | Generate/update documentation |
 | `/wf-git` | Git commit messages, PR descriptions, changelog |
-| `/wf-scout` | Edge case discovery, error path analysis |
 | `/wf-security` | Security scan: OWASP, secrets, auth review |
 | `/wf-research` | Research docs, best practices, compare approaches |
 
@@ -127,9 +143,9 @@ Mỗi project type sẽ có bộ quy tắc (rules) và template riêng. Tra danh
 
 | Lệnh | Mô tả |
 |-------|--------|
-| `/wf-predict` | Expert debate — 5 personas tranh luận impact trước khi implement |
 | `/wf-xia` | Port features từ external repos (compare/port/copy/improve) |
 | `/wf-retro` | Sprint retrospective — git metrics → health scores → action items |
+| `/wf-vault-sync` | Ghi tri thức đã chưng cất theo writeback policy |
 
 ---
 
@@ -140,7 +156,7 @@ Thêm flags vào workflows để điều chỉnh hành vi:
 ```bash
 /wf-impl --fast          # Rút gọn, code luôn
 /wf-review --red-team    # 4 adversarial personas tấn công code
-/wf-predict --focus      # Chỉ chạy personas liên quan
+/wf-delivery --tdd       # Test trước rồi implement
 /wf-xia --compare        # So sánh kiến trúc, không port code
 /wf-retro --churn        # Focus hot spots (files thay đổi nhiều)
 ```
@@ -189,7 +205,7 @@ Chỉ bật khi cần. Xem `addons/README.md` để biết chi tiết.
 | `swarm/` | Multi-agent orchestration (fan-out tasks, dual review) |
 | `obsidian/` | Tích hợp Obsidian vault làm "bộ não thứ 2" |
 | `notebooklm/` | Research & Synthesis với NotebookLM |
-| `graphify/` | Code structure graph tự động |
+| `archify/` | Architecture/workflow HTML artifacts |
 
 ---
 
@@ -197,15 +213,15 @@ Chỉ bật khi cần. Xem `addons/README.md` để biết chi tiết.
 
 ```
 Tầng 3: SECOND BRAIN (tùy chọn)
-  Obsidian vault + NotebookLM + Graphify
+  Obsidian vault + NotebookLM + Archify artifacts
   Tri thức xuyên projects
 
 Tầng 2: PROJECT LAYER (per-project)
   AGENTS.md + .agents/context/
-  Architecture, templates, checklists riêng
+  Manifest (L0), architecture/tags (L1), examples (L2)
 
 Tầng 1: CORE KIT (clone từ repo)
-  .agents/ — workflows, rules, quality gates
+  .agents/ — workflows, rules, quality gates, execution contract
   Dùng chung cho mọi project
 ```
 

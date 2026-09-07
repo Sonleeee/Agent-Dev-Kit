@@ -77,7 +77,7 @@ Agent ghi lại research notes:
 
 | Điều kiện | Mode | Hành động |
 |-----------|------|-----------|
-| Research có source tốt và ảnh hưởng tới decision/implementation | `ASK` | Trình Memory Candidate; nếu user duyệt thì chạy `sk-vault-steward` |
+| Research có source tốt và ảnh hưởng tới decision/implementation | `ASK` | Trình Memory Candidate; nếu user duyệt và Knowledge addon bật thì chạy `sk-vault-steward` |
 | Research chỉ phục vụ câu trả lời tức thời | `SKIP` | Không ghi |
 
 Khi user duyệt:

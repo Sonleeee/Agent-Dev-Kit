@@ -145,8 +145,8 @@ Bước 3: Confidence Check
 | Workflow/Skill | Cách dùng cache |
 |----------------|----------------|
 | `wf-review` | Cache review findings pattern → tái sử dụng cho review tương tự |
-| `sk-context-create` | Cache analysis results → không re-scan cùng codebase |
-| `sk-context-update` | Cache change history → track evolution |
+| `wf-review` + context manifest | Cache analysis results → không re-scan cùng codebase |
+| execution contract | Cache change history → track evolution có approval |
 | `wf-fix` | Cache root cause analysis → detect recurring bugs |
 
 ---

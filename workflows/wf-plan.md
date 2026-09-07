@@ -2,10 +2,6 @@
 id: plan
 type: stage
 stage-number: 2
----
-id: plan
-type: stage
-stage-number: 2
 entry-command: /wf-plan
 next: impl
 prev: clarify
@@ -13,6 +9,7 @@ input-from: clarify-record
 output-format: implementation-plan-lite
 gate-after: gate-1
 skills-suggested:
+  - core/sk-execution-contract
   - core/sk-solution-planning
   - core/sk-sdd
 modifiers:
@@ -32,6 +29,11 @@ modifiers:
 
 ## Quy trình
 
+### Bước 0: Execution Contract
+
+Tạo hoặc cập nhật `.agents/runtime/<task-id>/execution-contract.md`. Ghi objective,
+scope in/out, acceptance criteria, risk, context pack và lệnh verify dự kiến.
+
 ### Bước 1: Phân tích scope
 
 Agent xác định:
@@ -48,6 +50,9 @@ Agent đề xuất:
 - Template selection cho từng scope (BE/FE)
 - Task breakdown theo thứ tự
 - Test obligations
+
+Trước khi chốt approach, chạy **Minimality Checkpoint**: reuse pattern hiện có →
+standard library/native → dependency đã cài → mới cân nhắc abstraction/dependency mới.
 
 ### Bước 3: Quality Card
 
@@ -93,6 +98,7 @@ Tạo Pre-Implementation Quality Card:
 - [ ] Problem statement rõ
 - [ ] Scope in/out xác định
 - [ ] Plan có thứ tự task
+- [ ] Mỗi task bounded, có file/symbol và bước verify độc lập
 - [ ] Quality card tồn tại
 - [ ] Technical Spec (`design_spec.md`) đã được tạo và User approved (nếu task phức tạp)
 
@@ -100,4 +106,5 @@ Tạo Pre-Implementation Quality Card:
 
 - Plan phải bounded — không mở rộng scope ngoài yêu cầu
 - Template selection là bắt buộc nếu project có `context/templates/`
+- Không dùng placeholder kiểu `TBD`, `TODO`, hoặc “implement later” trong plan
 - Nếu task đơn giản, plan có thể rút gọn thành plan-lite (3–5 dòng)

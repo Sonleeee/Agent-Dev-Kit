@@ -11,7 +11,7 @@
   > Tra danh sách type trong `.agents/registry/index.md`
 - **display-name:** [Tên hiển thị của project]
 - **description:** [1 câu mô tả project làm gì]
-- **agent-system-version:** 1.0.0
+- **agent-system-version:** 1.1.0
 
 ## Tech Stack
 
@@ -45,6 +45,13 @@
 
 - **BE pattern reference:** [src/path/to/reference-module/]
 - **FE pattern reference:** [src/path/to/reference-module/]
+
+## Execution Contract
+
+- **context-manifest:** `.agents/context/manifest.md`
+- **runtime-ledger:** `.agents/runtime/<task-id>/execution-contract.md`
+- **completion rule:** Không báo `READY` nếu thiếu acceptance evidence và verification.
+- **minimality rule:** Reuse trước, standard library/native trước, abstraction/dependency mới phải có lý do.
 
 ## Team Context
 

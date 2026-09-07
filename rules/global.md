@@ -19,6 +19,12 @@ Không được chuyển sang verify khi chưa self-check theo quality card.
 ### Gate 3 — Ship Ready [PROTECTED]
 Không được ship khi còn finding Critical.
 
+### Execution Evidence [PROTECTED]
+Không được báo `READY`/"đã hoàn tất" nếu chưa có execution contract hoặc output
+tương đương chứa objective, acceptance criteria, changed files, verification command
+và review result. Nếu không thể chạy verify, status phải là `BLOCKED` hoặc
+`NEEDS_USER_DECISION`, kèm lý do cụ thể.
+
 ---
 
 ## Nhóm 2 — Bugfix Discipline [PROTECTED]
@@ -36,8 +42,23 @@ Bugfix phải có ít nhất 1 anti-regression case để đảm bảo lỗi kh�
 ### Minimal Change Principle [PROTECTED]
 Thay đổi tối thiểu đúng phạm vi yêu cầu — không mở rộng scope tự phát.
 
+### Minimality Checkpoint [PROTECTED]
+Trước abstraction hoặc dependency mới, phải kiểm tra nhu cầu thực, khả năng tái sử
+dụng helper hiện có, standard library/native feature và phương án ít file/state nhất.
+Không giản lược validation, security, accessibility, error handling chống mất dữ liệu
+hoặc yêu cầu rõ của user.
+
+### Task Ledger [PROTECTED]
+Task nhiều bước phải có progress ledger. Mỗi task bounded chỉ được đánh dấu complete
+sau verify; khi resume sau context compaction, đọc ledger và không chạy lại task đã
+complete.
+
 ### Respect Project Context [PROTECTED]
 Luôn ưu tiên tuân thủ kiến trúc và convention hiện có của project trong `.agents/context/`.
+
+### Context Manifest [PROTECTED]
+Nếu project có `.agents/context/manifest.md`, agent phải đọc manifest trước khi nạp
+TIER-1/TIER-2. Manifest là bản đồ load context; code/test đang chạy vẫn là ground truth.
 
 ---
 

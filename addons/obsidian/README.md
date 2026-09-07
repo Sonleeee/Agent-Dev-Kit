@@ -48,7 +48,7 @@ Hoặc copy từ `vault-template/` trong addon này.
 
 - Tạo `brain/projects/[tên-project]/` cho mỗi project
 - Link tới `.agents/context/architecture.md` của project
-- Link tới `GRAPH_REPORT.md` nếu dùng Graphify addon
+- Link tới `addons/archify/architecture.html` nếu project có architecture artifact
 
 ## Vault Template
 

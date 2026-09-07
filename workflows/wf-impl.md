@@ -9,6 +9,7 @@ input-from: implementation-plan-lite
 output-format: impl-summary
 gate-after: gate-2
 skills-suggested:
+  - core/sk-execution-contract
   - core/sk-api-contract-guard
 modifiers:
   --fast: Bỏ qua research, code luôn từ context sẵn có, self-check rút gọn
@@ -28,6 +29,11 @@ modifiers:
 - Template selection cho từng scope
 
 ## Quy trình
+
+### Bước 0: Resume-safe ledger
+
+Đọc execution contract trước khi implement. Task đã đánh dấu `complete` trong ledger
+không được re-dispatch; task đang dở phải tiếp tục từ bước cuối có evidence.
 
 ### Bước 1: Load Context
 
@@ -57,7 +63,13 @@ Agent thực hiện implement theo:
 3. Đảm bảo naming conventions theo `architecture.md`
 4. Không sửa files ngoài scope plan.
 
-### Bước 4: Self-Check & Reflexion Hook
+### Bước 4: Subtask review và Self-Check
+
+Với task độc lập có subagent: review spec compliance trước, rồi review code quality.
+Nếu host không có subagent, agent tự chạy hai checklist tuần tự và ghi kết quả vào
+ledger trước khi chuyển task kế tiếp.
+
+### Bước 5: Self-Check & Reflexion Hook
 
 1. **Reflexion Hook (Tự phản biện nội bộ):** Ngay sau khi code xong, trước khi chạy build, Agent chạy prompt tự phản biện để tìm lỗi logic thô:
    - Check xem có import/using dư thừa không (nếu có, tự xóa).
@@ -71,7 +83,7 @@ Agent thực hiện implement theo:
    - [ ] Error handling đúng taxonomy
    - [ ] Đã chạy Reflexion và tự động fix hết lỗi thô.
 
-### Bước 5: Build Verification
+### Bước 6: Build Verification
 
 Agent chạy build để verify:
 
@@ -86,7 +98,7 @@ cd [fe-path] && npm run build
 - **Build PASS** → sang `/wf-review`
 - **Build FAIL** → phân tích error, fix, retry (max 3 lần)
 
-### Bước 6: Dev Done
+### Bước 7: Dev Done
 
 Kết luận Dev Done khi:
 
@@ -95,7 +107,7 @@ Kết luận Dev Done khi:
 - [ ] Self-check pass theo quality card
 - [ ] API contract status rõ
 
-### Bước 7: Implementation Knowledge Checkpoint
+### Bước 8: Implementation Knowledge Checkpoint
 
 `/wf-impl` mặc định không ghi vào SecondBrain vì implementation summary thường là trạng thái tạm thời. Áp dụng `SYSTEM.md` → Brain Writeback Policy:
 
@@ -104,7 +116,7 @@ Kết luận Dev Done khi:
 | Trong lúc implement phát hiện reusable pattern, pitfall, hoặc context drift rõ ràng | `ASK` | Trình Memory Candidate, target `03_Cache/patterns` hoặc `03_Cache/decisions` |
 | Không có lesson mới ngoài thay đổi code theo plan | `SKIP` | Không ghi |
 
-Nếu workflow cha là `/wf-delivery` hoặc `/wf-cook`, để workflow cha tổng hợp writeback cuối flow.
+Nếu workflow cha là `/wf-delivery`, để workflow cha tổng hợp writeback cuối flow.
 
 ## Output bắt buộc
 

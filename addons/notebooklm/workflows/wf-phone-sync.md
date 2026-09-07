@@ -27,7 +27,7 @@ Workflow sync dữ liệu từ iPhone (qua NotebookLM) về SecondBrain local.
 3. Dùng `notebook_query` để AI tổng hợp pending tasks
 
 ### Step 3: Ghi vào SecondBrain
-Gọi `sk-vault-steward` (Hướng C: Phone-Direct):
+Nếu Knowledge addon đã bật, gọi `sk-vault-steward` (Hướng C: Phone-Direct):
 - IDEA / NOTE / SOCIAL_CLIP → `00_Raw/Incoming/`
 - KNOWLEDGE → `00_Raw/Incoming/` → trigger synthesis vào `01_Wiki/`
 - TASK → `02_Brain/Task Systems.md`

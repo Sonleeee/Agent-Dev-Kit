@@ -203,8 +203,8 @@ function adk {
 
     Write-Host ""
     Write-Host "✨ Khởi tạo thành công Agent-Dev-Kit (v$InstalledVersion)!" -ForegroundColor Green
-    Write-Host "💡 Từ giờ, bạn chỉ cần gõ 'adk' (cài mới) hoặc 'adk up' (cập nhật) ở bất kỳ đâu!" -ForegroundColor Cyan
-    Write-Host "👉 Bước tiếp theo: Mở file AGENTS.md để điền thông tin dự án." -ForegroundColor Yellow
+    Write-Host "🚀 Sẵn sàng! Bạn có thể bắt đầu chat ngay với AI mà không cần cấu hình gì thêm." -ForegroundColor Cyan
+    Write-Host "💡 Gợi ý: Gõ 'adk up' bất cứ khi nào muốn cập nhật kit lên bản mới nhất." -ForegroundColor DarkGray
 }
 finally {
     if (Test-Path $TempDir) {

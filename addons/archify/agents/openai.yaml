@@ -1,0 +1,7 @@
+interface:
+  display_name: "Archify Architecture Map"
+  short_description: "Tạo diagram HTML bằng Archify khi được gọi"
+  default_prompt: "Dùng $archify-architecture-map để tạo diagram Archify cho yêu cầu này."
+
+policy:
+  allow_implicit_invocation: false

@@ -6,22 +6,21 @@ Core Kit (workflows, rules, quality gates) hoạt động **độc lập** — k
 
 ---
 
-## Danh sách Addons
+## Danh sách Addons (6 Addons khả dụng)
 
 | Addon | Mô tả | Cần cài thêm? |
 |-------|--------|----------------|
-| [swarm/](./swarm/) | Multi-agent orchestration | Cần MCP servers (codex-cli, gemini-cli...) |
-| [obsidian/](./obsidian/) | Second Brain với Obsidian vault | Cần cài Obsidian |
-| [notebooklm/](./notebooklm/) | Research & Synthesis | Cần NotebookLM MCP server |
-| [archify/](./archify/) | Architecture/workflow HTML đã validate | Cần cài Archify skill |
-| [knowledge/](./knowledge/) | Context cache, memory consolidation, vault writeback | Chỉ cần khi dùng Second Brain |
-| [database/](./database/) | Database/schema inspection | Chỉ cần khi project có database |
-| [maintainer/](./maintainer/) | Health check kit và tạo skill | Chỉ cần khi maintain kit |
+| [archify/](./archify/) | Architecture/workflow HTML tự chứa (self-contained) | Cần cài Archify skill (`npx skills add tt-a1i/archify -g`) |
+| [database/](./database/) | Tra cứu schema, quan hệ bảng và query SQL an toàn | Cần kết nối Gridex MCP Server |
+| [obsidian/](./obsidian/) | Ghi nhận tri thức, sync hai chiều với Second Brain | Cần app Obsidian & cấu hình vault-path |
+| [notebooklm/](./notebooklm/) | Research & Synthesis, đọc tài liệu dày, sync ghi chú | Cần NotebookLM MCP Server |
+| [knowledge/](./knowledge/) | Context cache, memory consolidation, vault writeback | Đi kèm với Second Brain / Obsidian |
+| [maintainer/](./maintainer/) | Health check kit (validate-kit.ps1) và tạo skill | Bộ script nội bộ bảo trì kit |
 
 ---
 
 ## Cách dùng Addon
 
-1. Đọc `README.md` trong thư mục addon
-2. Làm theo hướng dẫn setup
-3. Các workflow trong core kit đã có note `[Multi-agent]`, `[Second Brain]` ở cuối để liên kết sang addon khi cần
+1. Dùng lệnh `adk addon add <tên>` để xem link hướng dẫn hoặc cài đặt tương tác.
+2. Đọc `README.md` trong từng thư mục addon để nắm chi tiết.
+3. Các workflow trong core kit đã có note `[Second Brain]` hoặc `[Gridex]` ở cuối để liên kết sang addon khi cần.

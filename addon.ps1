@@ -1,0 +1,294 @@
+﻿<#
+.SYNOPSIS
+    Agent-Dev-Kit Addon Manager (adk addon)
+.DESCRIPTION
+    Quản lý, hiển thị link cài đặt và kích hoạt các addons có tương tác với người dùng.
+#>
+[CmdletBinding()]
+param(
+    [Parameter(Position=0)]
+    [string]$Action = "list",
+
+    [Parameter(Position=1, ValueFromRemainingArguments=$true)]
+    [string[]]$Name = @()
+)
+
+$NameStr = ($Name -join " ").Trim()
+
+$LocalKitPath = "C:\Sonlee\AI\Agent-Dev-Kit"
+if (-not (Test-Path $LocalKitPath)) {
+    $LocalKitPath = Join-Path (Get-Location) ".agents"
+}
+
+# Danh mục 6 Addons chính thức
+$AddonsData = @{
+    "archify" = @{
+        Title       = "Archify (HTML Architecture Diagram)"
+        Description = "Biên dịch dữ liệu JSON kiến trúc thành file HTML tương tác (vector SVG, hover, trace luồng)."
+        DocsUrl     = "https://vividkit.dev/vi/guides/archify"
+        RepoUrl     = "https://github.com/tt-a1i/archify"
+        InstallCmd  = "npx -y skills add tt-a1i/archify -g"
+        Type        = "CLI / Skill"
+    }
+    "database" = @{
+        Title       = "Database Inspector (Gridex MCP)"
+        Description = "Tra cứu cấu trúc bảng (schema), quan hệ khóa ngoại và thực thi SQL chỉ đọc an toàn để debug LINQ/EF Core."
+        DocsUrl     = "https://github.com/Sonleeee/Agent-Dev-Kit/tree/main/addons/database"
+        RepoUrl     = ""
+        InstallCmd  = ""
+        Type        = "MCP Server (Gridex)"
+    }
+    "obsidian" = @{
+        Title       = "Obsidian (Second Brain Integration)"
+        Description = "Đồng bộ tri thức hai chiều, lưu trữ quyết định kiến trúc (ADR) và ghi nhận bài học vào Second Brain."
+        DocsUrl     = "https://obsidian.md"
+        RepoUrl     = "https://obsidian.md/download"
+        InstallCmd  = ""
+        Type        = "App & Vault"
+    }
+    "notebooklm" = @{
+        Title       = "NotebookLM (Research & Task Sync)"
+        Description = "Nghiên cứu tài liệu kỹ thuật chuyên sâu, tổng hợp tri thức và đồng bộ ghi chú từ thiết bị di động."
+        DocsUrl     = "https://notebooklm.google.com"
+        RepoUrl     = ""
+        InstallCmd  = ""
+        Type        = "MCP Server (NotebookLM)"
+    }
+    "knowledge" = @{
+        Title       = "Knowledge Steward (Memory Consolidation)"
+        Description = "Tự động quản lý context cache, trích xuất kinh nghiệm và nén tri thức (đi cùng với Second Brain)."
+        DocsUrl     = "https://github.com/Sonleeee/Agent-Dev-Kit/tree/main/addons/knowledge"
+        RepoUrl     = ""
+        InstallCmd  = ""
+        Type        = "Internal Core Skill"
+    }
+    "maintainer" = @{
+        Title       = "Maintainer Tools (Health Check & Skill Creator)"
+        Description = "Bộ công cụ nội bộ kiểm tra tính toàn vẹn (validate-kit.ps1) và sinh skill mới chuẩn spec cho kit."
+        DocsUrl     = "https://github.com/Sonleeee/Agent-Dev-Kit/tree/main/addons/maintainer"
+        RepoUrl     = ""
+        InstallCmd  = "powershell -File .agents/tools/validate-kit.ps1"
+        Type        = "Kit Script"
+    }
+}
+
+function Show-Addon-Details([string]$key) {
+    if (-not $AddonsData.ContainsKey($key)) {
+        Write-Warning "Không tìm thấy addon '$key'. Hãy gõ 'adk addon list' để xem danh sách."
+        return
+    }
+
+    $addon = $AddonsData[$key]
+    Write-Host ""
+    Write-Host "========================================================================" -ForegroundColor Cyan
+    Write-Host "  📦 ADDON: $($addon.Title)" -ForegroundColor Cyan
+    Write-Host "========================================================================" -ForegroundColor Cyan
+    Write-Host "📝 Mô tả     : $($addon.Description)" -ForegroundColor Gray
+    Write-Host "🏷️  Loại      : $($addon.Type)" -ForegroundColor DarkGray
+    if ($addon.DocsUrl) {
+        Write-Host "🔗 Tài liệu  : $($addon.DocsUrl)" -ForegroundColor Yellow
+    }
+    if ($addon.RepoUrl) {
+        Write-Host "🔗 Trang tải : $($addon.RepoUrl)" -ForegroundColor Yellow
+    }
+    Write-Host "------------------------------------------------------------------------" -ForegroundColor DarkGray
+
+    # Menu tương tác cho từng loại addon
+    switch ($key) {
+        "archify" {
+            Write-Host "LỰA CHỌN CỦA BẠN:" -ForegroundColor Cyan
+            Write-Host "  [1] Tự động cài đặt Archify CLI toàn cục (npx skills add tt-a1i/archify -g)" -ForegroundColor White
+            Write-Host "  [2] Mở link tài liệu hướng dẫn trên trình duyệt" -ForegroundColor White
+            Write-Host "  [3] Mở trang GitHub repo của Archify" -ForegroundColor White
+            Write-Host "  [0] Quay lại / Hủy" -ForegroundColor DarkGray
+            $opt = Read-Host "👉 Nhập lựa chọn của bạn [0-3] (Mặc định: 1)"
+            if ([string]::IsNullOrWhiteSpace($opt)) { $opt = "1" }
+
+            switch ($opt) {
+                "1" {
+                    Write-Host "🚀 Đang thực thi: $($addon.InstallCmd)..." -ForegroundColor Cyan
+                    npx -y skills add tt-a1i/archify -g
+                    Write-Host "✅ Hoàn tất! Trong chat, bạn có thể yêu cầu AI: 'Dùng Archify vẽ sơ đồ kiến trúc'." -ForegroundColor Green
+                }
+                "2" { Start-Process $addon.DocsUrl }
+                "3" { Start-Process $addon.RepoUrl }
+                default { Write-Host "Đã hủy thao tác." -ForegroundColor DarkGray }
+            }
+        }
+        "database" {
+            Write-Host "LỰA CHỌN CỦA BẠN:" -ForegroundColor Cyan
+            Write-Host "  [1] Kiểm tra xem hệ thống đã có Gridex MCP Server chưa" -ForegroundColor White
+            Write-Host "  [2] Xem hướng dẫn sử dụng Gridex trong skill sk-db-inspector" -ForegroundColor White
+            Write-Host "  [0] Quay lại / Hủy" -ForegroundColor DarkGray
+            $opt = Read-Host "👉 Nhập lựa chọn của bạn [0-2] (Mặc định: 1)"
+            if ([string]::IsNullOrWhiteSpace($opt)) { $opt = "1" }
+
+            switch ($opt) {
+                "1" {
+                    Write-Host "🔍 Đang kiểm tra cấu hình Gridex MCP..." -ForegroundColor Cyan
+                    # Kiểm tra config mcp
+                    $mcpFound = $false
+                    $possibleConfigs = @(
+                        "$env:USERPROFILE\.gemini\antigravity\mcp\gridex",
+                        "$env:USERPROFILE\.cursor\mcp.json",
+                        "$env:APPDATA\Claude\claude_desktop_config.json"
+                    )
+                    foreach ($cfg in $possibleConfigs) {
+                        if (Test-Path $cfg) { $mcpFound = $true; break }
+                    }
+                    if ($mcpFound) {
+                        Write-Host "✅ Đã tìm thấy Gridex MCP trên máy của bạn!" -ForegroundColor Green
+                        Write-Host "💡 Khi chat, AI có thể tự gọi các tool: list_tables, describe_table, query (readonly)..." -ForegroundColor Yellow
+                    } else {
+                        Write-Host "ℹ️  Chưa phát hiện Gridex MCP. Hãy đảm bảo bạn đã thêm server Gridex vào cấu hình MCP." -ForegroundColor Yellow
+                    }
+                }
+                "2" {
+                    $skillFile = Join-Path $LocalKitPath "addons\database\skills\sk-db-inspector\SKILL.md"
+                    if (Test-Path $skillFile) {
+                        Get-Content $skillFile | Select-Object -First 35
+                    } else {
+                        Write-Host "Xem tại: https://github.com/Sonleeee/Agent-Dev-Kit/tree/main/addons/database" -ForegroundColor Yellow
+                    }
+                }
+                default { Write-Host "Đã hủy thao tác." -ForegroundColor DarkGray }
+            }
+        }
+        "obsidian" {
+            Write-Host "LỰA CHỌN CỦA BẠN:" -ForegroundColor Cyan
+            Write-Host "  [1] Cấu hình đường dẫn Obsidian Vault (vault-path) vào AGENTS.md" -ForegroundColor White
+            Write-Host "  [2] Mở trang chủ / Tải Obsidian (https://obsidian.md)" -ForegroundColor White
+            Write-Host "  [0] Quay lại / Hủy" -ForegroundColor DarkGray
+            $opt = Read-Host "👉 Nhập lựa chọn của bạn [0-2] (Mặc định: 1)"
+            if ([string]::IsNullOrWhiteSpace($opt)) { $opt = "1" }
+
+            switch ($opt) {
+                "1" {
+                    $defaultVault = "C:\Sonlee\AI\SecondBrain"
+                    $vaultInput = Read-Host "👉 Nhập đường dẫn thư mục Second Brain của bạn [Enter để lấy: $defaultVault]"
+                    if ([string]::IsNullOrWhiteSpace($vaultInput)) { $vaultInput = $defaultVault }
+
+                    if (Test-Path ".\AGENTS.md") {
+                        $content = Get-Content ".\AGENTS.md" -Raw
+                        if ($content -match "vault-path:") {
+                            $content = $content -replace "vault-path:.*", "vault-path: $vaultInput"
+                            [System.IO.File]::WriteAllText(".\AGENTS.md", $content, [System.Text.Encoding]::UTF8)
+                            Write-Host "✅ Đã cập nhật vault-path thành: $vaultInput trong AGENTS.md!" -ForegroundColor Green
+                        } else {
+                            Add-Content ".\AGENTS.md" "`n- **vault-path:** $vaultInput" -Encoding utf8
+                            Write-Host "✅ Đã thêm vault-path: $vaultInput vào AGENTS.md!" -ForegroundColor Green
+                        }
+                    } else {
+                        Write-Warning "Không tìm thấy file AGENTS.md tại thư mục hiện tại. Hãy chạy 'adk i' trước."
+                    }
+                }
+                "2" { Start-Process "https://obsidian.md/download" }
+                default { Write-Host "Đã hủy thao tác." -ForegroundColor DarkGray }
+            }
+        }
+        "notebooklm" {
+            Write-Host "LỰA CHỌN CỦA BẠN:" -ForegroundColor Cyan
+            Write-Host "  [1] Kiểm tra kết nối NotebookLM MCP Server trên máy" -ForegroundColor White
+            Write-Host "  [2] Mở trang web Google NotebookLM (https://notebooklm.google.com)" -ForegroundColor White
+            Write-Host "  [0] Quay lại / Hủy" -ForegroundColor DarkGray
+            $opt = Read-Host "👉 Nhập lựa chọn của bạn [0-2] (Mặc định: 1)"
+            if ([string]::IsNullOrWhiteSpace($opt)) { $opt = "1" }
+
+            switch ($opt) {
+                "1" {
+                    $mcpPath = "$env:USERPROFILE\.gemini\antigravity\mcp\notebooklm"
+                    if (Test-Path $mcpPath) {
+                        Write-Host "✅ Đã tìm thấy NotebookLM MCP Server trên máy của bạn!" -ForegroundColor Green
+                        Write-Host "💡 AI có thể dùng notebook_query, notebook_list để nghiên cứu tài liệu tự động." -ForegroundColor Yellow
+                    } else {
+                        Write-Host "ℹ️  Hãy đảm bảo NotebookLM MCP Server đã được cấu hình trong MCP settings." -ForegroundColor Yellow
+                    }
+                }
+                "2" { Start-Process "https://notebooklm.google.com" }
+                default { Write-Host "Đã hủy thao tác." -ForegroundColor DarkGray }
+            }
+        }
+        "maintainer" {
+            Write-Host "LỰA CHỌN CỦA BẠN:" -ForegroundColor Cyan
+            Write-Host "  [1] Chạy kiểm tra toàn diện kit ngay bây giờ (validate-kit.ps1)" -ForegroundColor White
+            Write-Host "  [2] Xem hướng dẫn tạo skill mới" -ForegroundColor White
+            Write-Host "  [0] Quay lại / Hủy" -ForegroundColor DarkGray
+            $opt = Read-Host "👉 Nhập lựa chọn của bạn [0-2] (Mặc định: 1)"
+            if ([string]::IsNullOrWhiteSpace($opt)) { $opt = "1" }
+
+            switch ($opt) {
+                "1" {
+                    $valScript = Join-Path $LocalKitPath "tools\validate-kit.ps1"
+                    if (Test-Path $valScript) {
+                        & $valScript
+                    } else {
+                        Write-Warning "Không tìm thấy $valScript"
+                    }
+                }
+                "2" {
+                    $creatorSkill = Join-Path $LocalKitPath "addons\maintainer\skills\sk-skill-creator\SKILL.md"
+                    if (Test-Path $creatorSkill) {
+                        Get-Content $creatorSkill | Select-Object -First 30
+                    }
+                }
+                default { Write-Host "Đã hủy thao tác." -ForegroundColor DarkGray }
+            }
+        }
+        "knowledge" {
+            Write-Host "Addon này tự động kích hoạt khi bạn kết nối với Obsidian (Second Brain)." -ForegroundColor Cyan
+            Write-Host "Dùng lệnh: adk addon add obsidian để kích hoạt." -ForegroundColor Yellow
+        }
+    }
+}
+
+# Xử lý các Action
+$target = if ($NameStr) { $NameStr.ToLower() } else { $Action.ToLower() }
+
+if ($target -in "list", "ls", "all", "") {
+    Write-Host ""
+    Write-Host "========================================================================" -ForegroundColor Cyan
+    Write-Host "   📦 AGENT-DEV-KIT ADDONS (6 Addons khả dụng)                          " -ForegroundColor Cyan
+    Write-Host "========================================================================" -ForegroundColor Cyan
+    Write-Host ""
+    $i = 1
+    $keys = @("archify", "database", "obsidian", "notebooklm", "knowledge", "maintainer")
+    foreach ($k in $keys) {
+        $item = $AddonsData[$k]
+        Write-Host "  $i. $($k.PadRight(12)) : $($item.Title)" -ForegroundColor White
+        Write-Host "     📝 $($item.Description)" -ForegroundColor Gray
+        if ($item.DocsUrl) {
+            Write-Host "     🔗 Link: $($item.DocsUrl)" -ForegroundColor DarkCyan
+        }
+        Write-Host ""
+        $i++
+    }
+    Write-Host "------------------------------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "👉 Cú pháp: adk addon add <tên-addon> để xem tùy chọn và cài đặt." -ForegroundColor Yellow
+    Write-Host "   Ví dụ  : adk addon add archify" -ForegroundColor DarkGray
+    Write-Host ""
+    $choice = Read-Host "Nhập tên hoặc số thứ tự addon bạn muốn xem/cài đặt [1-6 / Enter để thoát]"
+    if ($choice -match '^[1-6]$') {
+        $selectedKey = $keys[[int]$choice - 1]
+        Show-Addon-Details $selectedKey
+    } elseif ($AddonsData.ContainsKey($choice.ToLower())) {
+        Show-Addon-Details $choice.ToLower()
+    }
+}
+elseif ($Action.ToLower() -in "add", "install", "i") {
+    if ($NameStr -and $AddonsData.ContainsKey($NameStr.ToLower())) {
+        Show-Addon-Details $NameStr.ToLower()
+    } else {
+        $inputName = Read-Host "👉 Nhập tên addon bạn muốn thêm (archify, database, obsidian, notebooklm, maintainer)"
+        if ($AddonsData.ContainsKey($inputName.ToLower())) {
+            Show-Addon-Details $inputName.ToLower()
+        } else {
+            Write-Warning "Không tìm thấy addon '$inputName'. Hãy chạy 'adk addon' để xem danh sách."
+        }
+    }
+}
+elseif ($AddonsData.ContainsKey($target)) {
+    Show-Addon-Details $target
+}
+else {
+    Write-Warning "Lệnh không hợp lệ: '$Action'. Dùng 'adk addon' hoặc 'adk addon add <tên-addon>'."
+}

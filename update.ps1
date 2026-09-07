@@ -72,7 +72,7 @@ try {
     $CoreItems = @(
         "workflows", "skills", "rules", "agents", "templates",
         "quality", "addons", "registry", "docs", "tools",
-        "SYSTEM.md", "README.md", "CHANGELOG.md", "VERSION"
+        "SYSTEM.md", "README.md", "CHANGELOG.md", "VERSION", "addon.ps1"
     )
 
     foreach ($item in $CoreItems) {

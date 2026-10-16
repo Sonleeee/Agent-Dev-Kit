@@ -30,11 +30,11 @@ output: markdown (Bản báo cáo sức khỏe Health Report và danh sách các
 *   Kiểm tra file cấu hình Git `.gitignore` xem đã bỏ qua các file log tạm, file nháp của agent chưa (như `.agents/scratch/`, `.env`).
 
 ### Bước 3: Connectivity & Tools Audit (Kiểm tra kết nối)
-*   **MCP Connectivity:** Ping thử các MCP server đang chạy trên hệ thống (ví dụ: DBHub MCP, Chrome-devtools MCP, StitchMCP) để đảm bảo chúng phản hồi đúng quyền hạn và không bị tắt.
+*   **MCP Connectivity:** Ping thử các MCP server đang chạy trên hệ thống (ví dụ: Gridex MCP, Chrome-devtools MCP, StitchMCP) để đảm bảo chúng phản hồi đúng quyền hạn và không bị tắt.
 *   **Git connectivity:** Kiểm tra xem git credentials có hợp lệ để đẩy code/pull code không.
 
 ### Bước 4: Auto-Fix (Tự động khắc phục lỗi)
-*   Nếu thiếu file template (ví dụ `checklist.md`), agent tự động copy từ thư mục `_project-template/` sang `.agents/context/`.
+*   Nếu thiếu file template (ví dụ `checklist.md`), agent tự động copy từ thư mục `context/` hoặc `templates/` sang `.agents/context/`.
 *   Tự động bổ sung các file nháp của agent vào `.gitignore` nếu chưa có.
 *   Tạo lại thư mục `.agents/scratch/` nếu bị xóa.
 

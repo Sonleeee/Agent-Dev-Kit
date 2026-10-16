@@ -1,0 +1,27 @@
+# Developer Personal Profile
+
+> File này định hình phong cách làm việc, gu code và sở thích cá nhân của Developer.
+> Lưu toàn cục tại: ~/.agents/developer.md (Windows: %USERPROFILE%\.agents\developer.md)
+> Hoặc lưu local theo dự án tại: .agents/developer.local.md (đã được .gitignore).
+
+---
+
+## 1. Interaction & Tone
+- **Response Tone:** Ngắn gọn, súc tích (concise), đi thẳng vào giải pháp.
+- **Explanations:** Không giải thích cú pháp hoặc những điều hiển nhiên trừ khi được hỏi cụ thể.
+- **Language:** Tiếng Việt cho trao đổi và commit messages; Tiếng Anh cho code, biến, hàm và comments kỹ thuật.
+
+## 2. Coding Style & Paradigm
+- **Paradigm:** Ưu tiên Functional programming, immutability, pure functions khi có thể.
+- **Pattern:** Luôn áp dụng Early-return pattern, tránh lồng if-else quá 2 cấp (Guard clauses first).
+- **Naming Conventions:** Rõ nghĩa, tránh viết tắt tối nghĩa (ví dụ: `customerRepository` thay vì `repo`).
+- **Simplicity:** Tối giản (YAGNI, KISS), không tạo abstraction quá sớm khi chưa cần thiết.
+
+## 3. Formatting & Structure
+- **Functions:** Ưu tiên syntax ngắn gọn, rõ ràng theo chuẩn hiện đại của ngôn ngữ.
+- **Imports:** Nhóm imports theo thứ tự: Thư viện chuẩn/Third-party -> Internal modules -> Relative paths.
+- **Code Comments:** Chỉ comment lý do tại sao (Why), không comment mô tả lại code làm gì (What).
+
+## 4. Git & Delivery
+- **Commit Format:** Conventional Commits (ví dụ: `feat: ...`, `fix: ...`, `refactor: ...`, `test: ...`).
+- **Scope Control:** Tuyệt đối không tự ý format hoặc sửa đổi các file nằm ngoài phạm vi task hiện tại.

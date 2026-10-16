@@ -9,7 +9,7 @@
 - **project-type:** agent-dev-kit (meta — không phải ứng dụng nghiệp vụ)
 - **display-name:** Agent-Dev-Kit
 - **description:** Bộ công cụ và quy ước giúp AI agent code đúng pattern, giữ quality gates, tích lũy tri thức — nhân bản vào dự án qua thư mục kit (thường mount dưới tên `.agents/`).
-- **agent-system-version:** 1.1.0
+- **agent-system-version:** 2.6.0
 
 ## Phạm vi repo này (tránh nhầm với dự án app)
 
@@ -28,9 +28,7 @@
 - **luồng end-to-end:** `HowItWorks.md`
 - **quality gates:** `rules/global.md`
 - **execution contract:** `skills/core/sk-execution-contract/SKILL.md` + `templates/execution-contract.md.template`
-- **quality checklist:** `quality/master-checklist.md`
-- **project type registry:** `registry/index.md`
-- **mẫu passport cho app (Tầng 2):** `_project-template/AGENTS.md` — copy ra root repo dự án rồi điền theo app
+- **mẫu passport cho app (Tầng 2):** `templates/AGENTS.md.template` — copy ra root repo dự án rồi điền theo app
 
 ## Integrations
 
@@ -45,7 +43,6 @@
 | `skills/` | Skill theo domain (core, devops, security, …) |
 | `agents/` | Persona hệ thống |
 | `templates/` | Template output |
-| `_project-template/` | Skeleton để project tạo `AGENTS.md` và context |
 | `addons/` | Mở rộng tùy chọn (swarm, obsidian, …) |
 
 ## Team Context (repo kit)

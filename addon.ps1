@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Agent-Dev-Kit Addon Manager (adk addon)
 .DESCRIPTION
@@ -22,6 +22,14 @@ if (-not (Test-Path $LocalKitPath)) {
 
 # Danh mục 6 Addons chính thức
 $AddonsData = @{
+    "codegraph" = @{
+        Title       = "CodeGraph (Semantic Code Intelligence)"
+        Description = "Lap chi muc AST, call graph, symbol relationships (19+ ngon ngu). Giam ~35% token va ~70% tool calls."
+        DocsUrl     = "https://github.com/colbymchenry/codegraph"
+        RepoUrl     = "https://github.com/colbymchenry/codegraph"
+        InstallCmd  = "npx -y @colbymchenry/codegraph"
+        Type        = "MCP Server / CLI"
+    }
     "archify" = @{
         Title       = "Archify (HTML Architecture Diagram)"
         Description = "Biên dịch dữ liệu JSON kiến trúc thành file HTML tương tác (vector SVG, hover, trace luồng)."
@@ -95,6 +103,29 @@ function Show-Addon-Details([string]$key) {
 
     # Menu tương tác cho từng loại addon
     switch ($key) {
+        "codegraph" {
+            Write-Host "LUA CHON CUA BAN:" -ForegroundColor Cyan
+            Write-Host "  [1] Tu dong cai dat CodeGraph MCP Server (npx -y @colbymchenry/codegraph)" -ForegroundColor White
+            Write-Host "  [2] Khoi tao chi muc CodeGraph cho du an hien tai (codegraph init -i)" -ForegroundColor White
+            Write-Host "  [3] Mo trang GitHub repo cua CodeGraph" -ForegroundColor White
+            Write-Host "  [0] Quay lai / Huy" -ForegroundColor DarkGray
+            $opt = Read-Host "Nhap lua chon cua ban [0-3] (Mac dinh: 1)"
+            if ([string]::IsNullOrWhiteSpace($opt)) { $opt = "1" }
+
+            switch ($opt) {
+                "1" {
+                    Write-Host "Dang cai dat CodeGraph MCP Server..." -ForegroundColor Cyan
+                    npx -y @colbymchenry/codegraph
+                    Write-Host "Hoan tat cau hinh CodeGraph MCP Server!" -ForegroundColor Green
+                }
+                "2" {
+                    Write-Host "Dang khoi tao chi muc CodeGraph: codegraph init -i..." -ForegroundColor Cyan
+                    codegraph init -i
+                }
+                "3" { Start-Process $addon.RepoUrl }
+                default { Write-Host "Da huy thao tac." -ForegroundColor DarkGray }
+            }
+        }
         "archify" {
             Write-Host "LỰA CHỌN CỦA BẠN:" -ForegroundColor Cyan
             Write-Host "  [1] Tự động cài đặt Archify CLI toàn cục (npx skills add tt-a1i/archify -g)" -ForegroundColor White
@@ -247,11 +278,11 @@ $target = if ($NameStr) { $NameStr.ToLower() } else { $Action.ToLower() }
 if ($target -in "list", "ls", "all", "") {
     Write-Host ""
     Write-Host "========================================================================" -ForegroundColor Cyan
-    Write-Host "   📦 AGENT-DEV-KIT ADDONS (6 Addons khả dụng)                          " -ForegroundColor Cyan
+    Write-Host "   📦 AGENT-DEV-KIT ADDONS (5 Addons khả dụng)                          " -ForegroundColor Cyan
     Write-Host "========================================================================" -ForegroundColor Cyan
     Write-Host ""
     $i = 1
-    $keys = @("archify", "database", "obsidian", "notebooklm", "knowledge", "maintainer")
+    $keys = @("codegraph", "archify", "database", "obsidian", "notebooklm")
     foreach ($k in $keys) {
         $item = $AddonsData[$k]
         Write-Host "  $i. $($k.PadRight(12)) : $($item.Title)" -ForegroundColor White
@@ -266,8 +297,8 @@ if ($target -in "list", "ls", "all", "") {
     Write-Host "👉 Cú pháp: adk addon add <tên-addon> để xem tùy chọn và cài đặt." -ForegroundColor Yellow
     Write-Host "   Ví dụ  : adk addon add archify" -ForegroundColor DarkGray
     Write-Host ""
-    $choice = Read-Host "Nhập tên hoặc số thứ tự addon bạn muốn xem/cài đặt [1-6 / Enter để thoát]"
-    if ($choice -match '^[1-6]$') {
+    $choice = Read-Host "Nhập tên hoặc số thứ tự addon bạn muốn xem/cài đặt [1-5 / Enter để thoát]"
+    if ($choice -match '^[1-5]$') {
         $selectedKey = $keys[[int]$choice - 1]
         Show-Addon-Details $selectedKey
     } elseif ($AddonsData.ContainsKey($choice.ToLower())) {
@@ -278,7 +309,7 @@ elseif ($Action.ToLower() -in "add", "install", "i") {
     if ($NameStr -and $AddonsData.ContainsKey($NameStr.ToLower())) {
         Show-Addon-Details $NameStr.ToLower()
     } else {
-        $inputName = Read-Host "👉 Nhập tên addon bạn muốn thêm (archify, database, obsidian, notebooklm, maintainer)"
+        $inputName = Read-Host "👉 Nhập tên addon bạn muốn thêm (codegraph, archify, database, obsidian, notebooklm)"
         if ($AddonsData.ContainsKey($inputName.ToLower())) {
             Show-Addon-Details $inputName.ToLower()
         } else {

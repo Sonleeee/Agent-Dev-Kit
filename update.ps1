@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Agent-Dev-Kit Updater (adk update / adk up)
 .DESCRIPTION
@@ -71,7 +71,7 @@ try {
     # Các thành phần Core được cập nhật
     $CoreItems = @(
         "workflows", "skills", "rules", "agents", "templates",
-        "quality", "addons", "registry", "docs", "tools",
+        "schemas", "addons", "docs", "tools",
         "SYSTEM.md", "README.md", "CHANGELOG.md", "VERSION", "addon.ps1"
     )
 
@@ -83,7 +83,7 @@ try {
         }
     }
 
-    Write-Host "🛡️  An toàn: Toàn bộ .agents/context/ và AGENTS.md được giữ nguyên 100%." -ForegroundColor Green
+    Write-Host "🛡️  An toàn: Toàn bộ AGENTS.md và cấu hình riêng được giữ nguyên 100%." -ForegroundColor Green
     Write-Host "🎉 Cập nhật thành công lên Agent-Dev-Kit v$RemoteVersion!" -ForegroundColor Green
 }
 finally {

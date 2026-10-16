@@ -290,16 +290,16 @@ Bước 1: Clone kit
   git clone https://github.com/Sonleeee/Agent-Dev-Kit .agents
 
 Bước 2: Copy template
-  cp .agents/_project-template/AGENTS.md ./AGENTS.md
+  cp .agents/templates/AGENTS.md.template ./AGENTS.md
 
 Bước 3: Điền AGENTS.md
   - project-type: dotnet-clean-arch (hoặc type phù hợp)
   - display-name: Tên project
   - tech stack: .NET, React...
 
-Bước 4 (optional): Tạo context
-  cp -r .agents/_project-template/.agents/context .agents/context
-  → Điền architecture.md với kiến trúc project
+Bước 4: Khởi tạo CodeGraph
+  codegraph init -i
+  → Tự động phân tích AST, call graph & symbol relationships
 
 Bước 5: Bắt đầu dùng!
   /wf-clarify "Tôi muốn thêm feature X..."

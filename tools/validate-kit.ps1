@@ -14,9 +14,7 @@ function Require-Path([string]$RelativePath) {
 @(
     'AGENTS.md', 'SYSTEM.md', 'README.md', 'rules/global.md',
     'templates/execution-contract.md.template',
-    'skills/core/sk-execution-contract/SKILL.md',
-    '_project-template/AGENTS.md',
-    '_project-template/.agents/context/manifest.md.template'
+    'skills/core/sk-execution-contract/SKILL.md'
 ) | ForEach-Object { Require-Path $_ }
 
 $workflowDocs = Get-ChildItem -Path $KitRoot -Recurse -File -Filter '*.md' |

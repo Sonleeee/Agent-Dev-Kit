@@ -11,13 +11,24 @@ Mỗi rule được đánh dấu:
 ## Nhóm 1 — Delivery Gates [PROTECTED]
 
 ### Gate 1 — Ready [PROTECTED]
-Không được bắt đầu implement khi thiếu: Problem statement, Scope, Implementation plan, Pre-Impl Quality Card.
+Không được bắt đầu implement khi thiếu: Problem statement, Scope in/out, Implementation plan, Acceptance Criteria và Verification Command.
 
 ### Gate 2 — Dev Done [PROTECTED]
-Không được chuyển sang verify khi chưa self-check theo quality card.
+Không được chuyển sang review khi chưa hoàn thành self-check và chạy verify lệnh thực thi.
 
 ### Gate 3 — Ship Ready [PROTECTED]
-Không được ship khi còn finding Critical.
+- **Blocked**: Khi còn finding Critical hoặc lệnh verification/tests fail.
+- **Pass có điều kiện**: Không có Critical, nếu có Major phải nêu rõ lý do và residual risks.
+
+### Executable Verification Gate [PROTECTED]
+Chất lượng code bắt buộc phải được chứng minh bằng lệnh thực thi thật của project (compiler, linter, tests):
+- Build/Compilation phải pass với Zero Warnings (hoặc treat warnings as errors).
+- Linter/Typecheck (npm run lint, tsc --noEmit, dotnet format, ruff check...) phải pass 100%.
+- Unit/Integration Tests liên quan phải pass 100%.
+
+### Minimum Acceptance Criteria [PROTECTED]
+- Feature: Tối thiểu 2 happy paths + 2 edge cases trong scope + 1 error handling/user message.
+- Bugfix: Root cause rõ ràng + tối thiểu 1 anti-regression test case + xác nhận bug gốc không còn tái diễn.
 
 ### Execution Evidence [PROTECTED]
 Không được báo `READY`/"đã hoàn tất" nếu chưa có execution contract hoặc output

@@ -1,0 +1,125 @@
+# ============================================================================
+# ADK Self-Evolution Configuration
+# File này nằm trong core kit. Copy ra ~/.adk/evolution.toml để tùy chỉnh.
+# ============================================================================
+
+[database]
+# Đường dẫn file SQLite. Mặc định: ~/.adk/evolution.db
+path = "~/.adk/evolution.db"
+
+# Tự động backup trước mỗi evolution run
+auto_backup = true
+backup_dir = "~/.adk/backups"
+
+# Giữ backup bao nhiêu ngày
+backup_retention_days = 30
+
+# Chiến lược vacuum: "INCREMENTAL" hoặc "FULL"
+auto_vacuum = "INCREMENTAL"
+
+[trace_capture]
+# Bật/tắt trace capture. Khi false, agent chạy bình thường không ghi trace.
+enabled = true
+
+# Ghi số token và thời gian mỗi step
+log_tokens = true
+log_duration = true
+
+# Mức severity tối thiểu để ghi friction point
+# "low" = ghi tất cả, "medium" = bỏ qua low, "high" = chỉ ghi high
+min_severity_to_log = "low"
+
+# Độ dài tối đa cho summary fields (characters)
+max_summary_length = 250
+
+# Bỏ qua task read-only (chỉ hỏi thông tin, không sửa code)
+ignore_readonly_queries = true
+
+[evolution.triggers]
+# Ngưỡng tự động kích hoạt /wf-evolve (Phase G)
+
+# Chạy evolution sau mỗi N traces mới tích lũy
+trace_threshold = 20
+
+# Phát hiện friction spike: N friction severity=high trong window
+friction_spike_window = "7d"
+friction_spike_threshold = 5
+
+# Kích hoạt GEPA-Lite khi skill success rate dưới ngưỡng
+degraded_skill_threshold = 0.70
+
+# Skill phải được dùng tối thiểu N lần trước khi đánh giá
+degraded_skill_min_uses = 10
+
+# Cooldown: không evolve cùng target trong N ngày
+cooldown_days = 14
+
+[evolution.skills]
+# Cấu hình GEPA-Lite cho skill optimization (Phase D)
+
+# Số biến thể tối đa tạo ra mỗi lần
+max_variants = 5
+
+# Mutation types ưu tiên (thử trước)
+preferred_mutations = ["add_example", "split_step", "merge_steps", "clarify", "add_guard"]
+
+# Mutation types tránh (ít hiệu quả, meta-learned)
+avoid_mutations = []
+
+# Variant phải đạt overall score cao hơn current ít nhất N điểm
+score_threshold_upgrade = 5.0
+
+# Số traces dùng cho trace replay evaluation
+trace_replay_sample_size = 10
+
+[evolution.workflows]
+# Cấu hình GEPA-Lite cho workflow optimization (Phase E)
+max_variants = 4
+preferred_mutations = ["merge_steps", "reorder", "conditional", "add_gate"]
+
+# Workflow phải được chạy tối thiểu N lần trước khi evolve
+min_executions_before_evolve = 15
+
+[evolution.rules]
+# Cấu hình GEPA-Lite cho rule optimization (Phase F)
+max_variants = 3
+preferred_mutations = ["clarify", "simplify"]
+
+# Mutation types không bao giờ dùng cho rules (meta-learned)
+avoid_mutations = ["add_guard"]
+
+# Rule phải bị violate tối thiểu N lần trước khi evolve
+min_violations_before_evolve = 5
+
+[evolution.meta]
+# Cấu hình Meta-Evolution (Phase H)
+
+# Phân tích hiệu quả evolution sau mỗi N ngày
+analysis_interval_days = 30
+
+# Cần tối thiểu N evolution runs trước khi meta-analyze
+min_runs_for_meta = 10
+
+# Tự động cập nhật config dựa trên meta-analysis
+auto_update_config = false
+
+[synthesis]
+# Cấu hình Skill Synthesizer (Phase B)
+
+# Task phải có tối thiểu N turns để trigger synthesis check
+min_turns = 8
+
+# Chỉ synthesize từ task complexity ≥ giá trị này
+min_complexity = "Medium"
+
+# Chỉ synthesize từ task thành công
+require_outcome = "SUCCESS"
+
+# Skill draft phải có tối thiểu N meaningful steps
+min_steps = 3
+
+# Ngưỡng confidence tối thiểu để trình user
+confidence_threshold = 0.75
+
+# Nhóm mặc định cho skills mới tạo
+default_skill_group = "meta"

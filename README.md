@@ -17,7 +17,7 @@ git clone https://github.com/Sonleeee/Agent-Dev-Kit .agents
 ### 2. Tạo AGENTS.md cho project
 
 ```bash
-cp .agents/_project-template/AGENTS.md ./AGENTS.md
+cp .agents/templates/AGENTS.md.template ./AGENTS.md
 ```
 
 ### 3. Điền thông tin project vào AGENTS.md
@@ -27,19 +27,16 @@ Mở `AGENTS.md`, điền:
 - Tech stack (BE/FE/DB)
 - Reference modules
 
-### 4. (Tùy chọn) Tạo project context
+### 4. Khởi tạo CodeGraph (Semantic Code Intelligence)
+
+Kit sử dụng CodeGraph để phân tích call graph, AST và symbol relationships thay cho việc tạo sơ đồ source map thủ công:
 
 ```bash
-mkdir -p .agents/context
-# Copy skeleton templates
-cp -r .agents/_project-template/.agents/context/* .agents/context/
+npx @colbymchenry/codegraph
+codegraph init -i
 ```
 
-Điền `architecture.md` với kiến trúc cụ thể của project.
-
-Đổi `manifest.md.template` thành `manifest.md` và điền mục tiêu, invariants,
-context tags, architecture snapshot và definition of done. Đây là context L0 ngắn
-để agent biết phải đọc gì trước khi nạp tài liệu sâu.
+Sau khi khởi tạo, agent sẽ tự động truy vấn CodeGraph khi làm việc.
 
 ### 5. Cấu hình cho Cursor IDE (Khuyên dùng)
 
@@ -78,8 +75,6 @@ Trước khi thực hiện bất kỳ task nào, bạn BẮT BUỘC phải:
 ├── quality/                      ← Master checklists
 ├── docs/                         ← Research/rationale và decisions của kit
 ├── tools/                        ← Kiểm tra consistency của kit
-├── registry/                     ← Project type registry
-├── _project-template/            ← Template cho project mới
 └── addons/                       ← Mở rộng tùy chọn
     ├── swarm/                    ← Multi-agent orchestration
     ├── obsidian/                 ← Second Brain integration

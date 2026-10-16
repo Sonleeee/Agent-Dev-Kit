@@ -6,34 +6,44 @@ Bộ agent dùng chung cho mọi project và mọi platform/IDE.
 
 ```text
 .agents/ (KIT — clone từ repo)
-    ├── rules/          ← Quality gates chung
+    ├── rules/          ← Global rules & Executable gates
     ├── skills/         ← Skills tái sử dụng
-    ├── workflows/      ← Các workflow chuẩn
+    ├── workflows/      ← Các workflow chuẩn (/wf-clarify, /wf-plan, /wf-impl, /wf-review...)
     ├── agents/         ← System agent personas
-    ├── quality/        ← Master checklists
-    ├── templates/      ← Output templates
-    ├── registry/       ← Project type registry
-    ├── _project-template/ ← Template cho project mới
-    └── addons/         ← Mở rộng tùy chọn (swarm, obsidian...)
+    ├── templates/      ← Output & Contract templates
+    ├── schemas/        ← Database schemas (evolution.db)
+    ├── tools/          ← CLI tools (evolution_db.py, validate-kit.ps1)
+    ├── config/         ← Config templates
+    └── addons/         ← Mở rộng tùy chọn (codegraph, archify, database...)
 
 [project-root]/
-    ├── AGENTS.md       ← "Passport" của project
-    └── .agents/context/
-        ├── manifest.md          ← Context map L0
-        ├── architecture.md   ← Kiến trúc project
-        ├── checklist.md      ← Checklist riêng
-        └── templates/        ← Code templates
+    ├── AGENTS.md       ← "Passport" của project (tech stack, conventions, reference modules)
+    └── .agents/
+        ├── runtime/    ← Execution contracts & task ledgers
+        └── developer.local.md ← (Tùy chọn) Override style cá nhân cho riêng repo này
+
+~/.agents/ (User Home)
+    └── developer.md    ← Global Developer Profile (Gu code, tone áp dụng cho MỌI repo)
 ```
 
 ## Luồng agent khi nhận task
 
-1. Đọc `AGENTS.md` ở project root
-2. Tra `registry/index.md`
-3. Load `rules/global.md`
-4. Load `.agents/context/manifest.md` nếu có
-5. Load `.agents/context/architecture.md` theo TIER-1 tag liên quan
-6. Load `.agents/context/templates/*` nếu có
-7. Chọn workflow phù hợp và ghi vào execution contract
+### Thứ tự workflow chuẩn:
+```text
+/wf-clarify -> /wf-plan -> /wf-impl -> /wf-review
+```
+
+### Pre-flight Context Resolution (Nạp ngữ cảnh trước khi hành động):
+1. **Global Guardrails:** `rules/global.md` (Tối cao: Executable gates, Hard invariants, Zero-warning).
+2. **Project Pattern:** `[project-root]/AGENTS.md` (Stack, Reference modules, Team conventions).
+3. **Developer Profile (Personal Style):**
+   - Đọc `.agents/developer.local.md` nếu có (Local override cho repo này).
+   - Nếu không có: Đọc `~/.agents/developer.md` hoặc `%USERPROFILE%\.agents\developer.md` (Global Profile).
+4. **Codebase Intelligence:** Gọi CodeGraph (`mcp__codegraph.codegraph_explore` / `codegraph_node`) để lấy AST và Ground Truth code patterns thực tế.
+5. **Task Execution Contract:** Khóa scope, invariants và verification command vào `.agents/runtime/<task-id>/execution-contract.md`.
+
+### Thứ tự ưu tiên giải quyết xung đột (Conflict Resolution Priority):
+$$\text{Global Guardrails (Tối cao)} > \text{Project Conventions (Team)} > \text{Developer Personal Style (Cá nhân)} > \text{Agent Default}$$
 
 ### Execution Contract — Always-On
 
@@ -182,8 +192,9 @@ Blocked nếu:
 | `testing/` | Test strategy, scenario generation | Tùy chọn |
 | `research/` | Docs lookup, document parsing, pattern research | Không |
 
-> Context cache, vault writeback, database inspection và kit maintenance nằm trong
-> các addon tùy chọn dưới `addons/`; core không yêu cầu chúng để chạy delivery.
+> Context cache, vault writeback, database inspection, kit maintenance và
+> **self-evolution** nằm trong các addon tùy chọn dưới `addons/`;
+> core không yêu cầu chúng để chạy delivery.
 
 > **Ghi chú:** Domain skills (backend/frontend) không nằm trong core kit.
 > Mỗi project tự tạo domain skills riêng trong `.agents/context/` hoặc repo riêng.
@@ -232,7 +243,7 @@ Agent chạy ở generic mode:
 
 - Dùng global rules
 - Hỏi user về context cần thiết
-- Gợi ý onboard project bằng `_project-template/`
+- Gợi ý onboard project bằng `templates/AGENTS.md.template` và khởi tạo `.agents/context/`
 
 ## System Agents
 
@@ -277,24 +288,19 @@ Khi project có `architecture.md` theo TIER format, agent load theo nhu cầu:
 
 ---
 
-## Truth Hierarchy — Dual Mode
+## Truth Hierarchy & Resolution
 
-### Lookup Order (tìm thông tin ở đâu trước? → tiết kiệm token)
+### Truth Resolution Order (Thứ tự chân lý):
 
-1. 🥇 `SecondBrain/03_Cache/` — cached analysis (nếu có, check TTL)
-2. 🥈 `.agents/context/` — tóm tắt rules, đã curate
-3. 🥉 Code thực tế — ground truth nhưng tốn token
+1. 🥇 **Executable Verification:** Build/Tests/Linters thực tế đang chạy trên máy (Zero-warning).
+2. 🥈 **CodeGraph Intelligence:** Đồ thị AST, quan hệ hàm (call graph) và symbol relationships thực tế của codebase.
+3. 🥉 **Project Conventions:** File `AGENTS.md` (Passport và reference modules).
+4. 🏅 **Developer Profile:** `~/.agents/developer.md` hoặc `.agents/developer.local.md`.
 
-### Review Priority (check pattern compliance theo thứ tự nào?)
-
-1. 🥇 Code mới impl (diff) — subject đang review
-2. 🥈 `.agents/context/` — tiêu chuẩn check
-
-### Khi có Conflict (Code ≠ Context)
-
-- KHÔNG tự quyết định
-- Luôn trình **Conflict Report** cho user (xem `templates/conflict-report.md.template`)
-- User chọn: Fix code / Update context / Keep both + tag [Legacy]
+### Khi có xung đột:
+- Global Guardrails luôn thắng Project Conventions.
+- Project Conventions luôn thắng Developer Personal Style.
+- Nếu code thực tế mâu thuẫn với yêu cầu trong task: Trình **Conflict Report** cho user (xem `templates/conflict-report.md.template`).
 
 ---
 

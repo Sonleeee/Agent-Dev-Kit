@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Agent-Dev-Kit Installer (adk init)
 .DESCRIPTION
@@ -50,7 +50,7 @@ try {
     # 3. Copy các thành phần Core
     $CoreItems = @(
         "workflows", "skills", "rules", "agents", "templates",
-        "quality", "addons", "registry", "docs", "tools",
+        "schemas", "addons", "docs", "tools",
         "SYSTEM.md", "README.md", "CHANGELOG.md", "VERSION", "addon.ps1"
     )
 
@@ -67,11 +67,7 @@ try {
     $TargetContextDir = Join-Path $TargetAgentsDir "context"
     if (-not (Test-Path $TargetContextDir)) {
         New-Item -ItemType Directory -Path $TargetContextDir -Force | Out-Null
-        $TemplateContext = Join-Path $SourcePath "_project-template\.agents\context\*"
-        if (Test-Path $TemplateContext) {
-            Copy-Item -Path $TemplateContext -Destination $TargetContextDir -Recurse -Force
-        }
-        Write-Host "📝 Đã tạo khung context tại .agents/context/" -ForegroundColor Green
+        Write-Host "📝 Đã tạo thư mục .agents/context/" -ForegroundColor Green
     } else {
         Write-Host "ℹ️  Thư mục .agents/context/ đã có sẵn, giữ nguyên an toàn." -ForegroundColor Yellow
     }
@@ -79,7 +75,7 @@ try {
     # 5. Tạo AGENTS.md tại root (nếu chưa có)
     $AgentsFile = Join-Path $CurrentDir "AGENTS.md"
     if (-not (Test-Path $AgentsFile)) {
-        $TemplateAgents = Join-Path $SourcePath "_project-template\AGENTS.md"
+        $TemplateAgents = Join-Path $SourcePath "templates\AGENTS.md.template"
         if (Test-Path $TemplateAgents) {
             Copy-Item -Path $TemplateAgents -Destination $AgentsFile -Force
             Write-Host "📄 Đã tạo AGENTS.md tại thư mục gốc" -ForegroundColor Green
@@ -109,14 +105,12 @@ try {
                 New-Item -ItemType File -Path $PROFILE -Force | Out-Null
             }
 
-            $profileContent = Get-Content $PROFILE -Raw -ErrorAction SilentlyContinue
-            if ($profileContent -notmatch "function\s+adk\b") {
-                $adkSnippet = @'
+            $adkSnippet = @'
 
 # --- Agent-Dev-Kit CLI (adk) ---
-function adk {
+function global:adk {
     param(
-        [string]$cmd = "init",
+        [string]$cmd = "help",
         [string]$subcmd = "",
         [switch]$Force
     )
@@ -129,7 +123,7 @@ function adk {
             if ($runLocal) { & "$localKit\install.ps1" -Force:$Force }
             else { irm "$remoteRepo/install.ps1" | iex }
         }
-        { $_ -in "up", "update" } {
+        { $_ -in "u", "up", "update" } {
             if ($runLocal) { & "$localKit\update.ps1" -Force:$Force }
             else { irm "$remoteRepo/update.ps1" | iex }
         }
@@ -142,128 +136,72 @@ function adk {
                 irm "$remoteRepo/addon.ps1" | iex
             }
         }
+        { $_ -in "profile" } {
+            if ($runLocal -and (Test-Path "$localKit\tools\init-profile.ps1")) {
+                & "$localKit\tools\init-profile.ps1"
+            } elseif (Test-Path ".agents\tools\init-profile.ps1") {
+                & ".\.agents\tools\init-profile.ps1"
+            } else {
+                irm "$remoteRepo/tools/init-profile.ps1" | iex
+            }
+        }
         { $_ -in "v", "ver", "version", "-v", "--version" } {
             $ver = "unknown"
             if (Test-Path ".agents\VERSION") { $ver = (Get-Content ".agents\VERSION" -Raw).Trim() }
             elseif ($runLocal -and (Test-Path "$localKit\VERSION")) { $ver = (Get-Content "$localKit\VERSION" -Raw).Trim() }
             Write-Host "🤖 Agent-Dev-Kit v$ver" -ForegroundColor Cyan
         }
-        { $_ -in "help", "-h", "--help" } {
+        { $_ -in "help", "-h", "--help", "" } {
             Write-Host ""
             Write-Host "========================================================================" -ForegroundColor Cyan
             Write-Host "   🤖 AGENT-DEV-KIT CLI (adk) — Hướng Dẫn Sử Dụng                       " -ForegroundColor Cyan
             Write-Host "========================================================================" -ForegroundColor Cyan
             Write-Host ""
             Write-Host "📌 1. LỆNH CLI CƠ BẢN:" -ForegroundColor Yellow
-            Write-Host "  adk, adk i, adk install   : Khởi tạo kit vào project (.agents/)" -ForegroundColor White
-            Write-Host "  adk up, adk update        : Cập nhật core kit lên bản mới nhất" -ForegroundColor White
-            Write-Host "  adk addon [tên]           : Quản lý, xem link và cài đặt addons" -ForegroundColor White
+            Write-Host "  adk, adk help, adk -h     : Hiển thị bảng trợ giúp này" -ForegroundColor White
+            Write-Host "  adk i, adk install        : Tải/Khởi tạo kit vào project (.agents/)" -ForegroundColor White
+            Write-Host "  adk u, adk update         : Cập nhật core kit lên bản mới nhất" -ForegroundColor White
+            Write-Host "  adk profile               : Thiết lập gu code cá nhân (~/.agents/developer.md)" -ForegroundColor White
+            Write-Host "  adk addon [tên]           : Quản lý và cài đặt addons (codegraph, archify...)" -ForegroundColor White
             Write-Host "  adk version, adk -v       : Xem phiên bản hiện tại" -ForegroundColor White
-            Write-Host "  adk help, adk --help      : Xem bảng trợ giúp này" -ForegroundColor White
             Write-Host ""
-            Write-Host "💬 2. CÁCH DÙNG TRONG CHAT (WORKFLOWS):" -ForegroundColor Yellow
-            Write-Host "  /wf-scout                 : Khảo sát, đọc hiểu codebase dự án" -ForegroundColor White
-            Write-Host "  /wf-plan <tính năng>     : Lên kế hoạch chi tiết trước khi code" -ForegroundColor White
-            Write-Host "  /wf-cook                  : Triển khai code bám sát plan đã duyệt" -ForegroundColor White
-            Write-Host "  /wf-fix <lỗi>             : Chẩn đoán và sửa lỗi theo quy trình" -ForegroundColor White
-            Write-Host "  /wf-test                  : Sinh unit test và kịch bản kiểm thử" -ForegroundColor White
-            Write-Host "  /wf-review                : Rà soát chất lượng code và regression" -ForegroundColor White
+            Write-Host "💬 2. QUY TRÌNH CHUẨN TRONG CHAT (WORKFLOWS):" -ForegroundColor Yellow
+            Write-Host "  /wf-clarify <yêu cầu>    : Làm rõ yêu cầu & chốt Invariants" -ForegroundColor White
+            Write-Host "  /wf-plan <tính năng>     : Lập kế hoạch & sinh Execution Contract" -ForegroundColor White
+            Write-Host "  /wf-impl                  : Triển khai code bám sát Contract" -ForegroundColor White
+            Write-Host "  /wf-review                : Rà soát 4 tầng & kiểm tra Executable Gates" -ForegroundColor White
+            Write-Host "  /wf-fix <lỗi>             : Chẩn đoán nguyên nhân gốc & sửa lỗi" -ForegroundColor White
+            Write-Host "  /wf-evolve                : Tự động phân tích logs & tối ưu hóa rules" -ForegroundColor White
             Write-Host ""
-            Write-Host "📦 3. DANH SÁCH 6 ADDONS (Gõ 'adk addon' để chọn và cài đặt):" -ForegroundColor Yellow
+            Write-Host "📦 3. DANH SÁCH 5 ADDONS (Gõ 'adk addon' để chọn và cài đặt):" -ForegroundColor Yellow
+            Write-Host "  • codegraph  : Lập chỉ mục AST, call graph & symbols (giảm 35% token)" -ForegroundColor Gray
             Write-Host "  • archify    : Vẽ sơ đồ HTML tương tác (https://vividkit.dev/vi/guides/archify)" -ForegroundColor Gray
             Write-Host "  • database   : Tra cứu schema & query an toàn qua Gridex MCP" -ForegroundColor Gray
             Write-Host "  • obsidian   : Đồng bộ tri thức hai chiều với Second Brain (https://obsidian.md)" -ForegroundColor Gray
             Write-Host "  • notebooklm : Nghiên cứu tài liệu sâu qua Google NotebookLM" -ForegroundColor Gray
-            Write-Host "  • knowledge  : Context cache, memory consolidation (đi kèm Second Brain)" -ForegroundColor Gray
-            Write-Host "  • maintainer : Bộ công cụ nội bộ bảo trì kit (validate-kit.ps1)" -ForegroundColor Gray
             Write-Host ""
             Write-Host "👉 Để xem chi tiết và cài addon, gõ: adk addon (hoặc adk addon add <tên>)" -ForegroundColor Cyan
             Write-Host ""
         }
         default {
-            if ($runLocal) { & "$localKit\install.ps1" -Force:$Force }
-            else { irm "$remoteRepo/install.ps1" | iex }
+            Write-Warning "Lệnh không hợp lệ: '$cmd'. Gõ 'adk' hoặc 'adk help' để xem hướng dẫn."
         }
     }
 }
 '@
-                Add-Content -Path $PROFILE -Value $adkSnippet -Encoding utf8
+
+            $profileContent = Get-Content $PROFILE -Raw -ErrorAction SilentlyContinue
+            if ($profileContent -match "(?s)# --- Agent-Dev-Kit CLI \(adk\) ---.*?\n\}") {
+                $newProfile = [regex]::Replace($profileContent, "(?s)# --- Agent-Dev-Kit CLI \(adk\) ---.*?\n\}", $adkSnippet.Trim())
+                Set-Content -Path $PROFILE -Value $newProfile -Encoding utf8
+                Write-Host "⚡ Đã cập nhật lệnh 'adk' trong PowerShell Profile!" -ForegroundColor Green
+            } elseif ($profileContent -notmatch "function\s+adk\b") {
+                Add-Content -Path $PROFILE -Value "`n$adkSnippet" -Encoding utf8
                 Write-Host "⚡ Đã tự động đăng ký lệnh 'adk' vào PowerShell Profile!" -ForegroundColor Green
             }
 
             # Nạp ngay function adk vào phiên hiện tại để dùng được luôn
-            Set-Item -Path function:global:adk -Value {
-                param(
-                    [string]$cmd = "init",
-                    [string]$subcmd = "",
-                    [switch]$Force
-                )
-                $localKit = "C:\Sonlee\AI\Agent-Dev-Kit"
-                $remoteRepo = "https://raw.githubusercontent.com/Sonleeee/Agent-Dev-Kit/main"
-                $runLocal = Test-Path $localKit
-
-                switch ($cmd.ToLower()) {
-                    { $_ -in "i", "init", "install" } {
-                        if ($runLocal) { & "$localKit\install.ps1" -Force:$Force }
-                        else { irm "$remoteRepo/install.ps1" | iex }
-                    }
-                    { $_ -in "up", "update" } {
-                        if ($runLocal) { & "$localKit\update.ps1" -Force:$Force }
-                        else { irm "$remoteRepo/update.ps1" | iex }
-                    }
-                    { $_ -in "addon", "addons" } {
-                        if ($runLocal -and (Test-Path "$localKit\addon.ps1")) {
-                            & "$localKit\addon.ps1" $subcmd $args
-                        } elseif (Test-Path ".agents\addon.ps1") {
-                            & ".\.agents\addon.ps1" $subcmd $args
-                        } else {
-                            irm "$remoteRepo/addon.ps1" | iex
-                        }
-                    }
-                    { $_ -in "v", "ver", "version", "-v", "--version" } {
-                        $ver = "unknown"
-                        if (Test-Path ".agents\VERSION") { $ver = (Get-Content ".agents\VERSION" -Raw).Trim() }
-                        elseif ($runLocal -and (Test-Path "$localKit\VERSION")) { $ver = (Get-Content "$localKit\VERSION" -Raw).Trim() }
-                        Write-Host "🤖 Agent-Dev-Kit v$ver" -ForegroundColor Cyan
-                    }
-                    { $_ -in "help", "-h", "--help" } {
-                        Write-Host ""
-                        Write-Host "========================================================================" -ForegroundColor Cyan
-                        Write-Host "   🤖 AGENT-DEV-KIT CLI (adk) — Hướng Dẫn Sử Dụng                       " -ForegroundColor Cyan
-                        Write-Host "========================================================================" -ForegroundColor Cyan
-                        Write-Host ""
-                        Write-Host "📌 1. LỆNH CLI CƠ BẢN:" -ForegroundColor Yellow
-                        Write-Host "  adk, adk i, adk install   : Khởi tạo kit vào project (.agents/)" -ForegroundColor White
-                        Write-Host "  adk up, adk update        : Cập nhật core kit lên bản mới nhất" -ForegroundColor White
-                        Write-Host "  adk addon [tên]           : Quản lý, xem link và cài đặt addons" -ForegroundColor White
-                        Write-Host "  adk version, adk -v       : Xem phiên bản hiện tại" -ForegroundColor White
-                        Write-Host "  adk help, adk --help      : Xem bảng trợ giúp này" -ForegroundColor White
-                        Write-Host ""
-                        Write-Host "💬 2. CÁCH DÙNG TRONG CHAT (WORKFLOWS):" -ForegroundColor Yellow
-                        Write-Host "  /wf-scout                 : Khảo sát, đọc hiểu codebase dự án" -ForegroundColor White
-                        Write-Host "  /wf-plan <tính năng>     : Lên kế hoạch chi tiết trước khi code" -ForegroundColor White
-                        Write-Host "  /wf-cook                  : Triển khai code bám sát plan đã duyệt" -ForegroundColor White
-                        Write-Host "  /wf-fix <lỗi>             : Chẩn đoán và sửa lỗi theo quy trình" -ForegroundColor White
-                        Write-Host "  /wf-test                  : Sinh unit test và kịch bản kiểm thử" -ForegroundColor White
-                        Write-Host "  /wf-review                : Rà soát chất lượng code và regression" -ForegroundColor White
-                        Write-Host ""
-                        Write-Host "📦 3. DANH SÁCH 6 ADDONS (Gõ 'adk addon' để chọn và cài đặt):" -ForegroundColor Yellow
-                        Write-Host "  • archify    : Vẽ sơ đồ HTML tương tác (https://vividkit.dev/vi/guides/archify)" -ForegroundColor Gray
-                        Write-Host "  • database   : Tra cứu schema & query an toàn qua Gridex MCP" -ForegroundColor Gray
-                        Write-Host "  • obsidian   : Đồng bộ tri thức hai chiều với Second Brain (https://obsidian.md)" -ForegroundColor Gray
-                        Write-Host "  • notebooklm : Nghiên cứu tài liệu sâu qua Google NotebookLM" -ForegroundColor Gray
-                        Write-Host "  • knowledge  : Context cache, memory consolidation (đi kèm Second Brain)" -ForegroundColor Gray
-                        Write-Host "  • maintainer : Bộ công cụ nội bộ bảo trì kit (validate-kit.ps1)" -ForegroundColor Gray
-                        Write-Host ""
-                        Write-Host "👉 Để xem chi tiết và cài addon, gõ: adk addon (hoặc adk addon add <tên>)" -ForegroundColor Cyan
-                        Write-Host ""
-                    }
-                    default {
-                        if ($runLocal) { & "$localKit\install.ps1" -Force:$Force }
-                        else { irm "$remoteRepo/install.ps1" | iex }
-                    }
-                }
-            }
+            Invoke-Expression $adkSnippet
         }
     } catch {
         Write-Verbose "Không thể tự động cập nhật profile: $_"

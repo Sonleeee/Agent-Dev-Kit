@@ -60,4 +60,22 @@ Chỉ báo `READY` khi contract có:
 - review spec + quality;
 - status cuối cùng `READY`, `BLOCKED`, hoặc `NEEDS_USER_DECISION`.
 
-Không dùng các câu như “đã hoàn tất” thay cho lệnh kiểm chứng và kết quả.
+Không dùng các câu như "đã hoàn tất" thay cho lệnh kiểm chứng và kết quả.
+
+## Trace Capture (evolution system)
+
+Khi `addons/evolution` active, bổ sung các bước ghi trace **song song** với workflow:
+
+| Thời điểm | Action | Command |
+|-----------|--------|---------|
+| Bắt đầu task | Tạo session + trace | `evolution_db.py log_session` |
+| Mỗi phase (clarify/plan/impl/review) | Ghi step + outcome | `evolution_db.py log_step` |
+| Mỗi friction (retry, error, user correction) | Ghi friction point | `evolution_db.py log_friction` |
+| Dùng skill | Ghi skill usage | `evolution_db.py log_skill_use` |
+| Kết thúc task | Cập nhật outcome | `evolution_db.py update_outcome` |
+
+**Nguyên tắc:** Trace capture là **best-effort, non-blocking**. Nếu DB unavailable
+hoặc lệnh ghi fail, tiếp tục task bình thường — không bao giờ để trace capture
+block delivery flow.
+
+Xem `skills/meta/sk-trace-capture/SKILL.md` để biết chi tiết protocol.

@@ -1,0 +1,338 @@
+#!/usr/bin/env python3
+"""
+ADK Git Trace Hook
+Automatically captures Git commits as evolutionary traces in SQLite (evolution.db).
+Zero-dependency: standard library only (subprocess, json, sqlite3, pathlib, re).
+Silent fail-safe: never interrupts developer flow or GUI tools like GitHub Desktop.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+from typing import Any
+
+# Ensure ADK root is in sys.path to import evolution_db if available
+ADK_ROOT = Path(__file__).resolve().parent.parent
+if str(ADK_ROOT) not in sys.path:
+    sys.path.insert(0, str(ADK_ROOT))
+
+try:
+    from tools.evolution_db import get_connection, cmd_init, get_db_path
+except ImportError:
+    # Fallback if run in isolated environment
+    def get_db_path() -> Path:
+        env = os.environ.get("ADK_EVOLUTION_DB")
+        return Path(env).expanduser().resolve() if env else Path.home() / ".adk" / "evolution.db"
+
+    def get_connection():
+        import sqlite3
+        p = get_db_path()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        conn = sqlite3.connect(str(p))
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys = ON;")
+        return conn
+
+    cmd_init = None
+
+
+def run_git(args: list[str], cwd: Path | None = None) -> str:
+    """Run a git command and return standard output as string."""
+    try:
+        res = subprocess.run(
+            ["git"] + args,
+            cwd=str(cwd or Path.cwd()),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=True,
+        )
+        return res.stdout.strip()
+    except Exception:
+        return ""
+
+
+def get_commit_metadata(repo_dir: Path | None = None) -> dict[str, Any] | None:
+    """Extract metadata of HEAD commit using pure git plumbing commands."""
+    raw = run_git(["log", "-1", "--pretty=format:%H%x00%s%x00%an%x00%aI%x00%b"], repo_dir)
+    if not raw or "\x00" not in raw:
+        return None
+
+    parts = raw.split("\x00")
+    commit_hash = parts[0].strip()
+    subject = parts[1].strip() if len(parts) > 1 else ""
+    author = parts[2].strip() if len(parts) > 2 else ""
+    date_iso = parts[3].strip() if len(parts) > 3 else ""
+    body = parts[4].strip() if len(parts) > 4 else ""
+
+    # Get changed files
+    diff_tree = run_git(["diff-tree", "--no-commit-id", "--name-status", "-r", "HEAD"], repo_dir)
+    changed_files: list[dict[str, str]] = []
+    if diff_tree:
+        for line in diff_tree.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            cols = line.split(None, 1)
+            if len(cols) == 2:
+                changed_files.append({"status": cols[0], "path": cols[1]})
+
+    # Get diff stat
+    # Try against HEAD~1; if single commit repo, compare with empty tree
+    stat_raw = run_git(["diff", "HEAD~1", "HEAD", "--shortstat"], repo_dir)
+    if not stat_raw:
+        stat_raw = run_git(["diff", "4b825dc642cb6eb9a060e54bf8d69288fbee4904", "HEAD", "--shortstat"], repo_dir)
+
+    insertions = 0
+    deletions = 0
+    m_ins = re.search(r"(\d+)\s+insertion", stat_raw)
+    if m_ins:
+        insertions = int(m_ins.group(1))
+    m_del = re.search(r"(\d+)\s+deletion", stat_raw)
+    if m_del:
+        deletions = int(m_del.group(1))
+
+    return {
+        "hash": commit_hash,
+        "subject": subject,
+        "author": author,
+        "date": date_iso,
+        "body": body,
+        "changed_files": changed_files,
+        "insertions": insertions,
+        "deletions": deletions,
+        "stat_raw": stat_raw,
+    }
+
+
+def infer_workflow(subject: str) -> str:
+    """Infer ADK workflow from commit prefix / message."""
+    s = subject.lower()
+    if re.match(r"^(feat|add|feature)(\(.*\))?:", s):
+        return "wf-delivery"
+    if re.match(r"^(fix|bug|hotfix|patch)(\(.*\))?:", s):
+        return "wf-fix"
+    if re.match(r"^(refactor|perf|improve|clean)(\(.*\))?:", s):
+        return "wf-enhance"
+    if re.match(r"^(test|tests)(\(.*\))?:", s):
+        return "wf-test"
+    if re.match(r"^(docs|doc)(\(.*\))?:", s):
+        return "wf-docs"
+    if re.match(r"^(chore|ci|build|deploy|release)(\(.*\))?:", s):
+        return "wf-deploy"
+    if re.match(r"^(sec|security)(\(.*\))?:", s):
+        return "wf-security"
+    return "wf-delivery"
+
+
+def infer_complexity(files_count: int, lines_changed: int) -> str:
+    """Infer task complexity based on blast radius."""
+    if files_count <= 2 and lines_changed <= 50:
+        return "Low"
+    if files_count <= 8 and lines_changed <= 350:
+        return "Medium"
+    return "High"
+
+
+def infer_skills(changed_files: list[dict[str, str]]) -> list[str]:
+    """Map touched files to ADK skills."""
+    skills = {"sk-execution-contract"}
+    for f in changed_files:
+        path = f["path"].lower()
+        if any(k in path for k in ["test", "spec", "__tests__"]):
+            skills.add("sk-test-strategy")
+        if any(k in path for k in ["controller", "route", "api", "handler", "endpoint"]):
+            skills.add("sk-api-contract-guard")
+        if any(k in path for k in ["docker", "dockerfile", "container"]):
+            skills.add("sk-docker-review")
+        if any(k in path for k in [".github", "pipeline", "jenkins", ".gitlab", "workflow"]):
+            skills.add("sk-ci-pipeline-check")
+        if any(k in path for k in ["auth", "jwt", "crypto", "secret", "permission", "oauth"]):
+            skills.add("sk-secret-detection")
+    return sorted(skills)
+
+
+def detect_friction(subject: str, repo_dir: Path | None = None) -> dict[str, str] | None:
+    """Detect if this commit indicates a quick retry/correction following a recent failure."""
+    # Check last 3 commits
+    log_history = run_git(["log", "-3", "--pretty=format:%H%x00%s%x00%aI"], repo_dir)
+    if not log_history:
+        return None
+
+    lines = log_history.splitlines()
+    if len(lines) >= 2:
+        # Check current subject for retry keywords
+        s = subject.lower()
+        if any(k in s for k in ["typo", "fix build", "retry", "oops", "quick fix", "revert"]):
+            return {
+                "category": "user_correction" if "typo" in s else "tool_error",
+                "severity": "medium",
+                "description": f"Consecutive patch commit detected: '{subject}'",
+                "suggested_fix": "Verify build and syntax before committing to prevent patch churn",
+            }
+    return None
+
+
+def record_commit_trace(repo_dir: Path | None = None) -> dict[str, Any]:
+    """Capture current HEAD commit into SQLite evolution database."""
+    meta = get_commit_metadata(repo_dir)
+    if not meta or not meta["hash"]:
+        return {"status": "skipped", "reason": "No commit metadata found"}
+
+    commit_hash = meta["hash"]
+    subject = meta["subject"] or f"Commit {commit_hash[:8]}"
+    files_count = len(meta["changed_files"])
+    total_lines = meta["insertions"] + meta["deletions"]
+
+    workflow = infer_workflow(subject)
+    complexity = infer_complexity(files_count, total_lines)
+    skills = infer_skills(meta["changed_files"])
+    friction = detect_friction(subject, repo_dir)
+
+    trace_id = f"trace_git_{commit_hash[:8]}"
+    session_id = f"sess_git_{commit_hash[:8]}"
+
+    # Project name from repo folder
+    project_name = repo_dir.name if repo_dir else Path.cwd().name
+
+    # Evidence summary
+    evidence = {
+        "commit": commit_hash,
+        "author": meta["author"],
+        "date": meta["date"],
+        "files_changed_count": files_count,
+        "stat": meta["stat_raw"],
+        "files": [f["path"] for f in meta["changed_files"][:30]],
+    }
+
+    # Ensure database exists
+    db_path = get_db_path()
+    if not db_path.exists() and cmd_init:
+        cmd_init({})
+
+    with get_connection() as conn:
+        # 1. Insert session
+        conn.execute(
+            """
+            INSERT INTO sessions (id, project, user_intent, workflow_used, outcome, total_turns, summary)
+            VALUES (?, ?, ?, ?, 'SUCCESS', 1, ?)
+            ON CONFLICT(id) DO UPDATE SET
+                summary = excluded.summary,
+                outcome = 'SUCCESS';
+            """,
+            (session_id, project_name, subject, workflow, meta["stat_raw"]),
+        )
+
+        # 2. Insert trace
+        conn.execute(
+            """
+            INSERT INTO traces (id, session_id, task_description, workflow, complexity, outcome, duration_turns, tokens_used, acceptance_evidence)
+            VALUES (?, ?, ?, ?, ?, 'SUCCESS', 1, ?, ?)
+            ON CONFLICT(id) DO NOTHING;
+            """,
+            (trace_id, session_id, subject, workflow, complexity, total_lines * 5, json.dumps(evidence)),
+        )
+
+        # 3. Associate skills used
+        for sk in skills:
+            conn.execute(
+                """
+                INSERT INTO skills (name, skill_group, current_version, times_used, times_succeeded)
+                VALUES (?, 'core', '1.0', 1, 1)
+                ON CONFLICT(name) DO UPDATE SET
+                    times_used = times_used + 1,
+                    times_succeeded = times_succeeded + 1,
+                    last_used_at = strftime('%Y-%m-%dT%H:%M:%SZ', 'now');
+                """,
+                (sk,),
+            )
+            conn.execute(
+                """
+                INSERT INTO skills_used (trace_id, skill_name, outcome)
+                VALUES (?, ?, 'success');
+                """,
+                (trace_id, sk),
+            )
+
+        # 4. Insert friction if detected
+        if friction:
+            conn.execute(
+                """
+                INSERT INTO friction_points (trace_id, category, description, severity, suggested_fix)
+                VALUES (?, ?, ?, ?, ?);
+                """,
+                (trace_id, friction["category"], friction["description"], friction["severity"], friction["suggested_fix"]),
+            )
+
+    return {
+        "status": "ok",
+        "trace_id": trace_id,
+        "workflow": workflow,
+        "complexity": complexity,
+        "skills": skills,
+        "has_friction": friction is not None,
+    }
+
+
+def install_hook(repo_dir: Path | None = None) -> bool:
+    """Install post-commit hook into current git repository."""
+    target_dir = repo_dir or Path.cwd()
+    git_dir = target_dir / ".git"
+    if not git_dir.exists() or not git_dir.is_dir():
+        print(f"[!] Error: {target_dir} is not a git repository.")
+        return False
+
+    hooks_dir = git_dir / "hooks"
+    hooks_dir.mkdir(parents=True, exist_ok=True)
+    hook_file = hooks_dir / "post-commit"
+
+    # Relative path using forward slashes for Git Bash compatibility
+    script_rel = "tools/git_trace_hook.py"
+
+    hook_content = (
+        "#!/bin/sh\n"
+        "# ADK Post-Commit Trace Hook\n"
+        "# Automatically records git commits into evolution.db\n"
+        "# Silent fail-safe: never interrupts git commit or GUI tools (GitHub Desktop)\n"
+        f"py -3 {script_rel} 2>/dev/null || python3 {script_rel} 2>/dev/null || python {script_rel} 2>/dev/null || true\n"
+        "exit 0\n"
+    )
+
+    hook_file.write_text(hook_content, encoding="utf-8")
+    try:
+        # On POSIX / WSL, ensure executable permission
+        hook_file.chmod(0o755)
+    except Exception:
+        pass
+
+    print(f"[+] Post-commit hook installed successfully at: {hook_file}")
+    return True
+
+
+def main() -> None:
+    """Main CLI entrypoint with fail-safe error suppression."""
+    try:
+        if "--install" in sys.argv:
+            install_hook()
+            return
+
+        if "--test" in sys.argv:
+            res = record_commit_trace()
+            print(json.dumps(res, indent=2))
+            return
+
+        # Default execution from git post-commit hook
+        record_commit_trace()
+    except Exception:
+        # Silent fail-safe: never bubble errors up to Git or GitHub Desktop
+        sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()

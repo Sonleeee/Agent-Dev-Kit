@@ -59,6 +59,21 @@ dụng helper hiện có, standard library/native feature và phương án ít f
 Không giản lược validation, security, accessibility, error handling chống mất dữ liệu
 hoặc yêu cầu rõ của user.
 
+### R-MINIMAL-CODE — Ponytail Rule [PROTECTED]
+Triết lý: *"Đoạn code tốt nhất là đoạn code không phải viết."*
+
+Ràng buộc bắt buộc:
+1. **Cấm tự ý tạo abstraction thừa:** Không tự tạo helper function, utility wrapper,
+   base class hoặc middleware layer khi chưa có ít nhất 3 use cases thực tế hoặc chỉ
+   định rõ ràng từ user. Một hàm chỉ được gọi 1 lần không cần wrapper.
+2. **Thứ tự ưu tiên giải pháp:** Built-in / standard library → tính năng có sẵn của
+   framework → dependency đã cài sẵn trong project → mới cân nhắc thêm package mới.
+3. **Xóa trước, viết sau:** Khi refactor hoặc thêm tính năng, ưu tiên loại bỏ code
+   thừa, dead code, unused imports trước khi viết code mới.
+4. **Cấm design pattern cho single implementation:** Không áp dụng Factory, Strategy,
+   Observer, Mediator hoặc bất kỳ pattern nào khi chỉ có duy nhất 1 concrete
+   implementation và không có kế hoạch mở rộng rõ ràng trong scope hiện tại.
+
 ### Task Ledger [PROTECTED]
 Task nhiều bước phải có progress ledger. Mỗi task bounded chỉ được đánh dấu complete
 sau verify; khi resume sau context compaction, đọc ledger và không chạy lại task đã

@@ -10,6 +10,7 @@ output-format: clarify-record
 gate-after: null
 skills-suggested:
   - core/sk-business-discovery
+  - core/sk-agile-ba
 ---
 
 # /wf-clarify
@@ -46,6 +47,23 @@ User yêu cầu -> Agent nhận
 - Cần hiểu pattern hiện tại trước khi plan
 - Cần xác định root cause ở bug phức tạp
 - Cần kiểm tra API contract có bị ảnh hưởng không
+
+### Yêu cầu phân tích nghiệp vụ sâu: Agent gọi sk-agile-ba
+
+```
+User mô tả feature mới / epic lớn → Agent gọi sk-agile-ba
+  Agent chạy 5 Whys Elicitation để bóc tách yêu cầu gốc
+  Agent kiểm tra Solution Bias
+  Agent lập PRD, tính RICE, viết User Story chuẩn INVEST
+  Agent trình User review & approve
+```
+
+### Khi nào cần phân tích nghiệp vụ sâu:
+
+- User mô tả feature mới phức tạp hoặc epic nhiều user story
+- Cần tạo PRD / User Story / Acceptance Criteria chuẩn BDD
+- Yêu cầu mơ hồ, có dấu hiệu Solution Bias (user đề xuất giải pháp thay vì mô tả vấn đề)
+- Cần đánh giá ưu tiên tính năng (RICE scoring)
 
 ## Output bắt buộc
 

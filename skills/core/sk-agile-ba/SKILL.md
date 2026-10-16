@@ -3,11 +3,12 @@ name: sk-agile-ba
 description: |
   Kỹ năng Agile BA/PO phục vụ phân tích yêu cầu thô để lập PRD, tính điểm RICE,
   bẻ Epic thành User Stories chuẩn INVEST và AC Gherkin (Given-When-Then).
+  Tích hợp kỹ thuật 5 Whys Elicitation để bóc tách yêu cầu tiềm ẩn.
   Bắt buộc mô hình hóa sơ đồ bằng Mermaid.
 inputs:
-  - raw-requirements: Yêu cầu thô từ khách hàng (thường nằm ở 00_Raw/)
+  - raw-requirements: Yêu cầu thô từ khách hàng hoặc stakeholder
 output:
-  - prd: Tài liệu PRD hoặc User Stories lưu trong 01_Wiki/
+  - prd: Tài liệu PRD hoặc User Stories
 ---
 
 # Agile Business Analysis — sk-agile-ba
@@ -19,16 +20,24 @@ Giúp PO/BA tự động hóa quá trình phân tích nghiệp vụ, làm mịn 
 
 ## ⚙️ Quy Trình Thực Thi Của Agent
 
-### Bước 1: Tiếp nhận & Thử thách yêu cầu (Product Discovery)
-*   Nhận yêu cầu thô (ví dụ: file văn bản thu thập từ Obsidian clipping).
-*   Thử thách yêu cầu (Ask Why) để phát hiện **Solution Bias** (thiên lệch giải pháp).
-*   Đánh giá rủi ro nghiệp vụ đặc thù của ngành **Cung ứng Sinh khối (Biomass)**:
-    - Rủi ro gian lận/chênh lệch khối lượng tại trạm cân.
-    - Sai lệch tỷ lệ độ ẩm (Moisture) và tạp chất (Impurity).
-    - Độ trễ đồng bộ dữ liệu giữa các kho vệ tinh và cảng biển.
+### Bước 1: Tiếp nhận & Thử thách yêu cầu (5 Whys Elicitation)
+
+1. **Nhận yêu cầu thô** từ khách hàng / stakeholder.
+2. **Kiểm tra Solution Bias:** Xác định xem user đang mô tả *vấn đề cần giải quyết*
+   hay đang đề xuất *một giải pháp cụ thể có sẵn trong đầu*.
+   - Nếu là giải pháp → Hỏi ngược: *"Vấn đề gốc mà bạn đang cố giải quyết là gì?"*
+3. **Chạy vòng lặp 5 Whys** (tối đa 5 vòng, dừng sớm nếu đã rõ):
+   - Vòng 1: *"Tại sao tính năng này cần thiết?"* → Xác định giá trị nghiệp vụ.
+   - Vòng 2: *"Tại sao quy trình hiện tại chưa đáp ứng?"* → Lộ pain point gốc.
+   - Vòng 3: *"Tại sao pain point này chưa được xử lý?"* → Lộ ràng buộc kỹ thuật/tổ chức.
+   - Vòng 4–5: Đào sâu thêm nếu câu trả lời vẫn mơ hồ hoặc chứa giả định ngầm.
+4. **Đánh giá rủi ro nghiệp vụ theo domain của project:**
+   - Đọc `AGENTS.md` và `.agents/context/` để hiểu domain-specific risks.
+   - Liệt kê các rủi ro nghiệp vụ đặc thù (dữ liệu, quy trình, compliance) liên quan
+     đến yêu cầu đang phân tích.
 
 ### Bước 2: Thiết lập PRD & Phác thảo Quy trình
-*   Tạo tài liệu PRD (Product Requirements Document) trong `01_Wiki/`.
+*   Tạo tài liệu PRD (Product Requirements Document).
 *   **BẮT BUỘC vẽ sơ đồ nghiệp vụ:** Sử dụng **Mermaid** trực tiếp trong Markdown. Không vẽ bằng JSON Canvas.
     - Dùng `graph TD` cho quy trình nghiệp vụ.
     - Dùng `sequenceDiagram` cho luồng tương tác hệ thống.
@@ -48,36 +57,49 @@ Bẻ Epic thành các User Stories nguyên tử:
 
 ---
 
-## 📖 Ví dụ nghiệp vụ Biomass mẫu: Cập nhật sản lượng xếp dỡ Tàu (Ship Plan)
+## 📖 Ví dụ mẫu: Tính năng gán Task tự động (SaaS Task Management)
+
+### 5 Whys Trace:
+| Vòng | Câu hỏi | Câu trả lời |
+|:---:|:---|:---|
+| 1 | Tại sao cần tính năng gán task tự động? | Team lead mất 30 phút mỗi sáng để phân việc thủ công. |
+| 2 | Tại sao phân việc thủ công mất lâu? | Phải kiểm tra workload từng thành viên trên nhiều board. |
+| 3 | Tại sao thông tin workload phân tán? | Hệ thống chưa aggregate workload cross-project. |
+| **Root** | **→ Vấn đề gốc:** Thiếu dashboard workload tổng hợp, không phải thiếu tính năng auto-assign. |
 
 ### User Story:
-**As a** Điều phối viên Cảng (Port Coordinator)  
-**I want to** cập nhật sản lượng xếp dỡ hàng ngày của từng tàu lên hệ thống  
-**So that** quản lý cảng và khách hàng có thể theo dõi tiến độ Ship Plan thời gian thực.
+**As a** Team Lead  
+**I want to** xem dashboard workload tổng hợp của tất cả thành viên trong team  
+**So that** tôi có thể phân công task nhanh chóng dựa trên capacity thực tế.
 
 ### Mermaid Diagram:
 ```mermaid
 sequenceDiagram
-    actor Coordinator as Điều phối viên
+    actor TL as Team Lead
     participant Web as Giao diện Web
     participant API as API Gateway
     participant DB as Database
     
-    Coordinator->>Web: Nhập sản lượng xếp dỡ hàng ngày (Tấn)
-    Web->>API: POST /api/shipments/daily-progress
-    API->>DB: Ghi nhận & cập nhật lũy kế sản lượng tàu
-    DB-->>API: Trả về trạng thái lưu thành công
-    API-->>Web: Hiển thị thông báo & biểu đồ tiến độ mới
-    Web-->>Coordinator: Giao diện hoàn thành cập nhật
+    TL->>Web: Mở Dashboard Workload
+    Web->>API: GET /api/teams/{id}/workload
+    API->>DB: Aggregate tasks by member across projects
+    DB-->>API: Trả về workload summary
+    API-->>Web: Hiển thị biểu đồ capacity từng thành viên
+    TL->>Web: Chọn thành viên có capacity trống → Gán task
+    Web->>API: POST /api/tasks/{id}/assign
+    API-->>Web: Xác nhận gán thành công
 ```
 
 ### Acceptance Criteria:
-*   **AC1: Cập nhật thành công sản lượng hàng ngày (Happy Path)**
-    - **Given** điều phối viên đã đăng nhập và đang mở màn hình chi tiết Ship Plan của tàu "TL_BIOMASS_01"
-    - **And** tàu đang ở trạng thái "Đang xếp dỡ" (Loading)
-    - **When** người dùng nhập sản lượng ngày hôm nay là "2,500" tấn và xác nhận lưu
-    - **Then** hệ thống ghi nhận sản lượng lũy kế, cập nhật phần trăm hoàn thành tiến độ và hiển thị thông báo "Cập nhật sản lượng thành công".
-*   **AC2: Sản lượng vượt quá tải trọng tối đa của tàu (Edge Case)**
-    - **Given** tàu "TL_BIOMASS_01" có tải trọng định mức là 50,000 tấn và sản lượng xếp dỡ lũy kế hiện tại là 49,000 tấn
-    - **When** người dùng nhập sản lượng ngày hôm nay là "2,000" tấn (lũy kế vượt mức 1,000 tấn) và xác nhận lưu
-    - **Then** hệ thống từ chối cập nhật và hiển thị cảnh báo lỗi: "Sản lượng lũy kế không được vượt quá tải trọng định mức của tàu (50,000 tấn)".
+*   **AC1: Hiển thị workload tổng hợp (Happy Path)**
+    - **Given** Team Lead đã đăng nhập và team có 5 thành viên đang hoạt động
+    - **When** Team Lead mở Dashboard Workload
+    - **Then** hệ thống hiển thị danh sách thành viên kèm số task đang In Progress, tổng story points và phần trăm capacity đã sử dụng.
+*   **AC2: Thành viên không có task nào (Edge Case)**
+    - **Given** thành viên "Nguyễn A" chưa được gán bất kỳ task nào trong sprint hiện tại
+    - **When** Team Lead mở Dashboard Workload
+    - **Then** hệ thống hiển thị "Nguyễn A" với 0 tasks, 0 story points, capacity 0% và badge "Available".
+*   **AC3: Gán task cho thành viên đã quá tải (Edge Case)**
+    - **Given** thành viên "Trần B" đã sử dụng 100% capacity (8/8 story points)
+    - **When** Team Lead chọn gán thêm task (3 SP) cho "Trần B"
+    - **Then** hệ thống hiển thị cảnh báo "Thành viên đã vượt capacity. Bạn có muốn tiếp tục?" với nút Xác nhận và Hủy.

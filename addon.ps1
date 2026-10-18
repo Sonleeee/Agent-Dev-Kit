@@ -115,7 +115,11 @@ function Show-Addon-Details([string]$key) {
             switch ($opt) {
                 "1" {
                     Write-Host "Dang cai dat CodeGraph MCP Server cho Antigravity & Codex..." -ForegroundColor Cyan
-                    npx -y @colbymchenry/codegraph install -y --target=antigravity,codex
+                    if ($IsWindows -or ($env:OS -eq "Windows_NT")) {
+                        cmd.exe /c "npx -y @colbymchenry/codegraph install -y --target=antigravity,codex"
+                    } else {
+                        npx -y @colbymchenry/codegraph install -y --target=antigravity,codex
+                    }
                     Write-Host "Hoan tat cau hinh CodeGraph MCP Server!" -ForegroundColor Green
                 }
                 "2" {

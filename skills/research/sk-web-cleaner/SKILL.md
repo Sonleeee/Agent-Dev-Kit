@@ -11,7 +11,7 @@ inputs:
 # Web Cleaner — sk-web-cleaner
 
 ## 🎯 Mục tiêu
-Giúp AI Agent tự động dọn dẹp các tài liệu tải về từ internet (Web Clippings) bị lẫn nhiều rác HTML (header, footer, nav, ads, scripts, CSS) thành tài liệu Markdown thuần túy sạch sẽ để làm dữ liệu tri thức đáng tin cậy cho SecondBrain.
+Giúp AI Agent tự động dọn dẹp các tài liệu tải về từ internet (Web Clippings) bị lẫn nhiều rác HTML (header, footer, nav, ads, scripts, CSS) thành tài liệu Markdown thuần túy sạch sẽ để làm dữ liệu tri thức đáng tin cậy.
 
 ---
 
@@ -20,12 +20,12 @@ Giúp AI Agent tự động dọn dẹp các tài liệu tải về từ interne
 ### Bước 1: Chạy script làm sạch cục bộ
 Agent kích hoạt script Python dọn dẹp offline bằng lệnh terminal:
 ```bash
-python c:/Sonlee/AI/Agent-Dev-Kit/skills/research/sk-web-cleaner/scripts/defuddle_cleaner.py <input_path> <output_path>
+python .agents/skills/research/sk-web-cleaner/scripts/defuddle_cleaner.py <input_path> <output_path>
 ```
 
 ### Bước 2: Đọc và sử dụng kết quả
 *   Script sẽ xử lý file HTML/Markdown thô, bóc tách toàn bộ thành phần rác và ghi lại Markdown sạch tại `<output_path>`.
-*   Agent đọc file kết quả để đưa vào làm tri thức tham khảo (Wiki/RAG) hoặc tiếp tục cập nhật vào SecondBrain theo đúng định dạng `raw_source_template`.
+*   Agent đọc file kết quả để đưa vào làm tri thức tham khảo hoặc tài liệu của dự án.
 
 ---
 

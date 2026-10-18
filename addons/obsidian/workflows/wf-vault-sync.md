@@ -4,12 +4,12 @@ type: addon-bridge
 entry-command: /wf-vault-sync
 skills-suggested:
   - core/sk-execution-contract
-  - addons/knowledge/skills/sk-vault-steward
+  - addons/obsidian/skills/sk-vault-steward
 ---
 
 # /wf-vault-sync
 
-**Mục tiêu:** ghi tri thức đã chưng cất vào SecondBrain theo policy, không dump chat.
+**Mục tiêu:** ghi tri thức đã chưng cất vào Obsidian Vault theo policy, không dump chat.
 
 ## Routing
 

@@ -1,13 +1,13 @@
 ---
 name: sk-daily-task-sync
-description: Đồng bộ tasks từ notebook 📋 Daily Ops về SecondBrain local
+description: Đồng bộ tasks từ notebook 📋 Daily Ops về Obsidian Vault local
 ---
 
 # Daily Task Sync
 
 ## Công dụng
 Đọc tasks từ notebook `📋 Daily Ops` trên NotebookLM và đồng bộ
-về file `02_Brain/Task Systems.md` trong SecondBrain.
+về file `02_Brain/Task Systems.md` trong Obsidian Vault.
 
 ## MCP Tools
 - `notebook_get` — lấy thông tin notebook Daily Ops

@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$KitRoot = (Split-Path -Parent $PSScriptRoot)
 )
 
@@ -30,7 +30,12 @@ $workflowRefs = $workflowDocs |
     }
 
 foreach ($ref in $workflowRefs) {
-    Require-Path ("workflows/{0}.md" -f $ref.TrimStart('/'))
+    $wfName = "{0}.md" -f $ref.TrimStart('/')
+    $coreWf = Join-Path $KitRoot "workflows/$wfName"
+    $addonWfs = Get-ChildItem -Path (Join-Path $KitRoot "addons") -Recurse -File -Filter $wfName -ErrorAction SilentlyContinue
+    if (-not (Test-Path $coreWf) -and (-not $addonWfs -or $addonWfs.Count -eq 0)) {
+        $failures.Add("Missing: workflows/$wfName")
+    }
 }
 
 if ($failures.Count -gt 0) {

@@ -46,7 +46,7 @@ updated: YYYY-MM-DD
 1. Code và test đang chạy.
 2. `AGENTS.md` + manifest + architecture rules đã approved.
 3. Templates/checklists.
-4. Cache/SecondBrain và research bên ngoài — chỉ dùng như evidence tham khảo.
+4. Cache/Obsidian Vault và research bên ngoài — chỉ dùng như evidence tham khảo.
 
 Nếu code mâu thuẫn với context, tạo Conflict Report; không tự âm thầm đổi chuẩn.
 

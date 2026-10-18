@@ -268,7 +268,7 @@ Agent phân loại MỖI finding theo 4 mức:
 
 | Điều kiện | Mode | Hành động |
 |-----------|------|-----------|
-| Có Critical/Major finding, architecture violation, hoặc context drift | `AUTO` | Nếu Knowledge addon bật, gọi `sk-vault-steward` với `type: review`, target `cache:reviews`; nếu không thì report `SKIP` |
+| Có Critical/Major finding, architecture violation, hoặc context drift | `AUTO` | Không ghi mặc định; addon có thể mở rộng |
 | Review clean nhưng phát hiện pattern/pitfall có thể tái sử dụng | `ASK` | Trình Memory Candidate |
 | Review clean, không có insight mới | `SKIP` | Không ghi |
 

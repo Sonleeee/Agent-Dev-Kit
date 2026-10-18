@@ -40,7 +40,7 @@ Dùng `notebook_query` để hỏi AI:
 
 ### Bước 4: Handoff
 Nếu Knowledge addon đã bật, truyền kết quả phân loại + nội dung cho `sk-vault-steward` (Hướng C: Phone-Direct)
-để ghi vào SecondBrain.
+để ghi vào Obsidian Vault.
 
 ## Output
 - Danh sách items đã phân loại kèm category

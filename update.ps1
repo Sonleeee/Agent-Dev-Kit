@@ -71,10 +71,20 @@ try {
     # Các thành phần Core được cập nhật
     $CoreItems = @(
         "workflows", "skills", "rules", "agents", "templates",
-        "schemas", "addons", "docs", "tools",
+        "schemas", "addons", "tools",
         "SYSTEM.md", "README.md", "CHANGELOG.md", "VERSION", "addon.ps1"
     )
 
+    # Dọn dẹp các thư mục rác cũ đã khai tử của Kit (không xóa file riêng của user)
+    $ObsoleteItems = @("quality", "registry", "docs", "context")
+    if (Test-Path $TargetAgentsDir) {
+        foreach ($obs in $ObsoleteItems) {
+            $obsPath = Join-Path $TargetAgentsDir $obs
+            if (Test-Path $obsPath) {
+                Remove-Item -Path $obsPath -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
+    }
     foreach ($item in $CoreItems) {
         $src = Join-Path $SourcePath $item
         if (Test-Path $src) {

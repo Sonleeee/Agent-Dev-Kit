@@ -56,7 +56,7 @@ try {
     # 3. Copy các thành phần Core (bỏ qua nếu đã clone trực tiếp vào .agents)
     $CoreItems = @(
         "workflows", "skills", "rules", "agents", "templates",
-        "schemas", "addons", "docs", "tools",
+        "schemas", "addons", "tools",
         "SYSTEM.md", "README.md", "CHANGELOG.md", "VERSION", "addon.ps1"
     )
 
@@ -71,6 +71,16 @@ try {
 
     if (-not $isAlreadyInTarget) {
         Write-Host "🚀 Đang sao chép các thành phần Core..." -ForegroundColor Gray
+        # Dọn dẹp các thư mục rác cũ đã khai tử của Kit (không xóa file riêng của user)
+        $ObsoleteItems = @("quality", "registry", "docs", "context")
+        if (Test-Path $TargetAgentsDir) {
+            foreach ($obs in $ObsoleteItems) {
+                $obsPath = Join-Path $TargetAgentsDir $obs
+                if (Test-Path $obsPath) {
+                    Remove-Item -Path $obsPath -Recurse -Force -ErrorAction SilentlyContinue
+                }
+            }
+        }
         foreach ($item in $CoreItems) {
             $src = Join-Path $SourcePath $item
             if (Test-Path $src) {
@@ -82,16 +92,7 @@ try {
         Write-Host "📦 Core Kit đã sẵn sàng trong .agents/" -ForegroundColor Gray
     }
 
-    # 4. Khởi tạo Context cho project (nếu chưa có)
-    $TargetContextDir = Join-Path $TargetAgentsDir "context"
-    if (-not (Test-Path $TargetContextDir)) {
-        New-Item -ItemType Directory -Path $TargetContextDir -Force | Out-Null
-        Write-Host "📝 Đã tạo thư mục .agents/context/" -ForegroundColor Green
-    } else {
-        Write-Host "ℹ️  Thư mục .agents/context/ đã có sẵn, giữ nguyên an toàn." -ForegroundColor Yellow
-    }
-
-    # 5. Tạo AGENTS.md tại root (nếu chưa có)
+    # 4. Tạo AGENTS.md tại root (nếu chưa có)
     $AgentsFile = Join-Path $CurrentDir "AGENTS.md"
     if (-not (Test-Path $AgentsFile)) {
         $TemplateAgents = Join-Path $SourcePath "templates\AGENTS.md.template"
@@ -109,7 +110,7 @@ try {
         }
     }
 
-    # 6. Kiểm tra tùy chọn CodeGraph
+    # 5. Kiểm tra tùy chọn CodeGraph
     $setupCodeGraph = $Full.IsPresent
     if (-not $Full -and -not $Force) {
         try {
@@ -123,7 +124,7 @@ try {
         }
     }
 
-    # 7. Thêm .agents và .codegraph vào .gitignore nếu có git
+    # 6. Thêm .agents và .codegraph vào .gitignore nếu có git
     $GitIgnoreFile = Join-Path $CurrentDir ".gitignore"
     if (Test-Path $GitIgnoreFile) {
         $giContent = Get-Content $GitIgnoreFile -Raw -ErrorAction SilentlyContinue
@@ -257,7 +258,7 @@ function global:adk {
         Write-Verbose "Không thể tự động cập nhật profile: $_"
     }
 
-    # 8. Cài đặt và lập chỉ mục CodeGraph (nếu chọn)
+    # 7. Cài đặt và lập chỉ mục CodeGraph (nếu chọn)
     if ($setupCodeGraph) {
         Write-Host ""
         Write-Host "🔍 [CodeGraph] Đang tự động kết nối MCP Server và lập chỉ mục mã nguồn..." -ForegroundColor Cyan

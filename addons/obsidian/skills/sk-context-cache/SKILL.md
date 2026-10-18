@@ -5,7 +5,7 @@ description: |
   Khi agent phân tích xong pattern/review/decision → lưu kết quả vào cache.
   Lần sau cần thông tin tương tự → đọc cache thay vì re-analyze.
 context-required: optional
-output: Cache entries trong SecondBrain 03_Cache/
+output: Cache entries trong Obsidian Vault 03_Cache/
 ---
 
 # Context Cache — Tránh Phân Tích Lặp
@@ -27,7 +27,7 @@ Tiết kiệm token và thời gian bằng cách cache kết quả phân tích. 
 ### Vault Location
 
 ```
-SecondBrain/
+Obsidian Vault/
 ├── 03_Cache/
 │   ├── _REGISTRY.md          ← Index tất cả cache entries
 │   ├── patterns/              ← Cached pattern analysis

@@ -124,7 +124,6 @@ Mọi task có thay đổi dùng `skills/core/sk-execution-contract/SKILL.md`:
 |-------|--------|
 | `/wf-xia` | Port features từ external repos (compare/port/copy/improve) |
 | `/wf-retro` | Sprint retrospective — git metrics → health scores → action items |
-| `/wf-vault-sync` | Ghi tri thức đã chưng cất theo writeback policy |
 
 ---
 
@@ -183,12 +182,6 @@ Chỉ bật khi cần mở rộng tính năng. Xem `addons/README.md` để bi�
 | `maintainer/` | Bộ công cụ kiểm tra sức khỏe kit (`validate-kit.ps1`) và sinh skill chuẩn | Kit Scripts |
 
 ---
-
-## 📓 Tích hợp Second Brain (Obsidian Vault)
-
-Second Brain là kho lưu trữ tài liệu, quyết định kiến trúc (ADR) và bài học dài hạn độc lập ngoài repo:
-- **Kết nối:** Khai báo đường dẫn `vault-path` trong file `AGENTS.md` tại root dự án.
-- **Chưng cất tri thức:** Chạy workflow `/wf-vault-sync` để tự động nén context, bài học và đồng bộ sang vault (`AUTO/ASK/SKIP`).
 
 ---
 

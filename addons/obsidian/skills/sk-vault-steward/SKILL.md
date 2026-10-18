@@ -1,7 +1,7 @@
 ---
 name: sk-vault-steward
 description: |
-  Cầu nối Agent-Dev-Kit ↔ SecondBrain.
+  Cầu nối Agent-Dev-Kit ↔ Obsidian Vault.
   Nhận tri thức từ workflows (bug fix, research, review...) và ghi vào
   Obsidian Vault theo đúng template chuẩn.
 context-required: optional
@@ -9,11 +9,11 @@ output: Obsidian notes (00_Raw/ + 01_Wiki/ + 02_Brain/log.md)
 vault-path: (đọc từ AGENTS.md hoặc hỏi user)
 ---
 
-# Vault Steward — Ghi Tri Thức Vào SecondBrain
+# Vault Steward — Ghi Tri Thức Vào Obsidian Vault
 
 ## Mục tiêu
 
-Đảm bảo tri thức phát sinh trong quá trình làm việc (debug, research, review, implement) được lưu trữ bền vững vào SecondBrain Obsidian Vault — không bị mất theo conversation.
+Đảm bảo tri thức phát sinh trong quá trình làm việc (debug, research, review, implement) được lưu trữ bền vững vào Obsidian Vault Obsidian Vault — không bị mất theo conversation.
 
 ## Khi nào được gọi?
 
@@ -41,7 +41,7 @@ Skill này được gọi bởi các workflows qua **Knowledge Checkpoint** (bư
 
 Agent xác định vault path:
 1. Đọc `AGENTS.md` → tìm field `vault-path` (nếu có).
-2. Nếu không có → hỏi user: "SecondBrain vault nằm ở đâu?"
+2. Nếu không có → hỏi user: "Obsidian Vault vault nằm ở đâu?"
 3. Verify: check tồn tại `00_Raw/`, `01_Wiki/`, `02_Brain/`.
 
 ---
@@ -87,7 +87,7 @@ Bước 3: Update Log
   └─ Format: "- {date}: [{type}] {title} — {1-line summary}"
 
 Bước 4: Report
-  └─ Trả về: "✅ Đã ghi vào SecondBrain: {raw_file}, {wiki_file}"
+  └─ Trả về: "✅ Đã ghi vào Obsidian Vault: {raw_file}, {wiki_file}"
 ```
 
 ### Template cho Raw Entry

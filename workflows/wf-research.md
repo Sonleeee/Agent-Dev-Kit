@@ -1,4 +1,4 @@
-﻿---
+---
 id: research
 type: utility
 entry-command: /wf-research
@@ -77,14 +77,8 @@ Agent ghi lại research notes:
 
 | Điều kiện | Mode | Hành động |
 |-----------|------|-----------|
-| Research có source tốt và ảnh hưởng tới decision/implementation | `ASK` | Trình Memory Candidate; nếu user duyệt và Knowledge addon bật thì chạy `sk-vault-steward` |
+| Research có source tốt và ảnh hưởng tới decision/implementation | `ASK` | Trình Memory Candidate; addon có thể mở rộng |
 | Research chỉ phục vụ câu trả lời tức thời | `SKIP` | Không ghi |
-
-Khi user duyệt:
-- Ghi findings vào `00_Raw/[topic]/`
-- Nếu liên quan bài Wiki cũ → append
-- Nếu concept mới → tạo bài Wiki
-- Ghi log vào `02_Brain/log.md`
 
 ## Output bắt buộc
 

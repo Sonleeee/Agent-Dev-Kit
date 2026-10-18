@@ -85,5 +85,5 @@ Bộ skills này biến NotebookLM từ công cụ hỏi đáp thành hệ thố
 
 Xem `c:\Sonlee\.agents\workflows\notebooklm\` hoặc dùng `/notebooklm_senior_roles` để xem danh sách workflows.
 
-### Phone Sync (iPhone → SecondBrain)
-- `/wf-phone-sync` — Đồng bộ nhanh từ iPhone qua NotebookLM về SecondBrain (xem `workflows/wf-phone-sync.md`)
+### Phone Sync (iPhone → Obsidian Vault)
+- `/wf-phone-sync` — Đồng bộ nhanh từ iPhone qua NotebookLM về Obsidian Vault (xem `workflows/wf-phone-sync.md`)

@@ -62,14 +62,6 @@ $AddonsData = @{
         InstallCmd  = ""
         Type        = "MCP Server (NotebookLM)"
     }
-    "knowledge" = @{
-        Title       = "Knowledge Steward (Memory Consolidation)"
-        Description = "Tự động quản lý context cache, trích xuất kinh nghiệm và nén tri thức (đi cùng với Second Brain)."
-        DocsUrl     = "https://github.com/Sonleeee/Agent-Dev-Kit/tree/main/addons/knowledge"
-        RepoUrl     = ""
-        InstallCmd  = ""
-        Type        = "Internal Core Skill"
-    }
     "maintainer" = @{
         Title       = "Maintainer Tools (Health Check & Skill Creator)"
         Description = "Bộ công cụ nội bộ kiểm tra tính toàn vẹn (validate-kit.ps1) và sinh skill mới chuẩn spec cho kit."
@@ -199,9 +191,11 @@ function Show-Addon-Details([string]$key) {
 
             switch ($opt) {
                 "1" {
-                    $defaultVault = "C:\Sonlee\AI\SecondBrain"
-                    $vaultInput = Read-Host "👉 Nhập đường dẫn thư mục Second Brain của bạn [Enter để lấy: $defaultVault]"
-                    if ([string]::IsNullOrWhiteSpace($vaultInput)) { $vaultInput = $defaultVault }
+                    $vaultInput = Read-Host "👉 Nhập đường dẫn thư mục Obsidian Vault của bạn"
+                    if ([string]::IsNullOrWhiteSpace($vaultInput)) {
+                        Write-Warning "Bạn chưa nhập đường dẫn vault. Hủy thao tác."
+                        return
+                    }
 
                     if (Test-Path ".\AGENTS.md") {
                         $content = Get-Content ".\AGENTS.md" -Raw
@@ -268,10 +262,6 @@ function Show-Addon-Details([string]$key) {
                 }
                 default { Write-Host "Đã hủy thao tác." -ForegroundColor DarkGray }
             }
-        }
-        "knowledge" {
-            Write-Host "Addon này tự động kích hoạt khi bạn kết nối với Obsidian (Second Brain)." -ForegroundColor Cyan
-            Write-Host "Dùng lệnh: adk addon add obsidian để kích hoạt." -ForegroundColor Yellow
         }
     }
 }

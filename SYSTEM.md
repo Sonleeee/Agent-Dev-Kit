@@ -123,7 +123,6 @@ Agent **THÔNG BÁO** cho user workflow đang dùng trước khi bắt đầu.
 | test, viết test | `/wf-test` |
 | deploy, release | `/wf-deploy` |
 | commit, PR, changelog | `/wf-git` |
-| NLM, notebook, sync | `/wf-vault-sync` |
 | trạng thái, đang làm gì | `/wf-status` |
 
 > Nếu intent không rõ → hỏi user. Không đoán bừa.
@@ -304,52 +303,10 @@ Khi project có `architecture.md` theo TIER format, agent load theo nhu cầu:
 
 ---
 
-## Brain Writeback Policy
+## Addon Hooks
 
-SecondBrain là lớp trí nhớ dài hạn. Agent-Dev-Kit chỉ ghi lại tri thức đã chưng cất, không ghi mọi trạng thái tạm thời của session.
-
-### Vault Discovery
-
-Khi workflow cần ghi về SecondBrain:
-
-1. Đọc `AGENTS.md` của project hiện tại.
-2. Tìm `vault-path` trong section Integrations.
-3. Verify vault có `00_Raw/`, `01_Wiki/`, `02_Brain/`.
-4. Nếu thiếu `vault-path` hoặc verify fail → hỏi user trước khi ghi.
-
-### Writeback Levels
-
-| Level | Khi dùng | Hành vi |
-|---|---|---|
-| **AUTO** | Root cause đã xác nhận, bug/pitfall lặp, architecture decision, context drift đã approved, pattern có thể tái sử dụng | Nếu bật Knowledge addon thì gọi `sk-vault-steward` hoặc `sk-context-cache`; nếu không thì report `SKIP` |
-| **ASK** | Research summary, delivery summary, prediction/debate, plan có quyết định chưa chắc chắn | Tạo Memory Candidate và hỏi user trước khi ghi |
-| **SKIP** | Status tạm thời, raw command output, progress nhỏ, failed attempt không có lesson rõ | Không ghi |
-
-### Default Workflow Policy
-
-| Workflow/Skill | Default | Ghi gì |
-|---|---|---|
-| `/wf-fix` | AUTO nếu root cause confirmed | root cause, prevention, bug pattern |
-| `/wf-review` | AUTO nếu có Critical/Major hoặc repeated finding; ASK nếu review clean nhưng có insight | review pattern, architecture violation, drift |
-| `/wf-retro` | AUTO | health insight, hotspot, action items |
-| `sk-context-cache` (Knowledge addon) | AUTO khi trigger cache match | pattern/review/decision cache |
-| `/wf-research` | ASK | sourced research finding hoặc decision record |
-| `/wf-plan` | ASK nếu có architecture decision | decision rationale |
-| `/wf-status`, `/wf-test`, `/wf-git`, `/wf-clarify` | SKIP mặc định | chỉ ghi nếu workflow phát hiện lesson rõ và nâng lên ASK |
-
-### Memory Candidate Format
-
-Khi chưa chắc có nên ghi, agent trình user một candidate ngắn:
-
-```markdown
-## Memory Candidate
-- Type: bugfix | research | review | implementation | retro | decision | pattern
-- Value: AUTO | ASK
-- Title: ...
-- Summary: ...
-- Evidence: files/sources/commands
-- Suggested target: 00_Raw + 01_Wiki | 03_Cache/patterns | 03_Cache/reviews | 03_Cache/decisions | 02_Brain/log.md
-```
+Các addon (obsidian, codegraph, database...) có thể mở rộng workflow bằng hook riêng.
+Xem `addons/<tên>/README.md` để biết chi tiết.
 
 ---
 

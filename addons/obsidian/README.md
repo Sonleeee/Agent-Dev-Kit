@@ -1,4 +1,4 @@
-# 📓 Obsidian Addon — Second Brain
+# 📓 Obsidian Addon — Obsidian Vault
 
 > Tích hợp Obsidian vault làm "bộ não thứ 2" cho agent —
 > tri thức xuyên projects, xuyên sessions.
@@ -33,16 +33,16 @@ Obsidian Vault (Global Brain)
 ### 2. Tạo Vault
 
 ```bash
-mkdir -p C:\Sonlee\SecondBrain\brain\decisions
-mkdir -p C:\Sonlee\SecondBrain\brain\knowledge
-mkdir -p C:\Sonlee\SecondBrain\brain\projects
+mkdir -p <path-to-vault>\brain\decisions
+mkdir -p <path-to-vault>\brain\knowledge
+mkdir -p <path-to-vault>\brain\projects
 ```
 
 Hoặc copy từ `vault-template/` trong addon này.
 
 ### 3. Mở Vault trong Obsidian
 
-- Obsidian → Open folder as vault → chọn `C:\Sonlee\SecondBrain\`
+- Obsidian → Open folder as vault → chọn `<path-to-vault>\`
 
 ### 4. Kết nối với projects
 

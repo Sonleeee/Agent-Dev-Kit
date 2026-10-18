@@ -1,10 +1,10 @@
 ---
-description: "Đồng bộ nhanh iPhone → NotebookLM → SecondBrain (quét Inbox + Daily Ops)"
+description: "Đồng bộ nhanh iPhone → NotebookLM → Obsidian Vault (quét Inbox + Daily Ops)"
 ---
 
 # /wf-phone-sync
 
-Workflow sync dữ liệu từ iPhone (qua NotebookLM) về SecondBrain local.
+Workflow sync dữ liệu từ iPhone (qua NotebookLM) về Obsidian Vault local.
 
 ## Skills sử dụng
 - Mobile Capture, Daily Task Sync, Knowledge Ingestion
@@ -26,7 +26,7 @@ Workflow sync dữ liệu từ iPhone (qua NotebookLM) về SecondBrain local.
 2. Dùng `note(action=list)` để đọc daily notes + backlog
 3. Dùng `notebook_query` để AI tổng hợp pending tasks
 
-### Step 3: Ghi vào SecondBrain
+### Step 3: Ghi vào Obsidian Vault
 Nếu Knowledge addon đã bật, gọi `sk-vault-steward` (Hướng C: Phone-Direct):
 - IDEA / NOTE / SOCIAL_CLIP → `00_Raw/Incoming/`
 - KNOWLEDGE → `00_Raw/Incoming/` → trigger synthesis vào `01_Wiki/`

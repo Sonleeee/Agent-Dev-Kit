@@ -70,7 +70,7 @@ Agent đề xuất (tùy chọn):
 
 | Điều kiện | Mode | Hành động |
 |-----------|------|-----------|
-| Root cause đã xác nhận và fix verify PASS | `AUTO` | Nếu Knowledge addon bật, gọi `sk-vault-steward` với `type: bugfix`, target `cache:patterns` hoặc `raw+wiki`; nếu không thì report `SKIP` |
+| Root cause đã xác nhận và fix verify PASS | `AUTO` | Không ghi mặc định; addon có thể mở rộng |
 | Bug chưa verify PASS nhưng có hypothesis đáng lưu | `ASK` | Trình Memory Candidate, hỏi user trước khi ghi |
 | Lỗi tạm thời, build noise, typo nhỏ không có lesson | `SKIP` | Không ghi |
 

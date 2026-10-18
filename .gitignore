@@ -18,6 +18,9 @@ Desktop.ini
 # Archive (nội dung cũ, không cần thiết trong kit mới)
 _archive/
 
+# Internal docs (research, roadmap — chỉ giữ local, không push)
+docs/
+
 # Project-specific context (thuộc về project, không thuộc core kit)
 # Thể hiện dữ liệu riêng của dự án, KHÔNG push lên repo Agent-Dev-Kit
 context/

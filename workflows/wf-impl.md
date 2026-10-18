@@ -109,7 +109,7 @@ Kết luận Dev Done khi:
 
 ### Bước 8: Implementation Knowledge Checkpoint
 
-`/wf-impl` mặc định không ghi vào SecondBrain vì implementation summary thường là trạng thái tạm thời. Áp dụng `SYSTEM.md` → Brain Writeback Policy:
+`/wf-impl` mặc định không ghi tri thức vì implementation summary thường là trạng thái tạm thời:
 
 | Điều kiện | Mode | Hành động |
 |-----------|------|-----------|

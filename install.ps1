@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Agent-Dev-Kit Installer (adk init)
 .DESCRIPTION
@@ -7,7 +7,8 @@
 #>
 [CmdletBinding()]
 param(
-    [switch]$Force
+    [switch]$Force,
+    [switch]$Full
 )
 
 $ErrorActionPreference = "Stop"
@@ -31,13 +32,18 @@ if (Test-Path $LocalKitPath) {
 
 $TempDir = Join-Path ([System.IO.Path]::GetTempPath()) "adk-install-$(Get-Random)"
 try {
-    # 1. Tìm nguồn kit (ưu tiên thư mục local trên máy Sonlee nếu có, ngược lại kéo từ GitHub)
-    if (Test-Path $LocalKitPath) {
+    # 1. Tìm nguồn kit (ưu tiên: chính thư mục .agents/ đã clone > local dev > GitHub)
+    if (Test-Path (Join-Path $PSScriptRoot "templates\AGENTS.md.template")) {
+        $SourcePath = $PSScriptRoot
+    } elseif (Test-Path $LocalKitPath) {
         Write-Host "📦 Sử dụng nguồn Agent-Dev-Kit cục bộ: $LocalKitPath" -ForegroundColor Gray
         $SourcePath = $LocalKitPath
     } else {
         Write-Host "🌐 Đang tải Agent-Dev-Kit mới nhất từ GitHub ($RepoUrl)..." -ForegroundColor Gray
-        git clone --depth 1 $RepoUrl $TempDir --quiet
+        git clone --depth 1 $RepoUrl $TempDir --quiet 2>$null
+        if (-not (Test-Path $TempDir) -or (Get-ChildItem $TempDir -ErrorAction SilentlyContinue).Count -eq 0) {
+            git clone --depth 1 "git@github.com:Sonleeee/Agent-Dev-Kit.git" $TempDir --quiet 2>$null
+        }
         $SourcePath = $TempDir
     }
 
@@ -47,20 +53,33 @@ try {
         Write-Host "📁 Đã tạo thư mục .agents/" -ForegroundColor Green
     }
 
-    # 3. Copy các thành phần Core
+    # 3. Copy các thành phần Core (bỏ qua nếu đã clone trực tiếp vào .agents)
     $CoreItems = @(
         "workflows", "skills", "rules", "agents", "templates",
         "schemas", "addons", "docs", "tools",
         "SYSTEM.md", "README.md", "CHANGELOG.md", "VERSION", "addon.ps1"
     )
 
-    Write-Host "🚀 Đang sao chép các thành phần Core..." -ForegroundColor Gray
-    foreach ($item in $CoreItems) {
-        $src = Join-Path $SourcePath $item
-        if (Test-Path $src) {
-            $dest = Join-Path $TargetAgentsDir $item
-            Copy-Item -Path $src -Destination $dest -Recurse -Force
+    $isAlreadyInTarget = $false
+    if (Test-Path $TargetAgentsDir) {
+        $srcFull = (Get-Item $SourcePath).FullName
+        $tgtFull = (Get-Item $TargetAgentsDir).FullName
+        if ($srcFull -eq $tgtFull) {
+            $isAlreadyInTarget = $true
         }
+    }
+
+    if (-not $isAlreadyInTarget) {
+        Write-Host "🚀 Đang sao chép các thành phần Core..." -ForegroundColor Gray
+        foreach ($item in $CoreItems) {
+            $src = Join-Path $SourcePath $item
+            if (Test-Path $src) {
+                $dest = Join-Path $TargetAgentsDir $item
+                Copy-Item -Path $src -Destination $dest -Recurse -Force
+            }
+        }
+    } else {
+        Write-Host "📦 Core Kit đã sẵn sàng trong .agents/" -ForegroundColor Gray
     }
 
     # 4. Khởi tạo Context cho project (nếu chưa có)
@@ -84,13 +103,31 @@ try {
         Write-Host "ℹ️  AGENTS.md đã có sẵn, giữ nguyên an toàn." -ForegroundColor Yellow
     }
 
-    # 6. Thêm .agents vào .gitignore nếu có git
+    # 6. Kiểm tra tùy chọn CodeGraph
+    $setupCodeGraph = $Full.IsPresent
+    if (-not $Full -and -not $Force) {
+        try {
+            Write-Host ""
+            $cgAns = Read-Host "👉 Bạn có muốn cài đặt & lập chỉ mục CodeGraph (AST & Call Graph) luôn không? [Y/n] (Mặc định: Y)"
+            if ([string]::IsNullOrWhiteSpace($cgAns) -or $cgAns -match "^[yY]") {
+                $setupCodeGraph = $true
+            }
+        } catch {
+            # Bỏ qua nếu chạy non-interactive
+        }
+    }
+
+    # 7. Thêm .agents và .codegraph vào .gitignore nếu có git
     $GitIgnoreFile = Join-Path $CurrentDir ".gitignore"
     if (Test-Path $GitIgnoreFile) {
         $giContent = Get-Content $GitIgnoreFile -Raw -ErrorAction SilentlyContinue
         if ($giContent -notmatch "(?m)^\.agents/?$") {
             Add-Content -Path $GitIgnoreFile -Value "`n.agents/"
             Write-Host "🔒 Đã thêm .agents/ vào .gitignore" -ForegroundColor Green
+        }
+        if ($setupCodeGraph -and ($giContent -notmatch "(?m)^\.codegraph/?$")) {
+            Add-Content -Path $GitIgnoreFile -Value ".codegraph/"
+            Write-Host "🔒 Đã thêm .codegraph/ vào .gitignore" -ForegroundColor Green
         }
     }
 
@@ -106,13 +143,13 @@ try {
             }
 
             $adkSnippet = @'
-
-# --- Agent-Dev-Kit CLI (adk) ---
+# --- AGENT-DEV-KIT-CLI-START ---
 function global:adk {
     param(
         [string]$cmd = "help",
         [string]$subcmd = "",
-        [switch]$Force
+        [switch]$Force,
+        [switch]$Full
     )
     $localKit = "C:\Sonlee\AI\Agent-Dev-Kit"
     $remoteRepo = "https://raw.githubusercontent.com/Sonleeee/Agent-Dev-Kit/main"
@@ -120,8 +157,13 @@ function global:adk {
 
     switch ($cmd.ToLower()) {
         { $_ -in "i", "init", "install" } {
-            if ($runLocal) { & "$localKit\install.ps1" -Force:$Force }
-            else { irm "$remoteRepo/install.ps1" | iex }
+            $isFull = $Full.IsPresent -or ($subcmd -in "full", "--full", "-full", "all")
+            if ($runLocal) { & "$localKit\install.ps1" -Force:$Force -Full:$isFull }
+            else { & ([scriptblock]::Create((irm "$remoteRepo/install.ps1"))) -Force:$Force -Full:$isFull }
+        }
+        { $_ -in "full", "setup", "all" } {
+            if ($runLocal) { & "$localKit\install.ps1" -Force:$Force -Full }
+            else { & ([scriptblock]::Create((irm "$remoteRepo/install.ps1"))) -Force:$Force -Full }
         }
         { $_ -in "u", "up", "update" } {
             if ($runLocal) { & "$localKit\update.ps1" -Force:$Force }
@@ -160,6 +202,7 @@ function global:adk {
             Write-Host "📌 1. LỆNH CLI CƠ BẢN:" -ForegroundColor Yellow
             Write-Host "  adk, adk help, adk -h     : Hiển thị bảng trợ giúp này" -ForegroundColor White
             Write-Host "  adk i, adk install        : Tải/Khởi tạo kit vào project (.agents/)" -ForegroundColor White
+            Write-Host "  adk full, adk setup       : Full Setup 1-chạm (.agents/ + AGENTS.md + CodeGraph MCP & Index)" -ForegroundColor White
             Write-Host "  adk u, adk update         : Cập nhật core kit lên bản mới nhất" -ForegroundColor White
             Write-Host "  adk profile               : Thiết lập gu code cá nhân (~/.agents/developer.md)" -ForegroundColor White
             Write-Host "  adk addon [tên]           : Quản lý và cài đặt addons (codegraph, archify...)" -ForegroundColor White
@@ -188,15 +231,16 @@ function global:adk {
         }
     }
 }
+# --- AGENT-DEV-KIT-CLI-END ---
 '@
 
             $profileContent = Get-Content $PROFILE -Raw -ErrorAction SilentlyContinue
-            if ($profileContent -match "(?s)# --- Agent-Dev-Kit CLI \(adk\) ---.*?\n\}") {
-                $newProfile = [regex]::Replace($profileContent, "(?s)# --- Agent-Dev-Kit CLI \(adk\) ---.*?\n\}", $adkSnippet.Trim())
-                Set-Content -Path $PROFILE -Value $newProfile -Encoding utf8
+            if ($profileContent -match "(?s)# --- (AGENT-DEV-KIT-CLI-START|Agent-Dev-Kit CLI \(adk\)) ---.*# --- AGENT-DEV-KIT-CLI-END ---") {
+                $newProfile = [regex]::Replace($profileContent, "(?s)# --- (AGENT-DEV-KIT-CLI-START|Agent-Dev-Kit CLI \(adk\)) ---.*# --- AGENT-DEV-KIT-CLI-END ---", $adkSnippet.Trim())
+                [System.IO.File]::WriteAllText($PROFILE, $newProfile, [System.Text.Encoding]::UTF8)
                 Write-Host "⚡ Đã cập nhật lệnh 'adk' trong PowerShell Profile!" -ForegroundColor Green
-            } elseif ($profileContent -notmatch "function\s+adk\b") {
-                Add-Content -Path $PROFILE -Value "`n$adkSnippet" -Encoding utf8
+            } elseif ($profileContent -notmatch "function\s+global:adk\b") {
+                [System.IO.File]::AppendAllText($PROFILE, "`n$adkSnippet`n", [System.Text.Encoding]::UTF8)
                 Write-Host "⚡ Đã tự động đăng ký lệnh 'adk' vào PowerShell Profile!" -ForegroundColor Green
             }
 
@@ -205,6 +249,18 @@ function global:adk {
         }
     } catch {
         Write-Verbose "Không thể tự động cập nhật profile: $_"
+    }
+
+    # 8. Cài đặt và lập chỉ mục CodeGraph (nếu chọn)
+    if ($setupCodeGraph) {
+        Write-Host ""
+        Write-Host "🔍 [CodeGraph] Đang tự động kết nối MCP Server và lập chỉ mục mã nguồn..." -ForegroundColor Cyan
+        try {
+            npx -y @colbymchenry/codegraph install -y -i
+            Write-Host "✅ [CodeGraph] Đã cài đặt MCP & hoàn tất chỉ mục AST/Call Graph cho dự án!" -ForegroundColor Green
+        } catch {
+            Write-Warning "Không thể tự động kích hoạt CodeGraph: $_. Bạn có thể thử lại sau bằng lệnh: adk addon codegraph"
+        }
     }
 
     $InstalledVersion = "unknown"

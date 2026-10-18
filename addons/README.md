@@ -6,16 +6,23 @@ Core Kit (workflows, rules, quality gates) hoạt động **độc lập** — k
 
 ---
 
-## Danh sách Addons (6 Addons khả dụng)
+## Danh sách Addons khả dụng
 
 | Addon | Mô tả | Cần cài thêm? |
-|-------|--------|----------------|
+|---|---|---|
+| `codegraph/` | Semantic Code Intelligence: lập chỉ mục AST, call graph & symbols (19+ ngôn ngữ) | `npx -y @colbymchenry/codegraph install -y -i` (hoặc `adk full`) |
 | [archify/](./archify/) | Architecture/workflow HTML tự chứa (self-contained) | Cần cài Archify skill (`npx skills add tt-a1i/archify -g`) |
 | [database/](./database/) | Tra cứu schema, quan hệ bảng và query SQL an toàn | Cần kết nối Gridex MCP Server |
-| [obsidian/](./obsidian/) | Ghi nhận tri thức, sync hai chiều với Second Brain | Cần app Obsidian & cấu hình vault-path |
 | [notebooklm/](./notebooklm/) | Research & Synthesis, đọc tài liệu dày, sync ghi chú | Cần NotebookLM MCP Server |
-| [knowledge/](./knowledge/) | Context cache, memory consolidation, vault writeback | Đi kèm với Second Brain / Obsidian |
 | [maintainer/](./maintainer/) | Health check kit (validate-kit.ps1) và tạo skill | Bộ script nội bộ bảo trì kit |
+
+---
+
+## 📓 Tích hợp Second Brain (Obsidian Vault)
+
+Second Brain (`C:\Sonlee\AI\SecondBrain`) là kho tri thức, tài liệu và ADR độc lập của bạn:
+- Kit kết nối với Obsidian vault thông qua đường dẫn `vault-path` trong file `AGENTS.md`.
+- Khi cần chưng cất bài học từ task vào Second Brain, sử dụng workflow `/wf-vault-sync`.
 
 ---
 

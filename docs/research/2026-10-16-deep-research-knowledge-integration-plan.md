@@ -187,5 +187,5 @@ Những hạng mục này sẽ được triển khai khi mở rộng các dự �
 | **5** | **Chuẩn hóa Archify Gate vào Planning** | `workflows/wf-plan.md` | ❌ Skipped |
 
 ---
-*Tài liệu được tổng hợp và chuẩn hóa theo tiêu chuẩn kiến trúc Agent-Dev-Kit v2.6.0.*
+*Tài liệu được tổng hợp và chuẩn hóa theo tiêu chuẩn kiến trúc Agent-Dev-Kit v0.6.0.*
 *Cập nhật lần cuối: 2026-10-16.*

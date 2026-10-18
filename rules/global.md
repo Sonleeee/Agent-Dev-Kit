@@ -123,7 +123,28 @@ Decision table nhanh:
 
 ---
 
+## Nhóm 5 — Automation & Browser Discipline [PROTECTED]
+
+### R-BROWSER-ISOLATION — Trình duyệt tự động hoá tách biệt [PROTECTED]
+- Tuyệt đối không can thiệp, đóng hoặc gán cờ debug vào trình duyệt cá nhân người dùng đang mở.
+- Luôn dùng trình duyệt chuyên biệt cho tự động hoá (Chrome for Testing hoặc trình duyệt do Playwright/Puppeteer quản lý riêng).
+
+### R-BROWSER-CLEANUP — Giải phóng tài nguyên trong finally [PROTECTED]
+- Mọi luồng mở browser tự động hoá bắt buộc phải bọc trong `try ... finally` với lệnh đóng tường minh (`await browser.close()` / `driver.quit()`).
+- Tắt sạch dev server / preview server (Vite, Next, Flask, Uvicorn, v.v.) ngay khi hoàn thành kiểm thử hoặc phiên tác vụ.
+
+### R-SAFE-PROCESS-TERMINATION — Dừng tiến trình mồ côi an toàn [PROTECTED]
+- TUYỆT ĐỐI KHÔNG kill hàng loạt theo tên tiến trình (cấm `taskkill /f /im chrome.exe` hoặc `pkill chrome`).
+- Chỉ dừng đúng từng PID cụ thể đã xác định là mồ côi (tiến trình cha đã mất).
+- Ưu tiên tắt đúng cách (tắt server / tiến trình cha để browser tự thoát bình thường).
+
+### R-TEMP-PROFILE-CLEANUP — Dọn dẹp thư mục tạm an toàn [PROTECTED]
+- Thư mục profile tạm thời (`--user-data-dir` tạm, `scoped_dir*`) chỉ được xoá khi đã kiểm tra chắc chắn không còn tiến trình nào đang chiếm giữ (InUse = False).
+
+---
+
 ## Cách AI đọc rules
 1. **Global Rules**: Luôn load đầu tiên.
 2. **Modular Rules**: Tự động load thêm `frontend.md` hoặc `backend.md` dựa vào path của file đang làm việc.
 3. **Project Context**: Load từ `.agents/context/` để override (nếu là `[OVERRIDABLE]`).
+

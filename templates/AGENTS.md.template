@@ -58,6 +58,14 @@
 - **Code review:** [required / optional]
 - **Deploy frequency:** [daily / weekly / on-demand]
 
+## Automation & Browser Discipline
+
+- **Trình duyệt riêng:** Dùng Chrome for Testing hoặc browser do Playwright quản lý riêng; không đụng vào Chrome cá nhân.
+- **Cleanup in finally:** Mọi script browser automation phải đóng bằng `await browser.close()` trong `finally`.
+- **Tắt server preview:** Dừng server preview/dev ngay khi xong task.
+- **An toàn tiến trình:** Không kill hàng loạt Chrome (`taskkill /f /im chrome.exe`); chỉ tắt PID mồ côi.
+- **Kiểm tra profile:** Kiểm tra tiến trình còn dùng trước khi dọn thư mục profile tạm.
+
 ## Rule Overrides
 
 > Nếu có override, tạo `.agents/context/rule-overrides.approved.md`
@@ -65,3 +73,4 @@
 
 - rule-overrides: `.agents/context/rule-overrides.approved.md`
   > Xóa dòng này nếu không có override
+

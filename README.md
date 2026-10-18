@@ -5,84 +5,71 @@
 
 ---
 
-## ⚡ Bắt đầu nhanh (30 giây)
+## ⚡ Bắt đầu nhanh (1 lệnh duy nhất)
 
-### 1. Clone kit vào project
+> 🔒 **Lưu ý:** Repo này ở chế độ **Private**. Người dùng cần được cấp quyền Collaborator trên GitHub và máy đã cấu hình SSH Key hoặc Git Credentials.
+
+Mở terminal tại thư mục gốc của dự án và chạy **1 dòng duy nhất**:
+
+**Dùng SSH (Khuyên dùng):**
+```powershell
+git clone git@github.com:Sonleeee/Agent-Dev-Kit.git .agents; .\.agents\install.ps1 -Full
+```
+
+**Hoặc dùng HTTPS:**
+```powershell
+git clone https://github.com/Sonleeee/Agent-Dev-Kit.git .agents; .\.agents\install.ps1 -Full
+```
+
+*(Trên macOS / Linux / Git Bash: thay `; .\.agents\` bằng `&& ./.agents/install.ps1 -Full`)*
+
+> **⚡ Lệnh trên tự động thực hiện 100% (Zero Manual Steps):**
+> 1. ✅ Tải Core Kit vào thư mục ngầm `.agents/`.
+> 2. ✅ Tự động sinh file `AGENTS.md` tại thư mục gốc dự án.
+> 3. ✅ Tự động cập nhật `.gitignore` (bỏ qua `.agents/` và `.codegraph/`).
+> 4. ✅ Tự động cài đặt CodeGraph MCP Server vào IDE và lập chỉ mục AST / Call Graph toàn bộ mã nguồn.
+> 5. ✅ Đăng ký lệnh `adk` vào máy — từ dự án thứ hai trở đi bạn chỉ cần gõ: `adk full`.
+
+---
+
+### 🚀 Bắt đầu làm việc ngay với AI
+
+Bạn **không cần phải mở file điền tay**. Hãy mở IDE (Antigravity hoặc Codex CLI) và gõ lệnh chat đầu tiên:
 
 ```bash
-# Clone trực tiếp vào thư mục .agents trong dự án của bạn
-git clone https://github.com/Sonleeee/Agent-Dev-Kit .agents
+/wf-clarify "Mô tả tính năng bạn muốn làm..."
 ```
 
-### 2. Tạo AGENTS.md cho project
-
-```bash
-cp .agents/templates/AGENTS.md.template ./AGENTS.md
-```
-
-### 3. Điền thông tin project vào AGENTS.md
-
-Mở `AGENTS.md`, điền:
-- Tên project
-- Tech stack (BE/FE/DB)
-- Reference modules
-
-### 4. Khởi tạo CodeGraph (Semantic Code Intelligence)
-
-Kit sử dụng CodeGraph để phân tích call graph, AST và symbol relationships thay cho việc tạo sơ đồ source map thủ công:
-
-```bash
-npx @colbymchenry/codegraph
-codegraph init -i
-```
-
-Sau khi khởi tạo, agent sẽ tự động truy vấn CodeGraph khi làm việc.
-
-### 5. Cấu hình cho Cursor IDE (Khuyên dùng)
-
-Tạo file `.cursorrules` tại thư mục gốc của project với nội dung:
-
-```markdown
-# 🤖 AGENT-DEV-KIT
-
-Trước khi thực hiện bất kỳ task nào, bạn BẮT BUỘC phải:
-1. Đọc file `AGENTS.md` ở root directory để hiểu ngữ cảnh dự án.
-2. Đọc file `.agents/SYSTEM.md` để nắm các workflow (/wf-clarify, /wf-plan, /wf-impl, /wf-review).
-3. Nếu có, đọc `.agents/context/manifest.md` để chọn context TIER-1/TIER-2.
-4. Tạo execution contract cho task có thay đổi và tuân thủ `.agents/rules/global.md`.
-```
+*(AI Agent sẽ tự động quét mã nguồn dự án, nhận diện tech stack và tự điền thông tin vào `AGENTS.md`).*
 
 ---
 
 ## 🏗️ Cấu trúc
 
 ```
-.agents/                          ← Core Kit (clone từ repo)
+.agents/                          ← Core Kit
 ├── README.md                     ← File này
 ├── SYSTEM.md                     ← Agent behavior specification
 ├── rules/
-│   └── global.md                 ← Quality gates & guardrails
-├── workflows/                    ← 17 workflows (stage, utility, advanced)
+│   └── global.md                 ← Quality gates & guardrails toàn cục
+├── workflows/                    ← 18 workflows (stage, utility, advanced, evolve)
 ├── agents/                       ← 6 system agent personas
 ├── skills/                       ← 20 skills (6 categories)
-│   ├── core/                     ← Discovery, planning, guard, regression
+│   ├── core/                     ← Discovery, planning, execution contract, regression
 │   ├── meta/                     ← Tạo/cải thiện agent system
 │   ├── devops/                   ← CI/CD pipeline, Docker review
 │   ├── security/                 ← OWASP scan, secret detection
 │   ├── testing/                  ← Test strategy, scenario generator
 │   └── research/                 ← Docs seeker, pattern researcher
-├── templates/                    ← Output + execution contract templates
-├── quality/                      ← Master checklists
+├── templates/                    ← Output + execution contract + AGENTS.md templates
 ├── docs/                         ← Research/rationale và decisions của kit
-├── tools/                        ← Kiểm tra consistency của kit
-└── addons/                       ← Mở rộng tùy chọn
-    ├── swarm/                    ← Multi-agent orchestration
-    ├── obsidian/                 ← Second Brain integration
-    ├── notebooklm/               ← Research & Synthesis
-    ├── archify/                  ← Architecture HTML artifacts
-    ├── knowledge/                ← Context cache, memory, vault writeback
-    ├── database/                 ← Database/schema inspection
-    └── maintainer/               ← Kit maintenance skills
+├── tools/                        ← validate-kit.ps1, evolution_db.py, init-profile.ps1
+└── addons/                       ← Addons mở rộng tùy chọn
+    ├── codegraph/                ← AST index, call graph, symbols (MCP)
+    ├── archify/                  ← Interactive HTML visual diagrams
+    ├── database/                 ← Schema lookup & safe query qua Gridex MCP
+    ├── notebooklm/               ← Deep research & synthesis qua NotebookLM
+    └── maintainer/               ← Health check & maintenance scripts
 ```
 
 ---
@@ -116,9 +103,6 @@ Mọi task có thay đổi dùng `skills/core/sk-execution-contract/SKILL.md`:
 
 ---
 
-## 📋 Registry (Project Types)
-
-Mỗi project type sẽ có bộ quy tắc (rules) và template riêng. Tra danh sách tại `registry/index.md`.
 
 
 ### Utilities
@@ -173,51 +157,55 @@ Thêm flags vào workflows để điều chỉnh hành vi:
 
 ---
 
-## 🔌 IDE/Editor hỗ trợ
+## 🔌 Môi trường hỗ trợ (Đã kiểm thử thực tế)
 
-Kit hoạt động dựa trên **plain markdown files** + **folder convention**.
-Bất kỳ IDE/editor nào có AI agent đọc được file đều dùng được:
+Kit hoạt động dựa trên **plain markdown files** và **quy ước thư mục**, hiện tại được cấu hình, tối ưu hóa và **kiểm thử hoạt động thực tế trên 2 môi trường chính**:
 
-| IDE / Editor | AI Agent | Ghi chú |
-|---|---|---|
-| VS Code | Copilot Chat, Cline | Mainstream |
-| Cursor | Built-in (Composer/Chat) | Popular - Dùng kèm `.cursorrules` |
-| Windsurf | Cascade | Tương tự Cursor |
-| JetBrains | AI Assistant / Copilot | Có thể dùng manual prompt |
-| Antigravity | Built-in + MCP | Full support |
-| Codex CLI | OpenAI | Terminal-based |
-| Gemini CLI | Google | Google ecosystem |
-| Vim/Neovim | Copilot / avante.nvim | Power users |
+| Môi trường | AI Agent / Engine | Trạng thái | Ghi chú |
+|---|---|---|---|
+| **Google Antigravity** | Built-in Agent + MCP | ✅ Chính thức (Full support) | Hỗ trợ đầy đủ native workflows, skills, subagents, MCP tools và artifacts |
+| **Codex CLI** | OpenAI / Terminal Agent | ✅ Chính thức (Tested) | Thao tác dòng lệnh linh hoạt, nạp context nhanh qua CLI |
+
+> 💡 *Về mặt nguyên lý:* Bất kỳ IDE/editor nào có AI đọc được file (như Cursor, VS Code) đều có thể nạp các quy tắc Markdown này. Tuy nhiên, kit hiện tại chỉ cam kết chất lượng và benchmark chuẩn nhất trên **Antigravity** và **Codex CLI**.
 
 ---
 
 ## 📦 Addons (Tùy chọn)
 
-Chỉ bật khi cần. Xem `addons/README.md` để biết chi tiết.
+Chỉ bật khi cần mở rộng tính năng. Xem `addons/README.md` để biết chi tiết.
 
-| Addon | Mô tả |
-|-------|--------|
-| `swarm/` | Multi-agent orchestration (fan-out tasks, dual review) |
-| `obsidian/` | Tích hợp Obsidian vault làm "bộ não thứ 2" |
-| `notebooklm/` | Research & Synthesis với NotebookLM |
-| `archify/` | Architecture/workflow HTML artifacts |
+| Addon | Mô tả | Loại |
+|---|---|---|
+| `codegraph/` | Semantic Code Intelligence: lập chỉ mục AST, call graph & symbols (19+ ngôn ngữ) | MCP Server / CLI |
+| `archify/` | Biên dịch dữ liệu kiến trúc thành sơ đồ HTML vector tương tác | CLI / Skill |
+| `database/` | Tra cứu schema bảng, quan hệ khóa ngoại và query SQL an toàn | Gridex MCP Server |
+| `notebooklm/` | Nghiên cứu tài liệu chuyên sâu, đọc tài liệu dày và tổng hợp tri thức | NotebookLM MCP Server |
+| `maintainer/` | Bộ công cụ kiểm tra sức khỏe kit (`validate-kit.ps1`) và sinh skill chuẩn | Kit Scripts |
 
 ---
 
-## 🧠 Kiến trúc 3 tầng
+## 📓 Tích hợp Second Brain (Obsidian Vault)
+
+Second Brain là kho lưu trữ tài liệu, quyết định kiến trúc (ADR) và bài học dài hạn độc lập ngoài repo:
+- **Kết nối:** Khai báo đường dẫn `vault-path` trong file `AGENTS.md` tại root dự án.
+- **Chưng cất tri thức:** Chạy workflow `/wf-vault-sync` để tự động nén context, bài học và đồng bộ sang vault (`AUTO/ASK/SKIP`).
+
+---
+
+## 🧠 Kiến trúc 3 tầng phân cấp
 
 ```
-Tầng 3: SECOND BRAIN (tùy chọn)
-  Obsidian vault + NotebookLM + Archify artifacts
-  Tri thức xuyên projects
+Tầng 3: DEVELOPER STYLE (cá nhân hóa)
+  ~/.agents/developer.md (hoặc .agents/developer.local.md)
+  Style code, alias ưa thích, patterns cá nhân mang theo mọi dự án
 
-Tầng 2: PROJECT LAYER (per-project)
-  AGENTS.md + .agents/context/
-  Manifest (L0), architecture/tags (L1), examples (L2)
+Tầng 2: PROJECT CONVENTIONS (dự án cụ thể)
+  AGENTS.md tại root repo
+  Tech stack, architectural patterns, conventions của riêng repo đó
 
-Tầng 1: CORE KIT (clone từ repo)
-  .agents/ — workflows, rules, quality gates, execution contract
-  Dùng chung cho mọi project
+Tầng 1: CORE GUARDRAILS (chuẩn toàn cục)
+  .agents/rules/global.md + SYSTEM.md
+  Quality gates (Zero-warning, Unit tests 100%, Linters 100%), Invariants
 ```
 
 ---

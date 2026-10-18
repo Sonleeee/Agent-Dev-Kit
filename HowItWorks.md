@@ -1,39 +1,42 @@
 # 🤖 Agent-Dev-Kit — Cách hoạt động toàn bộ quy trình
 
-## 1. Kiến trúc 3 tầng
+## 1. Kiến trúc 3 tầng phân cấp
 
 ```mermaid
 graph TB
-    subgraph L3["Tầng 3: SECOND BRAIN (tùy chọn)"]
-        OBS["📓 Obsidian Vault<br/>Tri thức xuyên projects"]
-        NLM["🔬 NotebookLM<br/>Research & Synthesis"]
-        GRA["🗺️ Archify<br/>Architecture HTML artifacts"]
+    subgraph L3["Tầng 3: DEVELOPER STYLE (cá nhân hóa)"]
+        DEV["🧑‍💻 ~/.agents/developer.md<br/>Style code, naming preferences, alias cá nhân mang theo mọi dự án"]
     end
 
-    subgraph L2["Tầng 2: PROJECT LAYER (per-project)"]
-        AGT["📋 AGENTS.md<br/>Project passport"]
-        CTX["📂 .agents/context/<br/>Manifest L0, architecture L1/L2, templates, checklist"]
+    subgraph L2["Tầng 2: PROJECT CONVENTIONS (dự án cụ thể)"]
+        AGT["📋 AGENTS.md (Root repo)<br/>Project passport, tech stack, patterns, reference modules"]
     end
 
-    subgraph L1["Tầng 1: CORE KIT (clone từ repo)"]
-        SYS["📖 SYSTEM.md<br/>Agent behavior spec"]
-        WF["⚡ workflows/<br/>clarify, plan, impl, review"]
-        RL["🛡️ rules/global.md<br/>Quality gates"]
-        QA["✅ quality/<br/>Master checklist 38 items"]
-        REG["📇 registry/<br/>Project type registry"]
-        SK["🧰 skills/<br/>Core + Meta skills"]
-        TPL["📝 templates/<br/>Output templates"]
+    subgraph L1["Tầng 1: CORE GUARDRAILS (toàn cục)"]
+        SYS["📖 SYSTEM.md<br/>Agent behavior spec & workflows"]
+        WF["⚡ workflows/<br/>clarify, plan, impl, review, evolve"]
+        RL["🛡️ rules/global.md<br/>Executable Verification Gates & Guardrails"]
+        SK["🧰 skills/<br/>Core, DevOps, Security, Testing, Research"]
+        TPL["📝 templates/<br/>Execution Contract & AGENTS.md template"]
     end
 
-    L3 -.->|optional connect| L2
-    L2 -->|reads from| L1
+    subgraph EXT["📦 EXTERNAL ADDONS (Tùy chọn)"]
+        CG["🔍 CodeGraph (AST & Call Graph)"]
+        ARC["🗺️ Archify (HTML Diagrams)"]
+        DB["🗄️ Database (Gridex MCP)"]
+        NLM["🔬 NotebookLM (Deep Research)"]
+    end
+
+    L3 -.->|personal override| L2
+    L2 -->|inherits & applies| L1
+    EXT -.->|enhances| L1
 ```
 
-**Tóm tắt:**
+**Tóm tắt 3 tầng:**
 
-- **Tầng 1 (Core Kit):** Clone từ GitHub — chứa workflows, rules, quality gates. Dùng **chung** cho mọi project.
-- **Tầng 2 (Project Layer):** Mỗi project tự tạo — chứa kiến trúc, templates, checklist **riêng** cho project đó.
-- **Tầng 3 (Second Brain):** Tùy chọn — Obsidian vault lưu tri thức xuyên projects, NotebookLM research.
+- **Tầng 1 (Core Guardrails):** Cài qua `adk i` — chứa workflows chuẩn, rules bất biến, executable verification gates (zero-warning, unit tests 100%, linters 100%). Dùng **chung** cho mọi project.
+- **Tầng 2 (Project Conventions):** File `AGENTS.md` tại root dự án — định nghĩa tech stack, architectural patterns và conventions **riêng** cho repo đó.
+- **Tầng 3 (Developer Style):** File `~/.agents/developer.md` — gu code cá nhân (style, comment, testing preferences) tự động nạp xuyên suốt mọi dự án dev tham gia.
 
 ---
 
@@ -42,310 +45,150 @@ graph TB
 ```mermaid
 sequenceDiagram
     actor User
-    participant Agent as AI Agent<br/>(bất kỳ IDE nào)
+    participant Agent as AI Agent<br/>(Cursor, Antigravity, VS Code...)
     participant Kit as .agents/<br/>Core Kit
-    participant Ctx as .agents/context/<br/>Project Layer
+    participant Dev as ~/.agents/<br/>Developer Style
+    participant Proj as Root<br/>AGENTS.md
+    participant CG as CodeGraph<br/>Semantic Index
 
     User->>Agent: "Thêm feature quản lý kho..."
   
-    Note over Agent: Bước 1: Đọc Project Identity
-    Agent->>Kit: Đọc AGENTS.md → biết project-type
+    Note over Agent: Bước 1: Đọc Passport Dự Án
+    Agent->>Proj: Đọc AGENTS.md → Tech stack, conventions, patterns
   
-    Note over Agent: Bước 2: Tra Registry
-    Agent->>Kit: Đọc registry/index.md<br/>→ biết cần load gì
+    Note over Agent: Bước 2: Đọc Developer Style
+    Agent->>Dev: Đọc developer.md → Gu code cá nhân, testing style
   
-    Note over Agent: Bước 3: Load Rules
-    Agent->>Kit: Đọc rules/global.md<br/>→ quality gates & guardrails
+    Note over Agent: Bước 3: Nạp Guardrails Toàn Cục
+    Agent->>Kit: Đọc rules/global.md → Executable Verification Gates
   
-    Note over Agent: Bước 4: Load Context
-    Agent->>Ctx: Đọc context/manifest.md<br/>→ biết context nào cần nạp
-    Agent->>Ctx: Đọc context/architecture.md<br/>→ biết kiến trúc project
-    Agent->>Ctx: Đọc context/templates/<br/>→ code patterns (ground truth)
+    Note over Agent: Bước 4: Truy vấn CodeGraph
+    Agent->>CG: Truy vấn Call graph, AST & Symbols liên quan
   
-    Note over Agent: Bước 5: Chọn Workflow
-    Agent->>Kit: Chọn workflow phù hợp<br/>(clarify/wf-plan/wf-impl/wf-review)
+    Note over Agent: Bước 5: Chạy Workflow Chuẩn
+    Agent->>Kit: Thực thi: /wf-clarify → /wf-plan → /wf-impl → /wf-review
   
-    Agent->>User: Thực thi workflow...
+    Agent->>User: Báo cáo kết quả & bằng chứng verification
 ```
 
 ### Chi tiết từng bước:
 
-| Bước | Agent làm gì    | File đọc                        | Mục đích                                             |
-| ------ | ----------------- | --------------------------------- | ------------------------------------------------------- |
-| 1      | Đọc passport    | `AGENTS.md`                     | Biết tên project, tech stack, reference modules       |
-| 2      | Tra registry      | `registry/index.md`             | Biết project-type → cần load files nào              |
-| 3      | Load rules        | `rules/global.md`               | Biết quality gates, guardrails, PROTECTED/OVERRIDABLE  |
-| 4a     | Load manifest    | `context/manifest.md`          | Chọn đúng TIER-1/TIER-2, tránh nạp thừa             |
-| 4b     | Load architecture | `context/architecture.md`       | Biết kiến trúc, anti-patterns, naming conventions    |
-| 4c     | Load templates    | `context/templates/be/` `fe/` | Biết code pattern chuẩn (ground truth để sinh code) |
-| 4d     | Load checklist    | `context/checklist.md`          | Biết checklist items riêng của project               |
-| 5      | Tạo contract     | `.agents/runtime/<task-id>/`   | Giữ objective, scope, progress và evidence          |
-| 6      | Chọn workflow    | `workflows/*.md`                | Thực thi đúng flow cho loại task                    |
+| Bước | Agent làm gì | File / Công cụ | Mục đích |
+|---|---|---|---|
+| **1** | Đọc passport | `AGENTS.md` (root) | Biết tech stack, conventions, modules chuẩn của dự án |
+| **2** | Đọc style dev | `~/.agents/developer.md` | Áp dụng thói quen code, format, alias cá nhân |
+| **3** | Nạp guardrails | `.agents/rules/global.md` | Tuân thủ Executable Gates (Zero warnings, Tests 100%, Linters 100%) |
+| **4** | Truy vấn code | `CodeGraph CLI / MCP` | Nắm vững call graph, AST symbols, giảm 35% token đọc mù |
+| **5** | Tạo contract | Execution Contract | Giữ objective, scope, invariants và progress ledger |
+| **6** | Chạy workflow | `/wf-*` | Thực thi quy trình kiểm soát chặt chẽ 4 giai đoạn |
 
 ---
 
-## 3. Workflow Flow (luồng chính)
+## 3. Workflow Flow (Vòng đời chuẩn)
 
-### Flow đầy đủ: `/wf-delivery`
+Quy trình chuẩn 4 giai đoạn: **Clarify → Plan → Impl → Review**
 
 ```mermaid
 flowchart LR
-    C["/wf-clarify<br/>Làm rõ"] --> P["/wf-plan<br/>Lập kế hoạch"]
-    P --> I["/wf-impl<br/>Implement"]
-    I --> R["/wf-review<br/>Review 5 layers"]
+    C["/wf-clarify<br/>Làm rõ yêu cầu & Invariants"] --> P["/wf-plan<br/>Lập kế hoạch & Contract"]
+    P --> I["/wf-impl<br/>Triển khai bám sát Contract"]
+    I --> R["/wf-review<br/>Rà soát 4 tầng & Verification Gates"]
   
-    C -.->|Gate 0: Đủ thông tin?| P
-    P -.->|Gate 1: Ready?| I
-    I -.->|Gate 2: Dev Done?| R
-    R -.->|Gate 3: Ship Ready?| SHIP["✅ Ship"]
-    R -.->|FAIL| FIX["🔧 Fix → Re-review"]
+    C -.->|Gate 0: Đủ Invariants?| P
+    P -.->|Gate 1: Contract Approved?| I
+    I -.->|Gate 2: Zero Warnings & Tests Pass?| R
+    R -.->|Gate 3: 4 Tầng Sạch Sẽ?| SHIP["✅ Ship / Done"]
+    R -.->|FAIL| FIX["🔧 /wf-fix (Sửa lỗi gốc)"]
     FIX --> R
 ```
 
-### Flow nhanh: `/wf-delivery --fast`
+### Các workflow chính:
 
-```
-/wf-delivery --fast: clarify ngắn → plan bounded → /wf-impl → /wf-review
-```
-
-### Các workflow khác
-
-| Workflow           | Khi nào dùng                           |
-| ------------------ | ---------------------------------------- |
-| `/wf-clarify`       | Task mơ hồ, cần hỏi đáp            |
-| `/wf-plan`          | Chốt approach + template selection      |
-| `/wf-impl`          | Code theo plan đã approved             |
-| `/wf-review`        | Review 5 layers với tri-state checklist |
-| `/wf-delivery`      | Full flow cho task phức tạp            |
-| `/wf-delivery --fast` | Shortcut cho task đơn giản          |
-| `/wf-enhance`       | Refactor/optimize có chủ đích        |
-| `/wf-clarify --compare` | So sánh options khi cần quyết định |
-| `/wf-deploy`        | Deploy checklist                         |
+| Workflow | Khi nào dùng | Output chính |
+|---|---|---|
+| `/wf-clarify` | Bắt đầu task, yêu cầu còn mơ hồ | Invariants, Acceptance Criteria, Scope IN/OUT |
+| `/wf-plan` | Lên kế hoạch kỹ thuật chi tiết | Execution Contract, File changes, Risk analysis |
+| `/wf-impl` | Triển khai code bám sát plan | Code changes, Zero warnings, Unit tests passing |
+| `/wf-review` | Rà soát 4 tầng trước khi merge | Verification Report (Executable Gates checked) |
+| `/wf-fix` | Xử lý bug phát sinh | Root cause analysis & minimal surgical fix |
+| `/wf-evolve` | Học hỏi và cải tiến bộ quy tắc | Tự động cập nhật rules/global.md từ feedback |
 
 ---
 
-## 4. Chi tiết từng Workflow
+## 4. Kiểm soát chất lượng: Executable Verification Gates
 
-### 4.1. `/wf-clarify` — Làm rõ requirements
-
-```
-Input:  User request (mơ hồ)
-Output: Problem statement, scope in/out, risks, edge cases
-
-Agent làm:
-1. Hỏi đáp với user → lộ risk/edge cases
-2. (Nếu cần) Scan codebase → hiểu pattern hiện tại
-3. Xác định: API contract có đổi không?
-4. Output: clarify-record
-```
-
-### 4.2. `/wf-plan` — Lập kế hoạch
+Thay vì các checklist tĩnh dễ bị bỏ qua, Kit bắt buộc mọi thay đổi phải vượt qua **3 Cổng Thực Thi Tự Động**:
 
 ```
-Input:  Output từ /wf-clarify
-Output: Approach, file list, template selection, quality card
-
-Agent làm:
-1. Xác định modules/files bị ảnh hưởng
-2. Chọn template từ context/templates/
-3. Tạo task breakdown theo thứ tự
-4. Tạo Pre-Implementation Quality Card
-5. Đánh giá API contract risk
++-------------------------------------------------------------------------+
+|                  EXECUTABLE VERIFICATION GATES                          |
++-------------------------------------------------------------------------+
+|  1. Compilation / Build Gate:                                           |
+|     - Zero compilation warnings (TreatWarningsAsErrors hoặc linter).     |
+|  2. Test Suite Gate:                                                    |
+|     - 100% unit tests pass, zero regressions trong regression suite.     |
+|  3. Static Analysis / Linter Gate:                                      |
+|     - 100% linter rules pass (ESLint, Biome, Roslyn, Ruff...).          |
++-------------------------------------------------------------------------+
 ```
 
-> **Gate 1 — Ready:** Không code nếu thiếu problem statement, scope, plan, quality card.
-
-### 4.3. `/wf-impl` — Implement code
-
-```
-Input:  Plan đã approved
-Output: Code changes, build result, self-check
-
-Agent làm:
-1. Load context (AGENTS.md, architecture.md, templates/)
-2. Implement code BÁM SÁT template pattern
-3. Self-check: đúng template? đúng naming? đúng error handling?
-4. Build verification: dotnet build / npm run build
-5. Build PASS → sang /wf-review
-   Build FAIL → fix, retry (max 3 lần)
-```
-
-> **Gate 2 — Dev Done:** Không review nếu build chưa pass, self-check chưa xong.
-
-### 4.4. `/wf-review` — Review 5 layers
-
-```mermaid
-flowchart TD
-    L1["Layer 1: Checklist Verification<br/>Từng item: PASS/FAIL/UNPLANNED"] --> L2
-    L2["Layer 2: Code Existence<br/>Code thực sự tồn tại?"] --> L3
-    L3["Layer 3: Architecture Compliance<br/>Code vs template pattern"] --> L4
-    L4["Layer 4: Unplanned Code Detection<br/>Code có nhưng KHÔNG trong plan"] --> L5
-    L5["Layer 5: Logic & Quality<br/>Business logic + edge cases"]
-  
-    L5 --> DEC{Ship Decision}
-    DEC -->|0 FAIL, 0 UNPLANNED| READY["✅ Ready — Ship"]
-    DEC -->|0 FAIL, có UNPLANNED| REVIEW["⚠️ Needs Review"]
-    DEC -->|Có FAIL hoặc Critical| BLOCK["❌ Blocked — Fix"]
-```
-
-> **Gate 3 — Ship Ready:** Blocked nếu còn Critical finding hoặc FAIL items chưa fix.
-
-### 4.5. Execution Contract — chống drift
-
-Mỗi task có thay đổi phải giữ một contract ngắn trong `.agents/runtime/<task-id>/`:
-
-```text
-objective + scope + acceptance
-        ↓
-context pack + plan + bounded tasks
-        ↓
-progress ledger + rulings
-        ↓
-verification evidence + spec/quality review
-        ↓
-READY / BLOCKED / NEEDS_USER_DECISION
-```
-
-Nếu phiên bị compaction, agent đọc ledger trước và không chạy lại task đã complete.
+Agent bắt buộc phải chạy lệnh test/build thực tế và trích xuất bằng chứng (Terminal output / exit code = 0) vào Verification Report trước khi tuyên bố hoàn thành.
 
 ---
 
-## 5. Hệ thống Rules (Quality Gates)
+## 5. Addons Mở Rộng (5 External Addons)
 
-### Rules có 2 loại:
-
-| Loại             | Ý nghĩa                                   | Override được?                          |
-| ----------------- | ------------------------------------------- | ------------------------------------------ |
-| `[PROTECTED]`   | Rule bắt buộc, KHÔNG ai override được | ❌ Không                                  |
-| `[OVERRIDABLE]` | Rule mặc định, project CÓ THỂ override | ✅ Qua file `rule-overrides.approved.md` |
-
-### Các nhóm rules:
-
-| Nhóm                       | Loại       | Ví dụ                                                      |
-| --------------------------- | ----------- | ------------------------------------------------------------ |
-| **Delivery Gates**    | PROTECTED   | Không code nếu thiếu plan, không ship nếu còn Critical |
-| **Bugfix Discipline** | PROTECTED   | Phải xác định root cause trước khi fix                 |
-| **API Contract**      | PROTECTED   | Không thay đổi API contract ngoài scope                  |
-| **Security**          | PROTECTED   | Không commit secrets, không chạy destructive commands     |
-| **Architecture**      | OVERRIDABLE | Phân tầng rõ ràng (project có thể override)            |
-| **Code Quality**      | OVERRIDABLE | i18n required, no debug logs, minimal change                 |
-| **Checklist**         | OVERRIDABLE | Dùng master checklist 38 items (có thể subset)            |
-
-### Luồng override:
-
-```
-1. Agent load rules/global.md
-2. Agent load context/rule-overrides.approved.md (nếu có)
-3. Với mỗi override:
-   - Rule [PROTECTED] → ❌ Ignore override, log cảnh báo
-   - Rule [OVERRIDABLE] → ✅ Apply override, log
-4. Execute với merged rule set
-```
-
----
-
-## 6. Registry — Hỗ trợ nhiều loại project
-
-File `registry/index.md` map `project-type` → files cần load:
-
-| Project Type                     | Context cần                  | Templates           |
-| -------------------------------- | ----------------------------- | ------------------- |
-| `dotnet-clean-arch`            | architecture.md, checklist.md | templates/be/       |
-| `react-vite`                   | architecture.md, checklist.md | templates/fe/       |
-| `dotnet-clean-arch+react-vite` | architecture.md, checklist.md | templates/be/ + fe/ |
-| `node-express`                 | architecture.md               | templates/be/       |
-| `python-fastapi`               | architecture.md               | templates/be/       |
-| `generic`                      | (none required)               | (none)              |
-| ...                              | ...                           | ...                 |
-
-**Mở rộng:** Thêm project type mới bằng cách thêm row vào bảng + tạo context files tương ứng.
-
----
-
-## 7. Addons (Tùy chọn)
+Agent-Dev-Kit giữ core siêu tinh gọn và hỗ trợ mở rộng qua 5 addon chuyên biệt:
 
 ```mermaid
 graph LR
-    CORE["🏗️ Core Kit<br/>Workflows + Rules + Quality"] --> OK["✅ Đủ dùng!"]
+    CORE["🏗️ Core Kit<br/>Workflows + Rules + Gates"] --> OK["✅ Đủ dùng cho mọi dự án!"]
   
-    CORE -.->|optional| SW["🤖 Swarm Addon<br/>Multi-agent orchestration"]
-    CORE -.->|optional| OB["📓 Obsidian Addon<br/>Second Brain"]
-    CORE -.->|optional| NL["🔬 NotebookLM Addon<br/>Research & Synthesis"]
-    CORE -.->|optional| GR["🗺️ Archify Addon<br/>Architecture HTML"]
+    CORE -.->|adk addon add codegraph| CG["🔍 CodeGraph<br/>AST Index & Symbol Graph"]
+    CORE -.->|adk addon add archify| ARC["🗺️ Archify<br/>Interactive HTML Diagrams"]
+    CORE -.->|adk addon add database| DB["🗄️ Database<br/>Gridex MCP & Safe Query"]
+    CORE -.->|adk addon add obsidian| OBS["📓 Obsidian<br/>2-Way Second Brain Sync"]
+    CORE -.->|adk addon add notebooklm| NLM["🔬 NotebookLM<br/>Deep Research & Synthesis"]
 ```
 
-| Addon                 | Mô tả                                                   | Khi nào cần                  |
-| --------------------- | --------------------------------------------------------- | ------------------------------ |
-| **swarm/**      | Fan-out tasks qua Terminal (Codex, Gemini, OpenCode)| Khi dùng native orchestration |
-| **obsidian/**   | Obsidian vault lưu tri thức xuyên projects             | Khi muốn tích lũy knowledge |
-| **notebooklm/** | 14 skills research & synthesis                            | Khi cần deep research         |
-| **archify/**    | Tạo architecture/workflow HTML đã validate           | Khi cần giải thích/review kiến trúc |
+| Addon | Lệnh cài | Mục đích |
+|---|---|---|
+| **codegraph** | `adk addon add codegraph` | Tự động phân tích AST, call graph & symbols, giảm 35% token đọc file |
+| **archify** | `adk addon add archify` | Xuất sơ đồ kiến trúc HTML tương tác trực quan |
+| **database** | `adk addon add database` | Tra cứu schema và query an toàn qua Gridex MCP (read-only) |
+| **obsidian** | `adk addon add obsidian` | Đồng bộ tri thức hai chiều với Second Brain cá nhân |
+| **notebooklm** | `adk addon add notebooklm` | Tích hợp nghiên cứu tài liệu sâu qua Google NotebookLM |
 
 ---
 
-## 8. Onboarding Project Mới (30 giây)
+## 6. Khởi tạo Dự Án Mới (Dưới 30 giây)
 
-```
-Bước 1: Clone kit
-  git clone https://github.com/Sonleeee/Agent-Dev-Kit .agents
+```bash
+# Bước 1: Mở terminal tại thư mục gốc dự án và chạy
+adk i
 
-Bước 2: Copy template
-  cp .agents/templates/AGENTS.md.template ./AGENTS.md
+# Bước 2: Thiết lập gu cá nhân (chỉ cần làm 1 lần trên máy)
+adk profile
 
-Bước 3: Điền AGENTS.md
-  - project-type: dotnet-clean-arch (hoặc type phù hợp)
-  - display-name: Tên project
-  - tech stack: .NET, React...
+# Bước 3: Điền thông tin tech stack & conventions vào AGENTS.md
 
-Bước 4: Khởi tạo CodeGraph
-  codegraph init -i
-  → Tự động phân tích AST, call graph & symbol relationships
+# Bước 4: Lập chỉ mục code bằng CodeGraph
+adk addon add codegraph
 
-Bước 5: Bắt đầu dùng!
-  /wf-clarify "Tôi muốn thêm feature X..."
-```
-
----
-
-## 9. Luồng dữ liệu tổng thể
-
-```mermaid
-flowchart TD
-    USER["👤 User nhập task"] --> AGENT["🤖 AI Agent"]
-  
-    AGENT --> READ["📖 Đọc context"]
-    READ --> AGENTS_MD["AGENTS.md<br/>→ project-type, tech stack"]
-    READ --> REGISTRY["registry/index.md<br/>→ cần load gì"]
-    READ --> RULES["rules/global.md<br/>→ quality gates"]
-    READ --> ARCH["context/architecture.md<br/>→ kiến trúc"]
-    READ --> TMPL["context/templates/<br/>→ code patterns"]
-  
-    AGENT --> CHOOSE["⚡ Chọn Workflow"]
-    CHOOSE --> WF{Loại task?}
-  
-    WF -->|Phức tạp| DELIVERY["/wf-delivery<br/>clarify→plan→impl→review"]
-    WF -->|Đơn giản| LITE["/wf-delivery --fast<br/>Nhanh gọn"]
-    WF -->|Refactor| ENHANCE["/wf-enhance"]
-    WF -->|So sánh| BRAINSTORM["/wf-clarify --compare"]
-  
-    DELIVERY --> GATE["🚦 Quality Gates"]
-    LITE --> GATE
-    ENHANCE --> GATE
-  
-    GATE -->|Pass| SHIP["✅ Ship"]
-    GATE -->|Fail| FIX["🔧 Fix & Re-review"]
-    FIX --> GATE
+# Bước 5: Bắt đầu làm việc trong chat!
+/wf-clarify "Thêm tính năng đăng nhập SSO Google..."
 ```
 
 ---
 
-## Tóm tắt: Tại sao hệ thống này hoạt động?
+## 7. Bảng Lệnh CLI `adk`
 
-| Yếu tố               | Cơ chế                                                            |
-| ---------------------- | ------------------------------------------------------------------- |
-| **Consistency**  | Templates = ground truth. Agent luôn sinh code đúng pattern.     |
-| **Quality**      | 3 gates bắt buộc + 38-item checklist + 5-layer review.            |
-| **Flexibility**  | Rules OVERRIDABLE cho phép project customize mà không phá core. |
-| **Scalability**  | Registry extensible — thêm project type mới dễ dàng.           |
-| **IDE-agnostic** | Plain markdown files — bất kỳ AI agent đều đọc được.      |
-| **Progressive**  | Core Kit đủ dùng. Addons chỉ bật khi thực sự cần.           |
+| Lệnh | Alias | Chức năng |
+|---|---|---|
+| `adk` | `adk help`, `adk -h` | Hiển thị bảng hướng dẫn sử dụng (mặc định) |
+| `adk full` | `adk setup` | Khởi tạo trọn gói Full Setup (.agents/ + AGENTS.md + CodeGraph) |
+| `adk i` | `adk install` | Tải và khởi tạo kit vào dự án hiện tại (`.agents/`) |
+| `adk u` | `adk update` | Cập nhật core kit lên bản mới nhất |
+| `adk profile` | — | Khởi tạo / chỉnh sửa gu code cá nhân (`~/.agents/developer.md`) |
+| `adk addon` | `adk addons` | Menu quản lý, xem hướng dẫn và cài đặt 5 addons |
+| `adk version` | `adk v`, `adk -v` | Xem phiên bản kit hiện tại |

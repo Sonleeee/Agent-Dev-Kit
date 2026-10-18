@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Agent-Dev-Kit Addon Manager (adk addon)
 .DESCRIPTION
@@ -27,7 +27,7 @@ $AddonsData = @{
         Description = "Lap chi muc AST, call graph, symbol relationships (19+ ngon ngu). Giam ~35% token va ~70% tool calls."
         DocsUrl     = "https://github.com/colbymchenry/codegraph"
         RepoUrl     = "https://github.com/colbymchenry/codegraph"
-        InstallCmd  = "npx -y @colbymchenry/codegraph"
+        InstallCmd  = "npx -y @colbymchenry/codegraph install -y --target=antigravity,codex"
         Type        = "MCP Server / CLI"
     }
     "archify" = @{
@@ -105,7 +105,7 @@ function Show-Addon-Details([string]$key) {
     switch ($key) {
         "codegraph" {
             Write-Host "LUA CHON CUA BAN:" -ForegroundColor Cyan
-            Write-Host "  [1] Tu dong cai dat CodeGraph MCP Server (npx -y @colbymchenry/codegraph)" -ForegroundColor White
+            Write-Host "  [1] Tu dong cai dat CodeGraph MCP Server (Antigravity & Codex)" -ForegroundColor White
             Write-Host "  [2] Khoi tao chi muc CodeGraph cho du an hien tai (codegraph init -i)" -ForegroundColor White
             Write-Host "  [3] Mo trang GitHub repo cua CodeGraph" -ForegroundColor White
             Write-Host "  [0] Quay lai / Huy" -ForegroundColor DarkGray
@@ -114,8 +114,8 @@ function Show-Addon-Details([string]$key) {
 
             switch ($opt) {
                 "1" {
-                    Write-Host "Dang cai dat CodeGraph MCP Server..." -ForegroundColor Cyan
-                    npx -y @colbymchenry/codegraph
+                    Write-Host "Dang cai dat CodeGraph MCP Server cho Antigravity & Codex..." -ForegroundColor Cyan
+                    npx -y @colbymchenry/codegraph install -y --target=antigravity,codex
                     Write-Host "Hoan tat cau hinh CodeGraph MCP Server!" -ForegroundColor Green
                 }
                 "2" {

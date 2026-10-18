@@ -10,7 +10,7 @@ Core Kit (workflows, rules, quality gates) hoạt động **độc lập** — k
 
 | Addon | Mô tả | Cần cài thêm? |
 |---|---|---|
-| `codegraph/` | Semantic Code Intelligence: lập chỉ mục AST, call graph & symbols (19+ ngôn ngữ) | `npx -y @colbymchenry/codegraph install -y -i` (hoặc `adk full`) |
+| `codegraph/` | Semantic Code Intelligence: lập chỉ mục AST, call graph & symbols (19+ ngôn ngữ) | `npx -y @colbymchenry/codegraph install -y -i --target=antigravity,codex` (hoặc `adk full`) |
 | [archify/](./archify/) | Architecture/workflow HTML tự chứa (self-contained) | Cần cài Archify skill (`npx skills add tt-a1i/archify -g`) |
 | [database/](./database/) | Tra cứu schema, quan hệ bảng và query SQL an toàn | Cần kết nối Gridex MCP Server |
 | [notebooklm/](./notebooklm/) | Research & Synthesis, đọc tài liệu dày, sync ghi chú | Cần NotebookLM MCP Server |

@@ -256,7 +256,7 @@ function global:adk {
         Write-Host ""
         Write-Host "🔍 [CodeGraph] Đang tự động kết nối MCP Server và lập chỉ mục mã nguồn..." -ForegroundColor Cyan
         try {
-            npx -y @colbymchenry/codegraph install -y -i
+            npx -y @colbymchenry/codegraph install -y -i --target=antigravity,codex
             Write-Host "✅ [CodeGraph] Đã cài đặt MCP & hoàn tất chỉ mục AST/Call Graph cho dự án!" -ForegroundColor Green
         } catch {
             Write-Warning "Không thể tự động kích hoạt CodeGraph: $_. Bạn có thể thử lại sau bằng lệnh: adk addon codegraph"

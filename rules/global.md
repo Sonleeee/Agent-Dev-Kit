@@ -79,12 +79,8 @@ Task nhiều bước phải có progress ledger. Mỗi task bounded chỉ đư�
 sau verify; khi resume sau context compaction, đọc ledger và không chạy lại task đã
 complete.
 
-### Respect Project Context [PROTECTED]
-Luôn ưu tiên tuân thủ kiến trúc và convention hiện có của project trong `.agents/context/`.
-
-### Context Manifest [PROTECTED]
-Nếu project có `.agents/context/manifest.md`, agent phải đọc manifest trước khi nạp
-TIER-1/TIER-2. Manifest là bản đồ load context; code/test đang chạy vẫn là ground truth.
+### Respect Project Passport [PROTECTED]
+Luôn ưu tiên tuân thủ kiến trúc, conventions và ranh giới an toàn (Always / Never / Ask First) được định nghĩa trong file `AGENTS.md` tại root dự án. Code/test đang chạy thực tế vẫn là ground truth tối cao.
 
 ---
 
@@ -144,7 +140,7 @@ Decision table nhanh:
 ---
 
 ## Cách AI đọc rules
-1. **Global Rules**: Luôn load đầu tiên.
-2. **Modular Rules**: Tự động load thêm `frontend.md` hoặc `backend.md` dựa vào path của file đang làm việc.
-3. **Project Context**: Load từ `.agents/context/` để override (nếu là `[OVERRIDABLE]`).
+1. **Global Rules**: Luôn load đầu tiên (`.agents/rules/global.md`).
+2. **Project Passport**: Nạp conventions và ranh giới an toàn từ `AGENTS.md` tại root dự án.
+3. **Developer Profile**: Nạp gu cá nhân từ `~/.agents/developer.md` hoặc `.agents/developer.local.md`.
 

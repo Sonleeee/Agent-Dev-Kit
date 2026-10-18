@@ -89,7 +89,14 @@ try {
         $src = Join-Path $SourcePath $item
         if (Test-Path $src) {
             $dest = Join-Path $TargetAgentsDir $item
-            Copy-Item -Path $src -Destination $dest -Recurse -Force
+            if (Test-Path -Path $src -PathType Container) {
+                if (Test-Path $dest) {
+                    Remove-Item -Path $dest -Recurse -Force -ErrorAction SilentlyContinue
+                }
+                Copy-Item -Path $src -Destination $TargetAgentsDir -Recurse -Force
+            } else {
+                Copy-Item -Path $src -Destination $dest -Force
+            }
         }
     }
 

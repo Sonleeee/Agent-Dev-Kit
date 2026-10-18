@@ -1,76 +1,30 @@
-# Project: [Tên Project]
+# [Tên Dự Án]
 
-> File này là "passport" của project. Agent đọc file này đầu tiên khi nhận bất kỳ task nào.
-> Điền đầy đủ các section dưới. Xóa comments (dòng bắt đầu bằng >) trước khi dùng.
+> Hướng dẫn ngữ cảnh cho AI Agent khi làm việc trong repository này.
+> Điền các mục `[...]` theo thông tin dự án, hoặc nhờ AI: "Quét codebase và điền AGENTS.md"
 
 ---
 
-## Identity
+## Thông Tin Dự Án
+- **Tên:** [Tên hiển thị]
+- **Mô tả:** [1-2 câu — dự án này giải quyết bài toán gì]
+- **Tech Stack:** [Ngôn ngữ, Framework, Database, Infra...]
 
-- **project-type:** [dotnet-clean-arch | react-vite | node-express | generic | ...]
-- **display-name:** [Tên hiển thị của project]
-- **description:** [1 câu mô tả project làm gì]
-- **agent-system-version:** 1.1.0
+## Lệnh Thao Tác
+- **Dev:** `[lệnh chạy dev]`
+- **Test:** `[lệnh chạy test]`
+- **Build / Lint:** `[lệnh build hoặc lint]`
 
-## Tech Stack
+## Cấu Trúc Thư Mục
+- `[folder chính 1]`: [vai trò]
+- `[folder chính 2]`: [vai trò]
+- [Bổ sung thêm nếu cần]
 
-- **Backend:** [.NET 8 / Node 20 / Python 3.12 / N/A]
-- **Frontend:** [React 18 / Vue 3 / Next.js 14 / N/A]
-- **Database:** [PostgreSQL / MySQL / MongoDB / N/A]
-- **Auth:** [JWT / OAuth2 / Session / N/A]
-- **Infra:** [Docker / K8s / Serverless / N/A]
+## Ranh Giới An Toàn (Boundaries)
+- **Always:** [Ví dụ: Luôn chạy test trước khi báo xong]
+- **Never:** [Ví dụ: Không commit .env, không sửa file auto-generated]
+- **Ask First:** [Ví dụ: Hỏi trước khi cài thêm package mới]
 
-## Context Files
-
-> Agent đọc các file này theo thứ tự khi load project context.
-
-- **architecture:** `.agents/context/architecture.md`
-- **checklist:** `.agents/context/checklist.md`
-  > Xóa dòng này nếu dùng global master-checklist không có customization
-- **rule-overrides:** `.agents/context/rule-overrides.approved.md`
-  > Xóa dòng này nếu dùng global rules hoàn toàn
-
-## Integrations
-
-> Dùng để Agent-Dev-Kit ghi ngược tri thức có giá trị vào SecondBrain.
-
-- **kit-path:** `.agents/`
-- **vault-path:** `C:\Sonlee\AI\SecondBrain`
-  > Sửa lại nếu SecondBrain vault nằm ở đường dẫn khác. Để trống nếu project không dùng writeback.
-
-## Reference Modules
-
-> Agent dùng các module này như "ground truth" khi sinh code.
-
-- **BE pattern reference:** [src/path/to/reference-module/]
-- **FE pattern reference:** [src/path/to/reference-module/]
-
-## Execution Contract
-
-- **context-manifest:** `.agents/context/manifest.md`
-- **runtime-ledger:** `.agents/runtime/<task-id>/execution-contract.md`
-- **completion rule:** Không báo `READY` nếu thiếu acceptance evidence và verification.
-- **minimality rule:** Reuse trước, standard library/native trước, abstraction/dependency mới phải có lý do.
-
-## Team Context
-
-- **Team size:** [solo / 2–5 / 5+]
-- **Code review:** [required / optional]
-- **Deploy frequency:** [daily / weekly / on-demand]
-
-## Automation & Browser Discipline
-
-- **Trình duyệt riêng:** Dùng Chrome for Testing hoặc browser do Playwright quản lý riêng; không đụng vào Chrome cá nhân.
-- **Cleanup in finally:** Mọi script browser automation phải đóng bằng `await browser.close()` trong `finally`.
-- **Tắt server preview:** Dừng server preview/dev ngay khi xong task.
-- **An toàn tiến trình:** Không kill hàng loạt Chrome (`taskkill /f /im chrome.exe`); chỉ tắt PID mồ côi.
-- **Kiểm tra profile:** Kiểm tra tiến trình còn dùng trước khi dọn thư mục profile tạm.
-
-## Rule Overrides
-
-> Nếu có override, tạo `.agents/context/rule-overrides.approved.md`
-> và liệt kê ở đây để agent biết file đó tồn tại.
-
-- rule-overrides: `.agents/context/rule-overrides.approved.md`
-  > Xóa dòng này nếu không có override
-
+## Agent-Dev-Kit
+- **Kit:** `.agents/` — workflows, rules, quality gates
+- **CodeGraph:** `.codegraph/` — chỉ mục AST & call graph, AI dùng để hiểu quan hệ code tự động

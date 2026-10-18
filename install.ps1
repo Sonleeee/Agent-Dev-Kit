@@ -101,6 +101,12 @@ try {
         }
     } else {
         Write-Host "ℹ️  AGENTS.md đã có sẵn, giữ nguyên an toàn." -ForegroundColor Yellow
+        # Gợi ý user nhờ AI thêm section kit nếu chưa có
+        $agentsContent = Get-Content $AgentsFile -Raw -ErrorAction SilentlyContinue
+        if ($agentsContent -notmatch "Agent-Dev-Kit") {
+            Write-Host "💡 Gợi ý: Gõ cho AI: " -ForegroundColor Cyan -NoNewline
+            Write-Host '"Đọc .agents/templates/AGENTS.md.template rồi thêm section Agent-Dev-Kit vào AGENTS.md"' -ForegroundColor White
+        }
     }
 
     # 6. Kiểm tra tùy chọn CodeGraph

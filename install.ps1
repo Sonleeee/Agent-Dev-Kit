@@ -216,13 +216,14 @@ function global:adk {
             Write-Host "📌 1. LỆNH CLI CƠ BẢN:" -ForegroundColor Yellow
             Write-Host "  adk, adk help, adk -h     : Hiển thị bảng trợ giúp này" -ForegroundColor White
             Write-Host "  adk i, adk install        : Tải/Khởi tạo kit vào project (.agents/)" -ForegroundColor White
-            Write-Host "  adk full, adk setup       : Full Setup 1-chạm (.agents/ + AGENTS.md + CodeGraph MCP & Index)" -ForegroundColor White
+            Write-Host "  adk full, adk setup       : Full Setup 1-chạm (.agents/ + AGENTS.md + CodeGraph & System Design MCP)" -ForegroundColor White
             Write-Host "  adk u, adk update         : Cập nhật core kit lên bản mới nhất" -ForegroundColor White
             Write-Host "  adk profile               : Thiết lập gu code cá nhân (~/.agents/developer.md)" -ForegroundColor White
             Write-Host "  adk addon [tên]           : Quản lý và cài đặt addons (codegraph, archify...)" -ForegroundColor White
             Write-Host "  adk version, adk -v       : Xem phiên bản hiện tại" -ForegroundColor White
             Write-Host ""
             Write-Host "💬 2. QUY TRÌNH CHUẨN TRONG CHAT (WORKFLOWS):" -ForegroundColor Yellow
+            Write-Host "  /wf-scaffold <tính năng>  : Tự động khảo sát kiến trúc & sinh source base chuẩn" -ForegroundColor White
             Write-Host "  /wf-clarify <yêu cầu>    : Làm rõ yêu cầu & chốt Invariants" -ForegroundColor White
             Write-Host "  /wf-plan <tính năng>     : Lập kế hoạch & sinh Execution Contract" -ForegroundColor White
             Write-Host "  /wf-impl                  : Triển khai code bám sát Contract" -ForegroundColor White
@@ -231,6 +232,7 @@ function global:adk {
             Write-Host "  /wf-evolve                : Tự động phân tích logs & tối ưu hóa rules" -ForegroundColor White
             Write-Host ""
             Write-Host "📦 3. DANH SÁCH 5 ADDONS (Gõ 'adk addon' để chọn và cài đặt):" -ForegroundColor Yellow
+            Write-Host "  • system-design: Kho kiến trúc chuẩn & tự động scaffold source base (MCP)" -ForegroundColor Gray
             Write-Host "  • codegraph  : Lập chỉ mục AST, call graph & symbols (giảm 35% token)" -ForegroundColor Gray
             Write-Host "  • archify    : Vẽ sơ đồ HTML tương tác (https://vividkit.dev/vi/guides/archify)" -ForegroundColor Gray
             Write-Host "  • database   : Tra cứu schema & query an toàn qua Gridex MCP" -ForegroundColor Gray
@@ -278,6 +280,24 @@ function global:adk {
             Write-Host "✅ [CodeGraph] Đã cài đặt MCP & hoàn tất chỉ mục AST/Call Graph cho dự án!" -ForegroundColor Green
         } catch {
             Write-Warning "Không thể tự động kích hoạt CodeGraph: $_. Bạn có thể thử lại sau bằng lệnh: adk addon codegraph"
+        }
+    }
+
+
+    # 8. Cài đặt System Design MCP Server (Kho kiến trúc & Scaffolding Engine)
+    if ($setupCodeGraph -or $Full.IsPresent) {
+        Write-Host ""
+        Write-Host "🏗️  [System Design] Đang tự động kích hoạt MCP Server Kiến Trúc & Scaffolding..." -ForegroundColor Cyan
+        try {
+            $sysDesignSetupJs = Join-Path $TargetAgentsDir "addons\system-design\setup.js"
+            if (-not (Test-Path $sysDesignSetupJs)) {
+                $sysDesignSetupJs = Join-Path $SourcePath "addons\system-design\setup.js"
+            }
+            if (Test-Path $sysDesignSetupJs) {
+                node $sysDesignSetupJs
+            }
+        } catch {
+            Write-Warning "Không thể tự động kích hoạt System Design MCP: $_. Bạn có thể thử lại sau bằng lệnh: adk addon system-design"
         }
     }
 

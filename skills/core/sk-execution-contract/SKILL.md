@@ -32,8 +32,9 @@ workflow và không giả vờ rằng ledger đã tồn tại.
 - Mỗi task phải bounded, có file/symbol cụ thể và một bước verify độc lập.
 - Không tự mở rộng scope. Phát hiện việc ngoài scope thì ghi `UNPLANNED` và ruling.
 - Sau mỗi phase (`clarify`, `plan`, `impl`, `review`) cập nhật ledger một dòng.
-- Tác vụ độc lập có thể giao subagent mới; truyền context tối thiểu và không chia sẻ
-  lịch sử chat không cần thiết.
+- Tác vụ độc lập có thể giao subagent mới; truyền context tối thiểu, áp dụng giao
+  thức nén output `skills/core/sk-compressed-delegation/SKILL.md` (Investigator / Builder / Reviewer)
+  và không chia sẻ lịch sử chat không cần thiết.
 - Sau mỗi subtask, chạy hai kiểm tra: **spec compliance** rồi **code quality**.
 - Khi context bị nén hoặc phiên tiếp tục, đọc ledger trước; task đã `complete` không
   được chạy lại.

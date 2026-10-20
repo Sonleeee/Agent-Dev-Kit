@@ -39,6 +39,8 @@ Bộ agent dùng chung cho mọi project và mọi platform/IDE.
 3. **Developer Profile (Personal Style):**
    - Đọc `.agents/developer.local.md` nếu có (Local override cho repo này).
    - Nếu không có: Đọc `~/.agents/developer.md` hoặc `%USERPROFILE%\.agents\developer.md` (Global Profile).
+   - Áp dụng Communication Preset: `standard`, `concise` (mặc định), `adhd-flow` (xem `skills/core/sk-adhd-flow`), `caveman` / `ultracave` (xem `skills/core/sk-caveman`), hoặc `adhd-caveman` (Hybrid mode kết hợp cấu trúc hành động ADHD + độ nén token Ultracave).
+   - **Heuristic Auto-Sensing:** Khi nhận prompt ngắn, mệnh lệnh gấp gáp ("fix ngay", "cho lệnh", "lỗi gì nói nhanh", "làm luôn", "lệnh?"), agent tự động kích hoạt chế độ `adhd-caveman` / `ultracave` ngay trong phiên mà không đòi hỏi cấu hình trước.
 4. **Codebase Intelligence:** Gọi CodeGraph (`mcp__codegraph.codegraph_explore` / `codegraph_node`) để lấy AST và Ground Truth code patterns thực tế.
 5. **Task Execution Contract:** Khóa scope, invariants và verification command vào `.agents/runtime/<task-id>/execution-contract.md`.
 
@@ -71,10 +73,34 @@ ghi tên skill vào execution contract. User instruction luôn có quyền ưu t
 ### Plan và subtask contract
 
 Plan nhiều bước phải chia thành task bounded, có file/symbol, output và lệnh verify cụ
-thể; không dùng placeholder kiểu “implement later”. Khi task độc lập, dùng fresh
-subagent với context tối thiểu; sau mỗi subtask chạy **spec compliance review** rồi
-**code quality review**. Không fan-out nếu các task cùng sửa một file hoặc contract
-chưa rõ. Host không có subagent thì chạy inline theo cùng contract và review gates.
+thể; không dùng placeholder kiểu “implement later”.
+
+**Delegation policy (BẮT BUỘC):**
+
+- Khi plan có ≥ 2 subtasks ĐỘC LẬP (không sửa cùng file): **PHẢI** gọi
+  `invoke_subagent(TypeName="self", Workspace="branch")` cho mỗi subtask.
+- Mỗi subagent chỉ nhận: plan-lite + file scope. **KHÔNG** gửi chat history.
+- Áp dụng giao thức nén output (`skills/core/sk-compressed-delegation/SKILL.md`) cho subagents
+  (Investigator / Builder / Reviewer) để chống tràn context window của agent chính.
+- Sau mỗi subtask: **PHẢI** invoke reviewer subagent cho spec compliance review,
+  rồi code quality review (bắt buộc kèm bằng chứng `verified_cmd`).
+- Không fan-out nếu các task cùng sửa một file hoặc contract chưa rõ.
+- Host không có subagent → chạy inline theo cùng contract và review gates.
+
+**Ví dụ tool call:**
+
+```
+invoke_subagent(
+  Subagents=[
+    { TypeName: "self", Role: "Implementer Task-1",
+      Prompt: "[plan-lite cho task-1]. Chỉ sửa file: [file scope]. Chạy build khi xong.",
+      Workspace: "branch" },
+    { TypeName: "self", Role: "Implementer Task-2",
+      Prompt: "[plan-lite cho task-2]. Chỉ sửa file: [file scope]. Chạy build khi xong.",
+      Workspace: "branch" }
+  ]
+)
+```
 
 ### Minimality checkpoint
 
@@ -310,8 +336,11 @@ Xem `addons/<tên>/README.md` để biết chi tiết.
 
 ---
 
-## Multi-Agent (tùy chọn)
+## Multi-Agent Delegation
 
-> Nếu IDE/tool hỗ trợ multi-agent (swarm, sub-agents...):
-> Xem `addons/swarm/README.md` để biết cách thiết lập orchestration,
-> routing rules, payload contracts, và file conflict policy.
+> [!IMPORTANT]
+> Subagent delegation là **chức năng mặc định**, không phải tùy chọn.
+> Khi plan có subtasks độc lập, agent **PHẢI** delegate — xem Delegation Policy
+> ở section “Plan và subtask contract” ở trên.
+>
+> Swarm/orchestration nâng cao: xem `addons/swarm/README.md`.

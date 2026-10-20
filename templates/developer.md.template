@@ -7,7 +7,21 @@
 ---
 
 ## 1. Interaction & Tone
-- **Response Tone:** Ngắn gọn, súc tích (concise), đi thẳng vào giải pháp.
+
+### Communication Profile & Presets
+- **Preset:** `concise` <!-- Tùy chọn nhanh: standard | concise | adhd-flow | caveman | adhd-caveman -->
+  - `standard`: Đầy đủ bối cảnh, giải thích cân bằng, văn phong chuẩn mực.
+  - `concise` (Mặc định): Đi thẳng vào vấn đề, ngắn gọn, súc tích, lược bỏ bối cảnh thừa.
+  - `adhd-flow`: Cấu trúc hành động trước (Action-First), chia nhỏ bước đánh số, max 5 mục, 1-line progress badge (xem `skills/core/sk-adhd-flow`).
+  - `caveman`: Cô đọng cao độ, triệt tiêu nghi thức, giữ nguyên 100% code/command (xem `skills/core/sk-caveman`).
+  - `adhd-caveman` (Khuyên dùng khi debug/terminal): **Hybrid tối thượng** — Vừa định hình theo cấu trúc hành động của ADHD, vừa nén từ ngữ ở mức cực hạn (Ultracave).
+
+### Tùy chỉnh 2 trục độc lập (Fine-grained Tuning)
+- **Cognitive Structure:** `action-first` <!-- Tùy chọn: action-first | standard -->
+- **Token Density:** `concise` <!-- Tùy chọn: normal | concise | terse | ultracave -->
+- **Heuristic Auto-Sensing:** `enabled` <!-- Tự động kích hoạt Hybrid/Ultracave khi user nhắn ngắn, gấp gáp ("fix ngay", "cho lệnh", "lỗi gì nói nhanh", "lệnh?") -->
+
+### Quy ước ngôn ngữ & Giải thích
 - **Explanations:** Không giải thích cú pháp hoặc những điều hiển nhiên trừ khi được hỏi cụ thể.
 - **Language:** Tiếng Việt cho trao đổi và commit messages; Tiếng Anh cho code, biến, hàm và comments kỹ thuật.
 

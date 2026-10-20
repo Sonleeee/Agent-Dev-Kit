@@ -27,7 +27,7 @@ git clone https://github.com/Sonleeee/Agent-Dev-Kit.git .agents; .\.agents\insta
 > 1. ✅ Tải Core Kit vào thư mục ngầm `.agents/`.
 > 2. ✅ Tự động sinh file `AGENTS.md` tại thư mục gốc dự án.
 > 3. ✅ Tự động cập nhật `.gitignore` (bỏ qua `.agents/` và `.codegraph/`).
-> 4. ✅ Tự động cài đặt CodeGraph MCP Server vào IDE và lập chỉ mục AST / Call Graph toàn bộ mã nguồn.
+> 4. ✅ Tự động cài đặt CodeGraph & System Design MCP Server vào IDE và lập chỉ mục AST / Call Graph.
 > 5. ✅ Đăng ký lệnh `adk` vào máy — từ dự án thứ hai trở đi bạn chỉ cần gõ: `adk full`.
 
 ---
@@ -175,6 +175,7 @@ Chỉ bật khi cần mở rộng tính năng. Xem `addons/README.md` để bi�
 
 | Addon | Mô tả | Loại |
 |---|---|---|
+| [system-design/](./addons/system-design/) | Kho kiến trúc chuẩn (ByteByteGo/Cloud) & Engine tự động scaffold Clean Architecture | MCP Server / CLI |
 | `codegraph/` | Semantic Code Intelligence: lập chỉ mục AST, call graph & symbols (19+ ngôn ngữ) | MCP Server / CLI |
 | `archify/` | Biên dịch dữ liệu kiến trúc thành sơ đồ HTML vector tương tác | CLI / Skill |
 | `database/` | Tra cứu schema bảng, quan hệ khóa ngoại và query SQL an toàn | Gridex MCP Server |

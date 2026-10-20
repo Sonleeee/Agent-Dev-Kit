@@ -22,6 +22,14 @@ if (-not (Test-Path $LocalKitPath)) {
 
 # Danh mục 6 Addons chính thức
 $AddonsData = @{
+    "system-design" = @{
+        Title       = "System Design (Knowledge Base & Scaffolding MCP)"
+        Description = "Kho kien truc he thong chuan (Outbox, Idempotency, Circuit Breaker...) va Engine tu dong sinh source base Clean Architecture qua MCP."
+        DocsUrl     = "https://github.com/Sonleeee/Agent-Dev-Kit/tree/main/addons/system-design"
+        RepoUrl     = ""
+        InstallCmd  = "powershell -File .agents/addons/system-design/setup.ps1"
+        Type        = "MCP Server / CLI"
+    }
     "codegraph" = @{
         Title       = "CodeGraph (Semantic Code Intelligence)"
         Description = "Lap chi muc AST, call graph, symbol relationships (19+ ngon ngu). Giam ~35% token va ~70% tool calls."

@@ -1,0 +1,17 @@
+{
+  "name": "@agent-dev-kit/system-design-mcp",
+  "version": "1.0.0",
+  "description": "Agent-Dev-Kit System Design Knowledge Base & Scaffolding Engine MCP Server",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "system-design-mcp": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node index.js --help"
+  },
+  "keywords": ["mcp", "system-design", "architecture", "scaffolding", "patterns", "agent-dev-kit"],
+  "author": "Sonlee",
+  "license": "MIT"
+}

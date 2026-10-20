@@ -1,0 +1,329 @@
+{
+  "patterns": [
+    {
+      "id": "transactional-outbox",
+      "name": "Transactional Outbox Pattern",
+      "category": "data-consistency",
+      "tags": [
+        "dual-write",
+        "messaging",
+        "kafka",
+        "rabbitmq",
+        "acid",
+        "cdc",
+        "debezium"
+      ],
+      "summary": "Đảm bảo tính toàn vẹn tuyệt đối khi vừa ghi Database vừa gửi Message ra Message Broker (Kafka/RabbitMQ) mà không lo mất mát dữ liệu khi server crash giữa chừng.",
+      "problem": "Khi nghiệp vụ cần lưu bản ghi vào DB (ví dụ: Tạo Đơn Hàng) và đồng thời bắn event ra ngoài (OrderCreated) để Service Thanh toán / Email xử lý: Nếu lưu DB thành công nhưng gửi message thất bại (mất mạng, broker nghẽn, app crash), hệ thống sẽ rơi vào trạng thái bất nhất (Dual-Write Problem). Nếu dùng 2PC (Two-Phase Commit) thì hiệu năng cực thấp và không được các cloud-native DB hỗ trợ.",
+      "solution": "1. Tạo thêm bảng 'outbox' trong cùng Database.\n2. Trong 1 DB Transaction duy nhất: Lưu Entity nghiệp vụ VÀ lưu Message Event vào bảng 'outbox'.\n3. Một tiến trình độc lập (Outbox Worker qua Polling hoặc CDC - Change Data Capture như Debezium) đọc các message chưa gửi từ bảng 'outbox', publish lên Message Broker, sau đó đánh dấu là PROCESSED.",
+      "mermaid": "sequenceDiagram\n  autonumber\n  actor Client\n  participant App as API Service\n  participant DB as Database\n  participant Worker as Outbox Worker\n  participant Broker as Kafka / RabbitMQ\n\n  Client->>App: POST /orders (Tạo đơn hàng)\n  activate App\n  rect rgb(240, 248, 255)\n    Note over App,DB: Cùng 1 ACID Transaction\n    App->>DB: INSERT INTO orders (...)\n    App->>DB: INSERT INTO outbox_events (id, topic, payload, status='PENDING')\n  end\n  App-->>Client: 201 Created\n  deactivate App\n\n  loop Chu kỳ Polling / CDC Log Tail\n    Worker->>DB: SELECT * FROM outbox_events WHERE status='PENDING' LIMIT 100 FOR UPDATE SKIP LOCKED\n    Worker->>Broker: Publish Message(topic, payload)\n    Broker-->>Worker: Ack\n    Worker->>DB: UPDATE outbox_events SET status='PROCESSED', processed_at=NOW() WHERE id = event.id\n  end",
+      "rules_and_invariants": [
+        "Consumer BẮT BUỘC phải cài đặt Idempotency vì Outbox đảm bảo cơ chế 'At-least-once delivery' (có thể gửi lặp lại khi worker retry).",
+        "Khi dùng Polling: Phải sử dụng 'SELECT ... FOR UPDATE SKIP LOCKED' để nhiều worker có thể chạy song song mà không tranh chấp lock.",
+        "Phải có cơ chế xoá/lưu trữ (archive/partition) các record outbox đã xử lý để tránh bảng bị phình to làm chậm index."
+      ],
+      "trade_offs": {
+        "pros": [
+          "Không thể mất event dù app hay broker crash",
+          "Tận dụng ACID transaction có sẵn của DB",
+          "Không phụ thuộc vào 2PC/XA transactions"
+        ],
+        "cons": [
+          "Độ trễ nhất định (near-realtime) phụ thuộc chu kỳ worker",
+          "Yêu cầu Consumer phải Idempotent",
+          "Bảng outbox cần được cleanup định kỳ"
+        ]
+      },
+      "code_snippet": {
+        "language": "typescript",
+        "title": "TypeScript Outbox Transaction & Worker Template",
+        "code": "// 1. Ghi Transactional Outbox (Trong API UseCase)\nawait db.$transaction(async (tx) => {\n  const order = await tx.orders.create({ data: orderData });\n  await tx.outboxEvents.create({\n    data: {\n      id: crypto.randomUUID(),\n      aggregateType: 'Order',\n      aggregateId: order.id,\n      eventType: 'OrderCreated',\n      payload: JSON.stringify(order),\n      status: 'PENDING',\n      createdAt: new Date()\n    }\n  });\n  return order;\n});\n\n// 2. Outbox Worker (Polling Loop an toàn)\nasync function pollOutbox(batchSize = 50) {\n  const events = await db.$queryRaw`\n    SELECT * FROM outbox_events \n    WHERE status = 'PENDING'\n    ORDER BY created_at ASC \n    LIMIT ${batchSize} \n    FOR UPDATE SKIP LOCKED\n  `;\n  for (const event of events) {\n    try {\n      await messageBroker.publish(event.event_type, JSON.parse(event.payload));\n      await db.outboxEvents.update({\n        where: { id: event.id },\n        data: { status: 'PROCESSED', processedAt: new Date() }\n      });\n    } catch (err) {\n      await db.outboxEvents.update({\n        where: { id: event.id },\n        data: { retryCount: { increment: 1 }, lastError: err.message }\n      });\n    }\n  }\n}"
+      }
+    },
+    {
+      "id": "idempotency-key",
+      "name": "Idempotency Key Pattern",
+      "category": "reliability",
+      "tags": [
+        "payments",
+        "api-design",
+        "redis",
+        "retry",
+        "at-most-once",
+        "network-glitch"
+      ],
+      "summary": "Đảm bảo một API request làm thay đổi dữ liệu (POST/PUT/DELETE) chỉ được thực thi đúng 1 lần duy nhất dù client có bấm liên tục hoặc mạng giật gửi lại nhiều lần.",
+      "problem": "Khi khách hàng bấm nút 'Thanh toán' hoặc mạng chập chờn timeout: Client/Mobile App tự động retry request. Nếu không có cơ chế bảo vệ, tài khoản khách hàng sẽ bị trừ tiền 2 lần hoặc tạo 2 đơn hàng giống hệt nhau.",
+      "solution": "Client tạo một mã định danh duy nhất (UUID) gửi kèm header 'Idempotency-Key'. Server kiểm tra trạng thái key này trong Redis:\n1. Chưa có: Khóa key với trạng thái 'IN_PROGRESS' và tiến hành xử lý nghiệp vụ.\n2. Đang có và 'IN_PROGRESS': Trả về 409 Conflict hoặc chờ kết quả.\n3. Đã có và 'SUCCESS': Trả về ngay lập tức kết quả đã cache từ lần chạy trước mà KHÔNG thực thi lại nghiệp vụ.\n4. Lỗi: Xóa key để cho phép client retry lại sau.",
+      "mermaid": "sequenceDiagram\n  autonumber\n  actor Client\n  participant MW as Idempotency Middleware\n  participant Redis as Cache / Distributed Store\n  participant Handler as Business Handler\n\n  Client->>MW: POST /checkout (Header: Idempotency-Key = 'abc-123')\n  MW->>Redis: SET key:abc-123 'IN_PROGRESS' NX EX 120\n  alt Key đã tồn tại (Redis trả về false)\n    MW->>Redis: GET key:abc-123\n    alt Trạng thái là IN_PROGRESS\n      MW-->>Client: 409 Conflict (Request is currently processing)\n    else Trạng thái là SUCCESS\n      MW-->>Client: Cached Response (200 OK + payload cũ)\n    end\n  else Key chưa tồn tại (Lock thành công)\n    MW->>Handler: Thực thi nghiệp vụ thanh toán\n    Handler-->>MW: Kết quả (Order #999, Total: 100$)\n    MW->>Redis: SET key:abc-123 'SUCCESS' + responseData EX 86400 (Lưu 24h)\n    MW-->>Client: 201 Created (Order #999)\n  end",
+      "rules_and_invariants": [
+        "Idempotency-Key phải có TTL (Time To Live, thường là 24h đến 72h).",
+        "Response cache phải lưu cả HTTP Status Code, Headers và Body để trả về trung thực như lần đầu.",
+        "Key phải kết hợp với User ID (ví dụ: `idemp:{userId}:{key}`) để tránh trường hợp user A tấn công đoán key của user B."
+      ],
+      "trade_offs": {
+        "pros": [
+          "Triệt tiêu 100% rủi ro double-charge hoặc trùng dữ liệu",
+          "Chuẩn hóa API theo phong cách Stripe/PayPal",
+          "Bảo vệ an toàn cho cả luồng retry tự động của mạng"
+        ],
+        "cons": [
+          "Cần hạ tầng Redis/Memcached tốc độ cao",
+          "Phải quản lý dọn dẹp TTL và giải phóng lock khi exception"
+        ]
+      },
+      "code_snippet": {
+        "language": "typescript",
+        "title": "Express/Fastify Idempotency Middleware Template",
+        "code": "export function idempotencyMiddleware(redis: RedisClient) {\n  return async (req: Request, res: Response, next: NextFunction) => {\n    const key = req.headers['idempotency-key'] as string;\n    if (!key || req.method === 'GET') return next();\n\n    const redisKey = `idemp:${req.user?.id || 'anon'}:${key}`;\n    // Thử chiếm lock trạng thái IN_PROGRESS trong 60 giây\n    const acquired = await redis.set(redisKey, JSON.stringify({ status: 'IN_PROGRESS' }), 'NX', 'EX', 60);\n    \n    if (!acquired) {\n      const cached = JSON.parse(await redis.get(redisKey) || '{}');\n      if (cached.status === 'IN_PROGRESS') {\n        return res.status(409).json({ error: 'Concurrent request in progress' });\n      }\n      if (cached.status === 'SUCCESS') {\n        return res.status(cached.statusCode).json(cached.body);\n      }\n    }\n\n    // Hook vào hàm res.send để bắt response lưu lại Redis\n    const originalSend = res.send.bind(res);\n    res.send = (body: any) => {\n      if (res.statusCode >= 200 && res.statusCode < 300) {\n        redis.set(redisKey, JSON.stringify({\n          status: 'SUCCESS',\n          statusCode: res.statusCode,\n          body: JSON.parse(body)\n        }), 'EX', 86400); // Lưu 24h\n      } else {\n        redis.del(redisKey); // Lỗi thì giải phóng để retry\n      }\n      return originalSend(body);\n    };\n    next();\n  };\n}"
+      }
+    },
+    {
+      "id": "circuit-breaker",
+      "name": "Circuit Breaker Pattern",
+      "category": "reliability",
+      "tags": [
+        "resilience",
+        "microservices",
+        "fail-fast",
+        "fallback",
+        "cascading-failure"
+      ],
+      "summary": "Tự động 'ngắt mạch' khi dịch vụ bên ngoài bị chậm hoặc lỗi liên tục, chuyển sang cơ chế fail-fast và fallback ngay lập tức, ngăn ngừa sập dây chuyền toàn hệ thống.",
+      "problem": "Khi Service A gọi Service B (ví dụ cổng thanh toán bên thứ ba hoặc microservice kho): Nếu Service B bị treo, các request gửi sang sẽ bị nghẽn thread/connection pool. Rất nhanh chóng toàn bộ CPU/RAM của Service A cạn kiệt, kéo sập toàn bộ ứng dụng chính (Cascading Failure).",
+      "solution": "Áp dụng Circuit Breaker với 3 trạng thái:\n1. CLOSED (Đóng): Mọi request đi qua bình thường. Đếm tỷ lệ lỗi.\n2. OPEN (Ngắt mạch): Khi tỷ lệ lỗi > 50% trong 10s: Ngắt mạch ngay! Mọi request tiếp theo bị từ chối tức thì (fail-fast) hoặc trả về fallback data mà không thèm gọi sang B nữa.\n3. HALF-OPEN (Thử nghiệm): Sau thời gian chờ (ví dụ 30s): Cho phép 1 vài request đi qua thăm dò. Nếu thành công -> Chuyển về CLOSED. Nếu vẫn lỗi -> Quay lại OPEN.",
+      "mermaid": "stateDiagram-v2\n  [*] --> Closed\n  Closed --> Open: Tỷ lệ lỗi > Threshold (50%)\n  Open --> HalfOpen: Sau Sleep Window Timeout (30s)\n  HalfOpen --> Closed: Request thử nghiệm THÀNH CÔNG\n  HalfOpen --> Open: Request thử nghiệm THẤT BẠI",
+      "rules_and_invariants": [
+        "Phải luôn có kịch bản Fallback (Ví dụ: Trả về cache cũ, giá trị mặc định an toàn, hoặc thông báo bảo trì thân thiện).",
+        "Phải cấu hình Timeout chặt chẽ (ví dụ: HTTP timeout 2-3s) trước khi tính toán lỗi ngắt mạch."
+      ],
+      "trade_offs": {
+        "pros": [
+          "Ngăn chặn 100% nguy cơ sập dây chuyền toàn hệ thống",
+          "Giải phóng tài nguyên máy chủ nhanh chóng",
+          "Cho dịch vụ hạ nguồn thời gian để hồi phục"
+        ],
+        "cons": [
+          "Cần xác định ngưỡng timeout và failure rate phù hợp để tránh ngắt nhầm"
+        ]
+      },
+      "code_snippet": {
+        "language": "typescript",
+        "title": "Circuit Breaker Logic & Opossum Implementation",
+        "code": "import CircuitBreaker from 'opossum';\n\nconst options = {\n  timeout: 3000, // Nếu request quá 3s coi như fail\n  errorThresholdPercentage: 50, // Nếu 50% request lỗi -> OPEN mạch\n  resetTimeout: 30000 // Chờ 30s trước khi thử HALF-OPEN\n};\n\nasync function callExternalPayment(data) {\n  return await httpClient.post('/charge', data);\n}\n\nconst breaker = new CircuitBreaker(callExternalPayment, options);\n\n// Kịch bản fallback khi mạch đang OPEN hoặc timeout\nbreaker.fallback(() => {\n  return { status: 'PENDING_OFFLINE', message: 'Hệ thống thanh toán đang bận, đơn sẽ duyệt sau' };\n});\n\nexport async function processPayment(paymentData) {\n  return await breaker.fire(paymentData);\n}"
+      }
+    },
+    {
+      "id": "cache-aside-stampede",
+      "name": "Cache-Aside & Stampede Mitigation",
+      "category": "caching",
+      "tags": [
+        "redis",
+        "single-flight",
+        "thundering-herd",
+        "caching",
+        "high-throughput"
+      ],
+      "summary": "Chiến lược đọc/ghi cache chuẩn quốc tế kết hợp giải thuật chống Thundering Herd (sập Database khi hot-key hết hạn cùng lúc).",
+      "problem": "Mô hình Cache-Aside thông thường: App đọc Cache -> nếu Miss -> đọc DB -> ghi Cache. Nhưng khi một Hot Key (ví dụ: sản phẩm Flash Sale) hết hạn đúng lúc có 10.000 request/giây ập vào: Cả 10.000 request đều thấy Miss và cùng đâm thẳng vào DB, gây sập DB ngay lập tức (Cache Stampede / Thundering Herd).",
+      "solution": "1. Chuẩn Cache-Aside: Read Cache -> Miss -> Lock Mutex/SingleFlight -> Chỉ 1 request đầu tiên được vào DB query -> Cập nhật Cache -> Các request khác đợi hoặc lấy dữ liệu ngay từ Cache vừa cập nhật.\n2. Kỹ thuật Probabilistic Early Expiration (XFetch) hoặc Soft-TTL / Background Refresh: Chủ động tải lại cache trước khi nó thực sự hết hạn.",
+      "mermaid": "flowchart TD\n  Req[Client Request] --> Check{Kiểm tra Cache}\n  Check -- Hit --> Return[Trả về kết quả]\n  Check -- Miss --> Mutex{Chiếm Distributed Lock / SingleFlight}\n  Mutex -- Thắng Lock --> QueryDB[Query Database]\n  QueryDB --> SetCache[Ghi Cache mới + Set TTL]\n  SetCache --> Release[Nhả Lock] --> Return\n  Mutex -- Thua Lock --> Wait[Chờ 50ms & Đọc lại Cache] --> Check",
+      "rules_and_invariants": [
+        "Không bao giờ để TTL của nhiều hot-key giống hệt nhau (Phải thêm Random Jitter: TTL = 3600 + random(-300, 300)).",
+        "Khi ghi dữ liệu vào DB: Ưu tiên XÓA CACHE (Cache Invalidation) thay vì cập nhật trực tiếp vào cache để tránh race-condition giữa các thread ghi."
+      ],
+      "trade_offs": {
+        "pros": [
+          "Bảo vệ DB an toàn tuyệt đối trước mọi đợt traffic spike",
+          "Tận dụng RAM tối đa cho dữ liệu nóng"
+        ],
+        "cons": [
+          "Cần cơ chế SingleFlight hoặc Lock nhẹ nhàng để tránh nghẽn thread"
+        ]
+      },
+      "code_snippet": {
+        "language": "typescript",
+        "title": "Cache-Aside with SingleFlight Mutex in TypeScript",
+        "code": "const flightMap = new Map<string, Promise<any>>();\n\nexport async function getWithSingleFlight<T>(\n  key: string,\n  ttlSeconds: number,\n  fetchDbFn: () => Promise<T>\n): Promise<T> {\n  // 1. Kiểm tra cache Redis\n  const cached = await redis.get(key);\n  if (cached) return JSON.parse(cached);\n\n  // 2. Chống Stampede: Nếu đang có 1 promise khác query key này -> đợi chung\n  if (flightMap.has(key)) {\n    return await flightMap.get(key);\n  }\n\n  // 3. Là request đầu tiên: Tạo Promise đại diện\n  const promise = (async () => {\n    try {\n      const dbData = await fetchDbFn();\n      const jitter = Math.floor(Math.random() * 60); // Random Jitter tránh hết hạn đồng loạt\n      await redis.set(key, JSON.stringify(dbData), 'EX', ttlSeconds + jitter);\n      return dbData;\n    } finally {\n      flightMap.delete(key); // Xóa khỏi danh sách bay\n    }\n  })();\n\n  flightMap.set(key, promise);\n  return await promise;\n}"
+      }
+    },
+    {
+      "id": "rate-limiter-token-bucket",
+      "name": "Distributed Rate Limiter (Token Bucket / Sliding Window)",
+      "category": "traffic-control",
+      "tags": [
+        "redis-lua",
+        "ddos",
+        "token-bucket",
+        "sliding-window",
+        "security"
+      ],
+      "summary": "Giới hạn lưu lượng request theo IP hoặc User ID sử dụng Redis Lua Script nguyên tử, chống DDoS và bảo vệ tài nguyên hạ tầng.",
+      "problem": "Kẻ xấu hoặc bot spam liên tục vào API đăng ký/đăng nhập/tạo đơn, hoặc 1 tenant chiếm hết băng thông của hệ thống SaaS (Noisy Neighbor Problem).",
+      "solution": "Áp dụng thuật toán Sliding Window Counter hoặc Token Bucket thực thi bằng Redis Lua Script (chạy trong 1 chu kỳ nguyên tử duy nhất, không lo race-condition giữa nhiều server).",
+      "mermaid": "flowchart LR\n  Client[Client] --> GW[API Gateway / Middleware]\n  GW --> Redis[Redis Lua Script]\n  Redis -- Số request <= Limit --> Allow[Chấp thuận Request]\n  Redis -- Số request > Limit --> Reject[429 Too Many Requests + Retry-After Header]",
+      "rules_and_invariants": [
+        "Phải trả về đúng chuẩn HTTP Response Headers: 'X-RateLimit-Limit', 'X-RateLimit-Remaining', 'Retry-After'.",
+        "Cần phân loại Rate Limit theo cấp độ: Public API (theo IP), Authenticated API (theo User ID), Sensitive API (OTP/Login - giới hạn cực chặt)."
+      ],
+      "trade_offs": {
+        "pros": [
+          "Triệt tiêu spam và bảo vệ DB khỏi cạn kiệt connection",
+          "Độ trễ Redis cực thấp (< 1ms)"
+        ],
+        "cons": [
+          "Cần xử lý graceful fallback nếu cụm Redis gặp sự cố (Fail-Open hay Fail-Closed tuỳ độ nhạy cảm)"
+        ]
+      },
+      "code_snippet": {
+        "language": "lua",
+        "title": "Atomic Sliding Window Redis Lua Script",
+        "code": "-- KEYS[1]: rate_limit_key\n-- ARGV[1]: current_timestamp_ms\n-- ARGV[2]: window_size_ms (e.g. 60000 cho 1 phút)\n-- ARGV[3]: max_requests (e.g. 100)\n\nlocal key = KEYS[1]\nlocal now = tonumber(ARGV[1])\nlocal window = tonumber(ARGV[2])\nlocal limit = tonumber(ARGV[3])\nlocal clearBefore = now - window\n\n-- Xóa các timestamp cũ ngoài khung thời gian\nredis.call('ZREMRANGEBYSCORE', key, 0, clearBefore)\n\n-- Đếm số request hiện tại trong khung thời gian\nlocal currentRequests = redis.call('ZCARD', key)\n\nif currentRequests < limit then\n    redis.call('ZADD', key, now, now)\n    redis.call('PEXPIRE', key, window)\n    return { 1, limit - currentRequests - 1 }\nelse\n    return { 0, 0 }\nend"
+      }
+    },
+    {
+      "id": "saga-orchestration",
+      "name": "Saga Distributed Transaction (Orchestration)",
+      "category": "distributed-transactions",
+      "tags": [
+        "saga",
+        "microservices",
+        "compensation",
+        "event-driven",
+        "orchestrator"
+      ],
+      "summary": "Điều phối chuỗi nghiệp vụ trải dài qua nhiều microservices mà không dùng 2PC, tự động kích hoạt Compensating Transactions (giao dịch bù trừ) để hoàn nguyên dữ liệu khi xảy ra lỗi.",
+      "problem": "Trong kiến trúc Microservices: Đơn hàng cần đi qua 3 service độc lập: Order Service -> Payment Service -> Inventory Service. Nếu Inventory Service thông báo hết hàng: Làm sao để tự động hoàn tiền bên Payment Service và huỷ đơn bên Order Service mà không gây bất nhất dữ liệu?",
+      "solution": "Mô hình Saga Orchestrator: Một service trung tâm đóng vai trò nhạc trưởng (State Machine). Nó gửi command lần lượt tới từng service. Nếu bất kỳ bước nào thất bại, Orchestrator sẽ gửi các Compensating Commands ngược lại theo thứ tự để hủy các bước đã làm thành công trước đó.",
+      "mermaid": "sequenceDiagram\n  autonumber\n  participant Orch as Saga Orchestrator\n  participant Order as Order Service\n  participant Pay as Payment Service\n  participant Inv as Inventory Service\n\n  Orch->>Order: 1. Tạo đơn (Status: PENDING)\n  Order-->>Orch: Thành công\n  Orch->>Pay: 2. Trừ tiền tài khoản\n  Pay-->>Orch: Thành công\n  Orch->>Inv: 3. Trừ kho hàng\n  Inv-->>Orch: THẤT BẠI (Hết hàng trong kho!)\n  rect rgb(255, 230, 230)\n    Note over Orch,Pay: Kích hoạt Giao Dịch Bù Trừ (Compensating)\n    Orch->>Pay: Hoàn tiền lại cho khách (Refund)\n    Orch->>Order: Hủy đơn hàng (Status: REJECTED_OUT_OF_STOCK)\n  end",
+      "rules_and_invariants": [
+        "Mọi Compensating Transaction BẮT BUỘC phải đảm bảo Idempotent (vì lệnh bù có thể phải retry nhiều lần).",
+        "Tuyệt đối không áp dụng Saga cho các bước không thể hoàn nguyên (Ví dụ: Đã gửi email ra cho khách hoặc in hoá đơn VAT giấy thì không thể 'unsend' vật lý được)."
+      ],
+      "trade_offs": {
+        "pros": [
+          "Không phụ thuộc vào distributed lock hay 2PC",
+          "Khả năng mở rộng không giới hạn"
+        ],
+        "cons": [
+          "Thiếu tính chất Isolation (Dữ liệu tạm có thể bị các luồng khác đọc được - Dirty Read)"
+        ]
+      },
+      "code_snippet": {
+        "language": "typescript",
+        "title": "Saga Step Definition & Execution Framework",
+        "code": "interface SagaStep<TContext> {\n  name: string;\n  execute: (ctx: TContext) => Promise<void>;\n  compensate: (ctx: TContext) => Promise<void>;\n}\n\nexport class SagaOrchestrator<TContext> {\n  private executedSteps: SagaStep<TContext>[] = [];\n  constructor(private steps: SagaStep<TContext>[]) {}\n\n  async execute(ctx: TContext) {\n    for (const step of this.steps) {\n      try {\n        await step.execute(ctx);\n        this.executedSteps.push(step);\n      } catch (err) {\n        console.error(`Step ${step.name} failed! Starting compensation...`);\n        await this.rollback(ctx);\n        throw err;\n      }\n    }\n  }\n\n  private async rollback(ctx: TContext) {\n    for (const step of this.executedSteps.reverse()) {\n      try {\n        await step.compensate(ctx);\n      } catch (compErr) {\n        console.error(`FATAL: Compensation for ${step.name} failed! Needs manual review`, compErr);\n      }\n    }\n  }\n}"
+      }
+    },
+    {
+      "id": "db-backed-queue",
+      "name": "DB-Backed Job Queue Pattern",
+      "category": "background-processing",
+      "tags": [
+        "postgresql",
+        "queue",
+        "jobs",
+        "skip-locked",
+        "zero-infra",
+        "resilience"
+      ],
+      "summary": "Hàng đợi tác vụ ngầm bền vững lưu trực tiếp trong PostgreSQL/MySQL, không tốn thêm chi phí và tài nguyên vận hành Redis/RabbitMQ.",
+      "problem": "Cần gửi email, tạo hóa đơn PDF hoặc gọi webhook đối tác ở chế độ chạy ngầm để giải phóng API request dưới 200ms, nhưng hệ thống chưa đủ lớn để duy trì thêm cụm Redis/RabbitMQ, hoặc yêu cầu job không bao giờ bị mất khi server khởi động lại.",
+      "solution": "1. Tạo bảng background_jobs trong chính DB hiện tại với các cột: id, type, payload, status (PENDING, PROCESSING, DONE, FAILED), retry_count, run_at.\n2. Khi có request: Ghi job vào bảng với status PENDING.\n3. Worker định kỳ chạy câu lệnh SELECT ... FOR UPDATE SKIP LOCKED để bốc job và xử lý song song mà không lo 2 worker tranh nhau 1 job.",
+      "mermaid": "sequenceDiagram\n  autonumber\n  actor User\n  participant API as API Handler\n  participant DB as PostgreSQL (Jobs Table)\n  participant Worker as Background Runner\n  participant Email as Email Gateway (Resend/SendGrid)\n\n  User->>API: POST /register (Đăng ký tài khoản)\n  API->>DB: INSERT INTO users (...)\n  API->>DB: INSERT INTO background_jobs (type='SEND_WELCOME', payload, status='PENDING')\n  API-->>User: 201 Created (Trả về ngay trong 50ms!)\n\n  loop Mỗi 2 giây\n    Worker->>DB: SELECT * FROM background_jobs WHERE status='PENDING' LIMIT 10 FOR UPDATE SKIP LOCKED\n    Worker->>Email: Gửi email tới khách hàng\n    Email-->>Worker: 200 OK\n    Worker->>DB: UPDATE background_jobs SET status='DONE', completed_at=NOW() WHERE id = job.id\n  end",
+      "rules_and_invariants": [
+        "BẮT BUỘC dùng SKIP LOCKED trong Postgres để nhiều tiến trình worker có thể chạy song song mà không bị nghẽn.",
+        "Cần có cơ chế Retry kèm Exponential Backoff cho các job bị lỗi mạng (tăng cột retry_count).",
+        "Định kỳ dọn dẹp (cleanup) các job trạng thái DONE cũ hơn 7 ngày."
+      ],
+      "trade_offs": {
+        "pros": [
+          "0 đồng phát sinh thêm hạ tầng",
+          "Bền vững 100%, server crash bật lại vẫn xử lý tiếp",
+          "Tận dụng Transaction ACID của DB hiện có"
+        ],
+        "cons": [
+          "Không phù hợp với tải cực lớn (> 10.000 jobs/giây vì sẽ làm phình WAL của Postgres)"
+        ]
+      },
+      "code_snippet": {
+        "language": "typescript",
+        "title": "PostgreSQL DB Queue Worker in TypeScript",
+        "code": "// 1. Đẩy job vào Database (Trong Controller hoặc Use Case)\nawait db.query(`\n  INSERT INTO background_jobs (id, job_type, payload, status, created_at)\n  VALUES ($1, $2, $3, 'PENDING', NOW())\n`, [crypto.randomUUID(), 'SEND_EMAIL', JSON.stringify({ to: 'user@test.com', template: 'welcome' })]);\n\n// 2. Worker quét job an toàn đa luồng\nasync function processNextJobs(batchSize = 5) {\n  const client = await pool.connect();\n  try {\n    await client.query('BEGIN');\n    const { rows: jobs } = await client.query(`\n      SELECT * FROM background_jobs\n      WHERE status = 'PENDING' AND run_at <= NOW()\n      ORDER BY created_at ASC\n      LIMIT $1\n      FOR UPDATE SKIP LOCKED\n    `, [batchSize]);\n\n    for (const job of jobs) {\n      try {\n        await executeJobHandler(job.job_type, JSON.parse(job.payload));\n        await client.query('UPDATE background_jobs SET status = \\'DONE\\', completed_at = NOW() WHERE id = $1', [job.id]);\n      } catch (err) {\n        await client.query('UPDATE background_jobs SET retry_count = retry_count + 1, last_error = $1 WHERE id = $2', [err.message, job.id]);\n      }\n    }\n    await client.query('COMMIT');\n  } catch (err) {\n    await client.query('ROLLBACK');\n  } finally {\n    client.release();\n  }\n}"
+      }
+    },
+    {
+      "id": "hmac-webhook-verification",
+      "name": "Secure HMAC Webhook Receiver Pattern",
+      "category": "security-and-api",
+      "tags": [
+        "webhook",
+        "hmac",
+        "sha256",
+        "momo",
+        "vnpay",
+        "stripe",
+        "security",
+        "idempotency"
+      ],
+      "summary": "Xác thực chữ ký mật mã HMAC SHA-256 và chống tấn công Replay Attack khi tiếp nhận callback từ cổng thanh toán.",
+      "problem": "Webhook endpoint là API công khai mở ra ngoài internet. Kẻ xấu có thể giả mạo request gửi payload thông báo đơn hàng đã thanh toán 100 triệu, hoặc nhà mạng chập chờn gửi lại 5 lần khiến đơn hàng bị cộng tiền 5 lần.",
+      "solution": "1. Sử dụng Raw Request Body (trước khi parse JSON) để tính mã băm HMAC-SHA256 với Secret Key được cấp bởi đối tác.\n2. So sánh chữ ký bằng hàm timingSafeEqual để chống Timing Attack.\n3. Kiểm tra mã giao dịch trong bảng idempotency_keys để đảm bảo mỗi giao dịch chỉ cộng tiền đúng 1 lần.",
+      "mermaid": "flowchart TD\n  Partner[Cổng Thanh Toán: Momo/Stripe] -->|POST /webhooks/payment<br>Header: X-Signature| MW[Webhook Middleware]\n  MW --> Raw[Lấy Raw Request Buffer]\n  Raw --> Hash[Tính HMAC-SHA256 với SecretKey]\n  Hash --> Compare{So khớp bằng timingSafeEqual}\n  Compare -- Sai chữ ký --> Reject[401 Unauthorized / Drop Request]\n  Compare -- Đúng chữ ký --> CheckIdemp{Đã xử lý TransactionID này chưa?}\n  CheckIdemp -- Đã có rồi --> Return200[Trả về 200 OK ngay - Không cộng tiền lần 2]\n  CheckIdemp -- Chưa có --> Process[Cộng tiền / Duyệt đơn hàng] --> SaveIdemp[Lưu TransactionID] --> Return200",
+      "rules_and_invariants": [
+        "BẮT BUỘC parse raw body thành Buffer để băm SHA-256. Không được băm sau khi đã qua json parser vì thứ tự key bị đảo sẽ làm sai chữ ký.",
+        "BẮT BUỘC dùng crypto.timingSafeEqual thay vì toán tử === để chống lỗ hổng Timing Attack.",
+        "Luôn trả về HTTP 200 OK ngay sau khi xác thực hợp lệ để đối tác không tiếp tục retry spam."
+      ],
+      "trade_offs": {
+        "pros": [
+          "Chống giả mạo dữ liệu thanh toán 100%",
+          "Ngăn ngừa triệt để lỗi double-credit"
+        ],
+        "cons": [
+          "Cần cấu hình middleware raw-body cẩn thận trong Express/Fastify"
+        ]
+      },
+      "code_snippet": {
+        "language": "typescript",
+        "title": "Express Raw Body HMAC Webhook Verification Middleware",
+        "code": "import crypto from 'node:crypto';\nimport { Request, Response, NextFunction } from 'express';\n\nexport function verifyWebhookSignature(secretKey: string) {\n  return (req: Request, res: Response, next: NextFunction) => {\n    const signature = req.headers['x-signature'] as string;\n    if (!signature) {\n      return res.status(401).json({ error: 'Missing signature header' });\n    }\n\n    const rawBody = (req as any).rawBody || Buffer.from(JSON.stringify(req.body));\n    const computed = crypto\n      .createHmac('sha256', secretKey)\n      .update(rawBody)\n      .digest('hex');\n\n    const sigBuffer = Buffer.from(signature);\n    const compBuffer = Buffer.from(computed);\n\n    if (sigBuffer.length !== compBuffer.length || !crypto.timingSafeEqual(sigBuffer, compBuffer)) {\n      return res.status(401).json({ error: 'Invalid webhook signature' });\n    }\n\n    next();\n  };\n}"
+      }
+    },
+    {
+      "id": "pessimistic-locking",
+      "name": "Pessimistic Locking (SELECT FOR UPDATE)",
+      "category": "data-consistency",
+      "tags": [
+        "postgresql",
+        "acid",
+        "locking",
+        "race-condition",
+        "inventory",
+        "balance"
+      ],
+      "summary": "Khóa dòng dữ liệu trực tiếp trong Database để triệt tiêu Race Condition khi nhiều người cùng tranh mua 1 sản phẩm cuối cùng hoặc rút tiền ví.",
+      "problem": "Khi sản phẩm chỉ còn đúng 1 cái trong kho. Có 2 khách hàng A và B cùng bấm Mua ngay tại cùng một thời điểm. Cả 2 luồng đọc DB đều thấy quantity = 1 > 0 nên đều cho phép mua, dẫn đến kho bị âm -1 (Overselling) hoặc trừ tiền 2 lần.",
+      "solution": "Mở một Database Transaction và sử dụng lệnh SELECT ... FOR UPDATE. Database sẽ cấp quyền khóa độc quyền (Exclusive Row Lock) cho giao dịch đầu tiên. Giao dịch thứ hai buộc phải dừng chờ ở cấp độ DB cho tới khi giao dịch thứ nhất Commit.",
+      "mermaid": "sequenceDiagram\n  autonumber\n  actor UserA as Khách hàng A\n  actor UserB as Khách hàng B\n  participant DB as PostgreSQL Engine\n\n  UserA->>DB: BEGIN Transaction\n  UserB->>DB: BEGIN Transaction\n  UserA->>DB: SELECT quantity FROM products WHERE id=101 FOR UPDATE\n  Note over DB: Cấp Exclusive Lock dòng id=101 cho User A\n  UserB->>DB: SELECT quantity FROM products WHERE id=101 FOR UPDATE\n  Note over DB: User B BỊ TREO CHỜ (Blocked), DB không cho đọc tiếp!\n  UserA->>DB: UPDATE products SET quantity = quantity - 1 WHERE id=101 (quantity = 0)\n  UserA->>DB: COMMIT (Nhả Lock)\n  Note over DB: User B được giải phóng và bắt đầu đọc\n  DB-->>UserB: quantity = 0!\n  UserB->>DB: Hết hàng! ROLLBACK\n  Note over UserA,UserB: Khách A mua thành công, Khách B báo hết hàng. An toàn 100%!",
+      "rules_and_invariants": [
+        "Chỉ giữ Lock trong thời gian ngắn nhất có thể. Tuyệt đối không gọi API bên ngoài (HTTP/REST) khi đang giữ Row Lock của DB vì sẽ làm nghẽn toàn bộ connection pool.",
+        "Luôn set lock_timeout (ví dụ: SET lock_timeout = '3s') để tránh hiện tượng Deadlock vĩnh viễn."
+      ],
+      "trade_offs": {
+        "pros": [
+          "Triệt tiêu 100% rủi ro Overselling và Double-spending",
+          "Không cần cài thêm Redis Redlock phức tạp"
+        ],
+        "cons": [
+          "Giảm thông lượng ghi (Write Throughput) cục bộ trên cùng 1 dòng dữ liệu"
+        ]
+      },
+      "code_snippet": {
+        "language": "typescript",
+        "title": "Pessimistic Locking Inventory Deduction in TypeScript",
+        "code": "async function purchaseProduct(productId: string, quantityToBuy: number) {\n  const client = await pool.connect();\n  try {\n    await client.query('BEGIN');\n    await client.query('SET LOCAL lock_timeout = \\'3s\\'');\n\n    const { rows } = await client.query(\n      'SELECT id, stock FROM products WHERE id = $1 FOR UPDATE',\n      [productId]\n    );\n\n    if (rows.length === 0) throw new Error('Product not found');\n    const currentStock = rows[0].stock;\n\n    if (currentStock < quantityToBuy) {\n      throw new Error('Out of stock!');\n    }\n\n    await client.query(\n      'UPDATE products SET stock = stock - $1 WHERE id = $2',\n      [quantityToBuy, productId]\n    );\n\n    await client.query('COMMIT');\n    return { success: true };\n  } catch (err) {\n    await client.query('ROLLBACK');\n    throw err;\n  } finally {\n    client.release();\n  }\n}"
+      }
+    }
+  ]
+}

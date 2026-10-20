@@ -12,6 +12,18 @@ modifiers:
   --compare: So sánh nhiều approaches, output bảng trade-off
 ---
 
+> [!IMPORTANT]
+> ## Delegation Policy — Đọc TRƯỚC khi bắt đầu
+>
+> | Điều kiện | Hành động BẮT BUỘC |
+> |:---|:---|
+> | Cần search ≥ 3 nguồn song song (docs + examples + community) | **PHẢI** `invoke_subagent(TypeName="research", Role="Parallel Searcher")` cho mỗi nguồn |
+> | Modifier `--compare` cần so sánh ≥ 3 approaches | **PHẢI** `invoke_subagent(TypeName="research")` cho mỗi approach |
+> | Research đơn giản 1 nguồn | Chạy inline, KHÔNG cần subagent |
+>
+> **Subagent context:** Chỉ gửi câu hỏi research cụ thể + scope. KHÔNG gửi chat history.
+
+
 # /wf-research
 
 **Mục tiêu:** Research kỹ trước khi implement — tìm docs, best practices, examples.
@@ -93,3 +105,10 @@ Agent ghi lại research notes:
 - Source citations là bắt buộc — mọi claim cần evidence
 - Nếu không tìm thấy docs reliable → nói rõ uncertainty
 - KHÔNG mix research với implementation — research xong mới code
+
+## Pre-completion Checklist (PHẢI verify trước khi kết thúc research)
+
+- [ ] Đã kiểm tra Delegation Policy ở đầu file?
+- [ ] Nếu multi-source → ĐÃ invoke parallel research subagents?
+- [ ] Source citations đầy đủ?
+- [ ] Recommendation có evidence?

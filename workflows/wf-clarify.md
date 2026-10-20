@@ -13,6 +13,18 @@ skills-suggested:
   - core/sk-agile-ba
 ---
 
+> [!IMPORTANT]
+> ## Activation Rules — Đọc TRƯỚC khi bắt đầu
+>
+> | Điều kiện trong task | Hành động BẮT BUỘC |
+> |:---|:---|
+> | Cần scan ≥ 5 files hoặc ≥ 2 thư mục | **PHẢI** `invoke_subagent(TypeName="research", Role="Codebase Scanner")` |
+> | Cần xác định root cause bug đụng ≥ 3 layers | **PHẢI** `invoke_subagent(TypeName="research", Role="Root Cause Analyzer")` |
+> | User mô tả feature mới phức tạp / epic | **PHẢI** đọc và áp dụng skill `sk-agile-ba` trước khi trả lời |
+> | Câu hỏi đơn giản, scope ≤ 2 files | Xử lý trực tiếp, KHÔNG cần subagent |
+>
+> **Kiểm tra bảng điều kiện NÀY trước mỗi bước. Vi phạm = lỗi quy trình.**
+
 # /wf-clarify
 
 **Mục tiêu:** Làm rõ đủ để code đúng, không cần analysis dài quá mức cần thiết.
@@ -84,5 +96,9 @@ User mô tả feature mới / epic lớn → Agent gọi sk-agile-ba
 - Không generate task breakdown dài
 - Nếu task đã rất rõ, có thể rút gọn thành clarify-lite rồi sang `/wf-plan`
 
-> [Terminal Orchestration] Antigravity có thể mở Terminal delegate research
-> cho sub-agent chuyên scan codebase (ví dụ codex-cli). Xem `addons/swarm/`.
+## Pre-completion Checklist (PHẢI verify trước khi kết thúc clarify)
+
+- [ ] Đã kiểm tra Activation Rules ở đầu file?
+- [ ] Nếu cần scan ≥ 5 files → ĐÃ invoke research subagent?
+- [ ] Nếu feature phức tạp / epic → ĐÃ áp dụng sk-agile-ba?
+- [ ] Output bắt buộc đầy đủ (problem statement, scope, risks, API contract status)?

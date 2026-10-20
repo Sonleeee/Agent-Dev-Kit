@@ -5,6 +5,15 @@ entry-command: /wf-status
 description: Tóm tắt nhanh trạng thái hiện tại (đang làm gì, đã xong gì, còn gì chặn)
 ---
 
+> [!IMPORTANT]
+> ## Delegation Policy � �?c TRU?C khi b?t d?u
+>
+> | �i?u ki?n | H�nh d?ng B?T BU?C |
+> |:---|:---|
+> | Session r?t d�i (= 30 turns) c?n t?ng h?p | **PH?I** `invoke_subagent(TypeName="research", Role="Session Summarizer")` |
+> | Session ng?n ho?c v?a | Ch?y inline, KH�NG c?n subagent |
+
+
 # /wf-status
 
 **Mục tiêu:** Cung cấp cái nhìn tổng quan nhanh chóng về tiến độ công việc trong session hiện tại. Port từ concept `ck:watzup` của VividKit.
@@ -54,3 +63,9 @@ Agent tạo bản tóm tắt theo format:
 ## Guardrails
 - KHÔNG liệt kê mọi tool call — chỉ liệt kê logic nghiệp vụ/task.
 - Giữ format nhất quán để user dễ đọc.
+
+## Pre-completion Checklist (PH?I verify tru?c khi output)
+
+- [ ] �� ki?m tra Delegation Policy ? d?u file?
+- [ ] Report = 20 d�ng?
+- [ ] Format nh?t qu�n?

@@ -9,6 +9,18 @@ modifiers:
   --changelog: Update changelog từ commits
 ---
 
+> [!IMPORTANT]
+> ## Delegation Policy � �?c TRU?C khi b?t d?u
+>
+> | �i?u ki?n | H�nh d?ng B?T BU?C |
+> |:---|:---|
+> | Modifier `--changelog` c?n compile t? nhi?u commits | **PH?I** `invoke_subagent(TypeName="research", Role="Changelog Compiler")` |
+> | Modifier `--pr` cho PR l?n (= 10 files changed) | **PH?I** `invoke_subagent(TypeName="research", Role="PR Analyzer")` d? scan diff |
+> | Commit message don gi?n ho?c PR nh? | Ch?y inline, KH�NG c?n subagent |
+>
+> **Subagent context:** Ch? g?i git diff + commit history. KH�NG g?i chat history.
+
+
 # /wf-git
 
 **Mục tiêu:** Tự động hóa git operations — commit messages, PR descriptions, changelog.
@@ -100,3 +112,9 @@ Agent trình output → user review → approve hoặc edit trước khi execute
 - Commit messages phải follow Conventional Commits
 - PR description phải có testing checklist
 - Không gộp nhiều concerns vào 1 commit message
+
+## Pre-completion Checklist (PH?I verify tru?c khi execute)
+
+- [ ] �� ki?m tra Delegation Policy ? d?u file?
+- [ ] Output d� du?c user review tru?c khi execute git commands?
+- [ ] Commit messages follow Conventional Commits?

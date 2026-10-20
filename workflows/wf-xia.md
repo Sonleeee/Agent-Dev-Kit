@@ -174,3 +174,11 @@ Agent verify kết quả:
 - Dependencies mới phải được user approve
 - `--compare` KHÔNG sửa bất kỳ code nào — chỉ analysis
 - Giữ consistency với local architecture — không import "ngoại lai" patterns
+
+## Pre-completion Checklist (PHẢI verify trước khi report)
+
+- [ ] Đã kiểm tra Delegation Policy ở đầu file?
+- [ ] Nếu external repo lớn → ĐÃ invoke analyzer subagent?
+- [ ] Nếu `--compare` → ĐÃ invoke 2 parallel research subagents?
+- [ ] Gap analysis hoàn thành?
+- [ ] Build PASS (trừ `--compare` mode)?

@@ -5,7 +5,7 @@ description: |
   Chuẩn hóa output contract cho subagents (Investigator, Builder, Reviewer) dưới dạng
   bảng path:line, status tokens và BẮT BUỘC có verified_cmd evidence, ngăn tràn
   context window của agent chính mà vẫn giữ vững 100% Executable Quality Gates.
-context-required: required
+context-required: optional
 output: subagent-compressed-contract
 ---
 

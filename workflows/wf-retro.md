@@ -10,6 +10,17 @@ modifiers:
   --full: Phân tích đầy đủ tất cả dimensions
 ---
 
+> [!IMPORTANT]
+> ## Delegation Policy — Đọc TRƯỚC khi bắt đầu
+>
+> | Điều kiện | Hành động BẮT BUỘC |
+> |:---|:---|
+> | Modifier `--full` phân tích tất cả dimensions | **PHẢI** `invoke_subagent(TypeName="research", Role="Metrics Collector")` để thu thập git metrics song song |
+> | Period ≥ 30 ngày hoặc repo có ≥ 100 commits trong period | **PHẢI** `invoke_subagent(TypeName="research", Role="Codebase Analyst")` cho deep analysis |
+> | Period ngắn (≤ 7d) hoặc ít commits (< 20) | Chạy inline, KHÔNG cần subagent |
+>
+> **Subagent context:** Chỉ gửi git repo path + period. KHÔNG gửi chat history.
+
 # /wf-retro — Sprint Retrospective
 
 **Mục tiêu:** Phân tích sức khỏe codebase dựa trên git history — rút ra insights và action items cải thiện.
@@ -155,3 +166,11 @@ Overall = (Churn×2 + Growth×1.5 + Contributors×1.5 + Refactoring×2 + Frequen
 - Health scores là **heuristic** — phục vụ nhận biết nhanh, không phải KPI cứng.
 - Action items phải **actionable** — không nói "cải thiện code quality" mà nói "split file X thành Y và Z".
 - `--period` mặc định 2 tuần. Nếu project mới (<2 tuần history) → dùng toàn bộ history.
+
+## Pre-completion Checklist (PHẢI verify trước khi output report)
+
+- [ ] Đã kiểm tra Delegation Policy ở đầu file?
+- [ ] Nếu `--full` hoặc period dài → ĐÃ invoke research subagent?
+- [ ] Metrics từ git history thực tế (không ước lượng)?
+- [ ] Health scores có evidence?
+- [ ] Action items actionable (không generic)?

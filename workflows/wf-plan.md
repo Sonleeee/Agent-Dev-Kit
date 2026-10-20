@@ -15,8 +15,19 @@ skills-suggested:
 modifiers:
   --fast: Bỏ qua phân tích sâu, plan-lite 3-5 dòng, không quality card chi tiết
   --deep: Research kỹ trước khi plan — đọc thêm docs, tìm precedent trong codebase
-  --auto: Tự động approve plan, không hỏi user confirmation
+  --auto: Tự động approve plan nếu không có finding rủi ro cao (không hỏi user confirm). VẪN BẮT BUỘC có đầy đủ acceptance criteria và verification command
 ---
+
+> [!IMPORTANT]
+> ## Delegation Policy — Đọc TRƯỚC khi bắt đầu
+>
+> | Điều kiện | Hành động BẮT BUỘC |
+> |:---|:---|
+> | Modifier `--deep` được dùng | **PHẢI** `invoke_subagent(TypeName="research", Role="Deep Research")` trước khi plan |
+> | Scope ảnh hưởng ≥ 5 files hoặc ≥ 3 modules | **PHẢI** `invoke_subagent(TypeName="research", Role="Impact Analyzer")` để scan dependencies |
+> | Task đơn giản, scope ≤ 2 files | Chạy inline, KHÔNG cần subagent |
+>
+> **Subagent context rule:** Research subagent chỉ nhận câu hỏi cụ thể + file scope. KHÔNG gửi chat history.
 
 # /wf-plan
 
@@ -108,3 +119,12 @@ Tạo Pre-Implementation Quality Card:
 - Template selection là bắt buộc nếu project có `context/templates/`
 - Không dùng placeholder kiểu `TBD`, `TODO`, hoặc “implement later” trong plan
 - Nếu task đơn giản, plan có thể rút gọn thành plan-lite (3–5 dòng)
+
+
+## Pre-completion Checklist (PHẢI verify trước khi approve plan)
+
+- [ ] Đã kiểm tra Delegation Policy ở đầu file?
+- [ ] Nếu `--deep` → ĐÃ invoke research subagent?
+- [ ] Nếu scope ≥ 5 files → ĐÃ invoke impact analyzer subagent?
+- [ ] Plan có task breakdown bounded với file/symbol cụ thể?
+- [ ] Quality card tồn tại?

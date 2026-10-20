@@ -10,6 +10,17 @@ modifiers:
   --coverage: Phân tích coverage gaps trước khi generate
 ---
 
+> [!IMPORTANT]
+> ## Delegation Policy — Đọc TRƯỚC khi bắt đầu
+>
+> | Điều kiện | Hành động BẮT BUỘC |
+> |:---|:---|
+> | Module cần test có ≥ 5 public API surfaces | **PHẢI** `invoke_subagent(TypeName="self", Role="Test Generator")` để sinh tests song song |
+> | Modifier `--coverage` cần analyze gaps trước | **PHẢI** `invoke_subagent(TypeName="research", Role="Coverage Analyzer")` |
+> | Module nhỏ ≤ 3 methods | Chạy inline, KHÔNG cần subagent |
+>
+> **Subagent context:** Chỉ gửi module source code + test conventions. KHÔNG gửi chat history.
+
 # /wf-test
 
 **Mục tiêu:** Generate và chạy tests cho module — đảm bảo code coverage và correctness.
@@ -90,3 +101,11 @@ Agent output:
 - Không test private/internal methods trực tiếp
 - Mock ở đúng boundary — không over-mock
 - Test names phải readable — describe behavior không implementation
+
+## Pre-completion Checklist (PHẢI verify trước khi report)
+
+- [ ] Đã kiểm tra Delegation Policy ở đầu file?
+- [ ] Nếu module lớn → ĐÃ invoke test generator subagent?
+- [ ] Tests independent (không depend execution order)?
+- [ ] All tests PASS?
+- [ ] Coverage gaps documented?

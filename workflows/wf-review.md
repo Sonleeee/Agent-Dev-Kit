@@ -23,6 +23,19 @@ agents-suggested:
   - red-team
 ---
 
+> [!IMPORTANT]
+> ## Delegation Policy — Đọc TRƯỚC khi bắt đầu
+>
+> | Điều kiện | Hành động BẮT BUỘC |
+> |:---|:---|
+> | Change size = Feature/Refactor hoặc Architecture | **PHẢI** `invoke_subagent(TypeName="self", Role="Reviewer")` với context isolation — KHÔNG share context với implementer |
+> | Modifier `--red-team` được dùng | **PHẢI** `invoke_subagent(TypeName="self", Role="Red Team")` — 4 adversarial personas |
+> | Modifier `--contract` trong swarm mode | **PHẢI** spawn reviewer riêng biệt, verify cross-agent contracts |
+> | Change size = Patch/Hotfix | Chạy inline (Layer 1 + 3), KHÔNG cần subagent |
+>
+> **Context Isolation:** Reviewer subagent chỉ nhận code diff + project rules. KHÔNG nhận chat history từ impl phase.
+
+
 # /wf-review
 
 **Mục tiêu:** Review code theo 4 layers, severity-based routing, evidence-driven.
@@ -321,5 +334,10 @@ Khi chạy lại review sau fix:
 3. **Check scope**: Fix có tạo code UNPLANNED mới không?
 4. **Nếu clean** → update ship decision
 
-> [Terminal Orchestration] Nếu IDE hỗ trợ, có thể chạy dual review
-> (primary + secondary reviewer) song song. Xem `addons/swarm/`.
+## Pre-completion Checklist (PHẢI verify trước khi ship decision)
+
+- [ ] Đã kiểm tra Delegation Policy ở đầu file?
+- [ ] Nếu Feature/Refactor → ĐÃ invoke reviewer subagent với context isolation?
+- [ ] Nếu `--red-team` → ĐÃ invoke red-team subagent?
+- [ ] 4 layers review completed theo severity routing?
+- [ ] Ship decision có evidence đầy đủ?

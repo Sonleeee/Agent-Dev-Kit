@@ -87,18 +87,21 @@ thể; không dùng placeholder kiểu “implement later”.
 - Không fan-out nếu các task cùng sửa một file hoặc contract chưa rõ.
 - Host không có subagent → chạy inline theo cùng contract và review gates.
 
-**Ví dụ tool call:**
+**Ví dụ tool call (2 subagent song song — gọi riêng biệt trong cùng lượt, Antigravity tự chạy parallel):**
 
 ```
+# Hai lần gọi riêng biệt trong cùng tool_calls block, không dependency → tự động chạy song song:
+
 invoke_subagent(
-  Subagents=[
-    { TypeName: "self", Role: "Implementer Task-1",
-      Prompt: "[plan-lite cho task-1]. Chỉ sửa file: [file scope]. Chạy build khi xong.",
-      Workspace: "branch" },
-    { TypeName: "self", Role: "Implementer Task-2",
-      Prompt: "[plan-lite cho task-2]. Chỉ sửa file: [file scope]. Chạy build khi xong.",
-      Workspace: "branch" }
-  ]
+  TypeName="self", Role="Implementer Task-1",
+  Prompt="[plan-lite cho task-1]. Chỉ sửa file: [file scope]. Chạy build khi xong.",
+  Workspace="branch"
+)
+
+invoke_subagent(
+  TypeName="self", Role="Implementer Task-2",
+  Prompt="[plan-lite cho task-2]. Chỉ sửa file: [file scope]. Chạy build khi xong.",
+  Workspace="branch"
 )
 ```
 
@@ -161,7 +164,7 @@ Nhiều workflows hỗ trợ mode modifiers để điều chỉnh hành vi:
 |---|---|---|
 | `--fast` | Rút gọn, bỏ bước không critical | plan, impl, review, delivery |
 | `--deep` | Research kỹ, kiểm tra sâu | plan, review, predict |
-| `--auto` | Tự approve gates, không hỏi user | plan, review, delivery |
+| `--auto` | Tự approve gates khi verification PASS, không hỏi user (vẫn bắt buộc chạy verify thật) | plan, review, delivery |
 | `--tdd` | Viết test trước rồi code | impl, delivery |
 | `--parallel` | Multi-agent song song (cần swarm) | impl, delivery |
 | `--no-test` | Bỏ test obligations | impl, delivery |

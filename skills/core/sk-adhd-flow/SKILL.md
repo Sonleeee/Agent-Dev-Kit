@@ -118,10 +118,8 @@ Chuyển tạm thời sang văn giải thích chi tiết khi:
 
 ## ⚡ Kết hợp ADHD-Caveman Hybrid
 
-Khi người dùng cần tốc độ cực nhanh trong terminal hoặc debug khẩn cấp, kết hợp `sk-adhd-flow` với `sk-caveman` (chế độ Hybrid):
-- Giữ nguyên cấu trúc: Dòng 1 là Status Badge, nội dung đánh số `1.`, `2.`, `3.`, dòng cuối là 1 hành động duy nhất.
-- Nén ngôn ngữ: Từng bước công việc được viết bằng văn phong Ultracave (từ khóa, fragments, loại bỏ ngữ pháp rườm rà).
-- Kích hoạt nhanh: `/hybrid`, `!hybrid`, hoặc `adhd-caveman`.
+Khi người dùng cần tốc độ cực nhanh trong terminal hoặc debug khẩn cấp, kết hợp cấu trúc Action-First của skill này với văn phong Ultracave (chế độ Hybrid — `/hybrid`, `!hybrid`, hoặc `adhd-caveman`).
+- Quy tắc định dạng chi tiết, ví dụ thực tế và các cấp độ nén: **xem tại [`skills/core/sk-caveman/SKILL.md`](../sk-caveman/SKILL.md#biến-thể-adhd-caveman-hybrid-khuyên-dùng)** (Single Source of Truth).
 
 ---
 

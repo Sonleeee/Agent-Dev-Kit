@@ -16,6 +16,19 @@ requires:
 phase: C (Evolution Workflow â€” Core)
 ---
 
+> [!IMPORTANT]
+> ## Delegation Policy — Ð?c TRU?C khi b?t d?u
+>
+> | Ði?u ki?n | Hành d?ng B?T BU?C |
+> |:---|:---|
+> | Step 6: Refine proposals | **PH?I** `invoke_subagent(TypeName="self", Role="GEPA-Lite Optimizer")` — delegate sang `sk-gepa-lite` |
+> | Step 6: Synthesize proposals | **PH?I** `invoke_subagent(TypeName="self", Role="Skill Synthesizer")` — delegate sang `sk-skill-synthesizer` |
+> | Có = 3 proposals cùng priority HIGH | **PH?I** invoke subagents SONG SONG cho m?i proposal |
+> | Ch? có workflow/rule proposals don gi?n | Apply tr?c ti?p inline |
+>
+> **Subagent context:** Ch? g?i proposal detail + trace evidence. KHÔNG g?i toàn b? evolution history.
+
+
 # /wf-evolve â€” Evolution Analysis & Optimization
 
 ## Khi nÃ o dÃ¹ng
@@ -288,3 +301,12 @@ Proposals:
 
 Apply? [All HIGH] [Review] [Skip]
 ```
+
+
+## Pre-completion Checklist (PH?I verify tru?c khi apply proposals)
+
+- [ ] Ðã ki?m tra Delegation Policy ? d?u file?
+- [ ] N?u Refine ? ÐÃ delegate sang sk-gepa-lite via subagent?
+- [ ] N?u Synthesize ? ÐÃ delegate sang sk-skill-synthesizer via subagent?
+- [ ] Proposals có evidence t? traces?
+- [ ] Evolution run logged?

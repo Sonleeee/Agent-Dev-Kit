@@ -93,3 +93,11 @@ Agent output:
 - KHÔNG log hoặc output sensitive data (keys, passwords) trong report
 - False positives phải được ghi rõ — đừng gây panic
 - Nếu có Critical finding → recommend KHÔNG deploy, chuyển `/wf-fix`
+
+## Pre-completion Checklist (PHẢI verify trước khi report)
+
+- [ ] Đã kiểm tra Delegation Policy ở đầu file?
+- [ ] Nếu full audit → ĐÃ invoke parallel scanner subagents?
+- [ ] Report KHÔNG chứa sensitive data (keys, passwords)?
+- [ ] Mỗi finding có remediation guidance?
+- [ ] Go/No-go recommendation rõ ràng?

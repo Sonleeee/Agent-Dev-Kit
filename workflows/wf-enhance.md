@@ -8,6 +8,15 @@ skills-suggested:
   - core/sk-doubt-critic
 ---
 
+> [!IMPORTANT]
+> ## Delegation Policy � �?c TRU?C khi b?t d?u
+>
+> | �i?u ki?n | H�nh d?ng B?T BU?C |
+> |:---|:---|
+> | Blast radius = 5 files ho?c c?n cross-module analysis | **PH?I** `invoke_subagent(TypeName="research", Role="Blast Radius Analyzer")` |
+> | Refactor nh? = 2 files | Ch?y inline, KH�NG c?n subagent |
+
+
 # /wf-enhance
 
 **Mục tiêu:** tối ưu/refactor có chủ đích với diff nhỏ và evidence trước/sau.
@@ -22,3 +31,9 @@ skills-suggested:
 
 Với migration lớn cần kiểm soát rủi ro, dùng `/wf-delivery --deep` và ghi rõ phạm vi
 kiến trúc trong execution contract.
+
+## Pre-completion Checklist (PH?I verify tru?c khi k?t th�c)
+
+- [ ] �� ki?m tra Delegation Policy ? d?u file?
+- [ ] Baseline ghi nh?n tru?c thay d?i?
+- [ ] Regression check PASS?

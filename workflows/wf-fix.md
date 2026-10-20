@@ -8,6 +8,17 @@ modifiers:
   --deep: Research root cause kỹ, tìm related issues trong codebase
 ---
 
+> [!IMPORTANT]
+> ## Delegation Policy — Đọc TRƯỚC khi bắt đầu
+>
+> | Điều kiện | Hành động BẮT BUỘC |
+> |:---|:---|
+> | Modifier `--deep` được dùng | **PHẢI** `invoke_subagent(TypeName="research", Role="Root Cause Researcher")` để research kỹ |
+> | Bug đụng ≥ 3 files hoặc ≥ 2 layers | **PHẢI** `invoke_subagent(TypeName="research", Role="Cross-Layer Debugger")` |
+> | Fix đơn giản ≤ 1 file | Chạy inline, KHÔNG cần subagent |
+>
+> **Subagent context:** Chỉ gửi error logs + stack trace + file scope. KHÔNG gửi chat history.
+
 # /wf-fix
 
 **Mục tiêu:** Debug có cấu trúc — không patch bừa, tìm root cause rồi mới fix.
@@ -98,3 +109,12 @@ Nội dung tối thiểu khi ghi:
 - Nếu fix > 3 files → cân nhắc chuyển sang `/wf-impl` workflow
 - Build verify là bắt buộc
 - Chỉ AUTO ghi khi root cause đã có evidence và fix đã verify PASS
+
+
+## Pre-completion Checklist (PHẢI verify trước khi báo fix done)
+
+- [ ] Đã kiểm tra Delegation Policy ở đầu file?
+- [ ] Nếu `--deep` → ĐÃ invoke research subagent?
+- [ ] Root cause xác định rõ (không patch bừa)?
+- [ ] Build PASS sau fix?
+- [ ] Regression check done?

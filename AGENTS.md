@@ -9,7 +9,7 @@
 - **project-type:** agent-dev-kit (meta — không phải ứng dụng nghiệp vụ)
 - **display-name:** Agent-Dev-Kit
 - **description:** Bộ công cụ và quy ước giúp AI agent code đúng pattern, giữ quality gates, tích lũy tri thức — nhân bản vào dự án qua thư mục kit (thường mount dưới tên `.agents/`).
-- **agent-system-version:** 0.6.1
+- **agent-system-version:** 0.7.0
 
 ## Phạm vi repo này (tránh nhầm với dự án app)
 

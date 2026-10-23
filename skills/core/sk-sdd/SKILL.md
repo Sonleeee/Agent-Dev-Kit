@@ -1,26 +1,22 @@
 ---
 name: sk-sdd
-description: |
-  Thiết lập thiết kế kỹ thuật (Technical Spec) chi tiết trước khi code.
-  Buộc Agent ghi nhận spec vào `.agents/sdd/design_spec.md` và chờ User phê duyệt.
-inputs:
-  - requirement: Yêu cầu nghiệp vụ hoặc mô tả task đã làm rõ
-output:
-  - design_spec: File thiết kế `.agents/sdd/design_spec.md`
+description: Tạo technical spec khi người dùng yêu cầu spec-driven development hoặc một thay đổi kiến trúc, API hay dữ liệu cần chốt quyết định thiết kế trước khi implement. Không kích hoạt cho feature thông thường đã rõ.
 ---
 
 # Spec-Driven Development (SDD) — sk-sdd
 
 ## 🎯 Mục tiêu
 
-Đảm bảo tính đồng thuận về mặt kỹ thuật giữa Người và AI trước khi thay đổi codebase. Agent bắt buộc phải thiết lập bản đặc tả kỹ thuật chi tiết (Technical Spec) và nhận được sự phê duyệt (Approved) của User trước khi viết bất kỳ dòng mã nguồn production nào.
+Giúp người dùng xem xét các quyết định kỹ thuật có ảnh hưởng lớn trước khi thay đổi
+codebase. Skill này chỉ dùng khi được yêu cầu hoặc khi còn một quyết định kiến trúc,
+API hay dữ liệu mà agent không thể chốt an toàn từ yêu cầu/context hiện có.
 
 ---
 
 ## 🚀 Quy Trình Thực Thi Của Agent
 
-### Bước 1: Khởi tạo/Cập nhật tài liệu Spec
-Khi nhận task có độ phức tạp trung bình trở lên (có thay đổi DB, thêm API, đổi logic luồng chính), Agent tạo hoặc cập nhật file spec tại đường dẫn:
+### Bước 1: Soạn spec phù hợp
+Khi spec được yêu cầu, tạo hoặc cập nhật file tại đường dẫn:
 ```
 [project-root]/.agents/sdd/design_spec.md
 ```
@@ -42,16 +38,19 @@ Bản Spec kỹ thuật phải định rõ các nội dung sau (nếu liên quan
     - Các luật ràng buộc dữ liệu đầu vào (ví dụ: FluentValidation trong C# hoặc Zod Schema trong JS).
     - Các thông điệp báo lỗi (Error Messages).
 
-### Bước 3: Đợi User Phê Duyệt (PAUSE Gate)
-*   Sau khi viết xong Spec, Agent **TUYỆT ĐỐI KHÔNG** được tự động chuyển sang viết code logic.
-*   Agent hiển thị thông báo rõ ràng cho User:
+### Bước 3: Chốt quyết định còn thuộc về người dùng
+Nếu user yêu cầu spec-only/approval gate, dừng sau khi trình spec. Nếu yêu cầu
+implement nhưng còn một quyết định có thể đổi contract, dữ liệu hoặc kiến trúc,
+chỉ hỏi đúng quyết định đó trước khi tiếp tục. Không tạo pause gate chỉ vì đã có file spec.
+
+Khi cần approval, nêu rõ:
     > "Tôi đã thiết lập bản đặc tả kỹ thuật (Spec) tại `.agents/sdd/design_spec.md`. Vui lòng xem qua và phê duyệt bằng cách phản hồi 'Approved' hoặc 'Proceed' để tôi bắt đầu viết code."
-*   Agent dừng lại và chờ phản hồi từ User.
+*   Chỉ dừng khi cần approval thật sự; nếu không, tiếp tục trong phạm vi đã được giao.
 
 ---
 
 ## 🛡️ Guardrails
 
-*   **Không code trước spec:** Vi phạm SDD (viết code trước khi chốt spec) là lỗi nghiêm trọng.
+*   Spec không phải điều kiện bắt buộc cho task thông thường.
 *   **Đúng trọng tâm kỹ thuật:** Spec tập trung vào cấu trúc code, DB, API, validation — không viết lan man sang phân tích nghiệp vụ dài dòng.
 *   **Bám sát template dự án:** Đọc kỹ `.agents/context/templates/` (nếu có) để định nghĩa cấu trúc Spec đúng chuẩn dự án.

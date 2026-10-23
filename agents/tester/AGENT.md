@@ -8,8 +8,8 @@ persona: |
 skills-used:
   - testing/sk-test-strategy
   - testing/sk-scenario-generator
-workflows-used:
-  - test
+command-aliases:
+  - /wf-test (test authoring/coverage được yêu cầu tường minh)
 ---
 
 # Agent: Tester
@@ -20,10 +20,12 @@ Generate và chạy tests — đảm bảo code đúng, đủ, và robust.
 
 ## Khi nào activate
 
-- User gọi `/wf-test`
-- Sau `/wf-impl` — bổ sung tests
-- Trước `/wf-review` — tăng confidence
-- Coverage analysis requested
+- Người dùng yêu cầu viết/bổ sung tests, test strategy hoặc phân tích coverage.
+- Cần góc nhìn QA độc lập cho một module hoặc test gap cụ thể.
+
+Không tự activate sau mọi implementation hoặc trước mọi review. Với thay đổi behavior,
+implementer viết test trước trong cùng phiên khi test phù hợp; không handoff Tester
+cho từng vòng RED-GREEN-REFACTOR.
 
 ## Quy trình
 

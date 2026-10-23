@@ -1,43 +1,37 @@
 ---
 name: sk-execution-contract
-description: |
-  Giữ agent bám task contract, context pack và progress ledger trong suốt
-  phiên; chống drift, mất vị trí sau compaction và báo done khi chưa có evidence.
-context-required: recommended
-output: markdown ledger trong .agents/runtime/<task-id>/
+description: Tạo contract và progress ledger cho task nhiều bước, dài qua nhiều lượt, cần resume hoặc có rủi ro cao. Không dùng cho task ngắn, rõ và dễ kiểm chứng.
 ---
 
-# Execution Contract — Always-On Task Discipline
+# Execution Contract — Dùng khi task cần trạng thái bền vững
 
 ## Khi nào dùng
 
-Kích hoạt ở đầu mọi task có thay đổi, debug, review hoặc quyết định kiến trúc.
-Với câu hỏi thuần thông tin không sửa project, chỉ cần route tới workflow phù hợp.
+Kích hoạt khi task nhiều bước, có thể kéo dài qua nhiều lượt, cần resume sau
+context compaction, có rủi ro cao hoặc có nhiều người/agent cùng làm. Không kích
+hoạt chỉ vì có sửa code, debug hay review.
 
 ## Bootstrap bắt buộc
 
-Trước công cụ đầu tiên:
+Khi đã xác định cần contract:
 
-1. Đọc `AGENTS.md`, `.agents/SYSTEM.md`, `.agents/rules/global.md`.
-2. Nếu có, đọc `.agents/context/manifest.md`; sau đó chỉ nạp TIER-1 liên quan.
-3. Chọn workflow và ghi rõ trong contract.
-4. Tạo `.agents/runtime/<task-id>/execution-contract.md` từ template.
-5. Ghi objective, in/out, acceptance criteria, risk và evidence cần thu thập.
+1. Đọc hướng dẫn repo và context liên quan; không quét context ngoài phạm vi.
+2. Tạo `.agents/runtime/<task-id>/execution-contract.md` từ template nếu runtime
+   artifact phù hợp với task.
+3. Ghi objective, scope, tiêu chí hoàn thành, risk và cách kiểm chứng vừa đủ.
 
-Nếu host không cho phép ghi runtime artifact, giữ nguyên contract trong output của
-workflow và không giả vờ rằng ledger đã tồn tại.
+Với task vừa phải, contract có thể chỉ là ghi chú ngắn trong hội thoại. Không tạo
+file/ledger chỉ để thỏa mãn thủ tục. Nếu host không cho phép ghi runtime artifact,
+không giả vờ rằng ledger đã tồn tại.
 
 ## Trong khi thực thi
 
-- Mỗi task phải bounded, có file/symbol cụ thể và một bước verify độc lập.
-- Không tự mở rộng scope. Phát hiện việc ngoài scope thì ghi `UNPLANNED` và ruling.
-- Sau mỗi phase (`clarify`, `plan`, `impl`, `review`) cập nhật ledger một dòng.
-- Tác vụ độc lập có thể giao subagent mới; truyền context tối thiểu, áp dụng giao
-  thức nén output `skills/core/sk-compressed-delegation/SKILL.md` (Investigator / Builder / Reviewer)
-  và không chia sẻ lịch sử chat không cần thiết.
-- Sau mỗi subtask, chạy hai kiểm tra: **spec compliance** rồi **code quality**.
-- Khi context bị nén hoặc phiên tiếp tục, đọc ledger trước; task đã `complete` không
-  được chạy lại.
+- Giữ scope và cập nhật trạng thái khi có thay đổi đáng kể hoặc cần resume.
+- Không ghi stage giả như `clarify`, `plan`, `impl`, `review` nếu chúng không thực sự diễn ra.
+- Khi context bị nén hoặc phiên tiếp tục, đọc contract/ledger trước; tiếp tục từ
+  bước cuối có evidence thay vì lặp lại việc đã hoàn tất.
+- Nếu có delegate, truyền context tối thiểu và dùng `sk-compressed-delegation` khi
+  nó giúp giảm handoff noise; không bắt buộc hai vòng review cho mọi subtask.
 
 ## Minimality checkpoint
 
@@ -53,30 +47,31 @@ error handling chống mất dữ liệu, hoặc điều user yêu cầu rõ rà
 
 ## Kết thúc
 
-Chỉ báo `READY` khi contract có:
+Khi task có contract, kết thúc bằng:
 
-- acceptance criteria đã đánh dấu;
-- build/test hoặc lý do miễn giảm có evidence;
-- changed files và unplanned changes;
-- review spec + quality;
-- status cuối cùng `READY`, `BLOCKED`, hoặc `NEEDS_USER_DECISION`.
+- kết quả và changed files;
+- lệnh kiểm chứng đã chạy và kết quả, hoặc lý do chưa chạy;
+- blocker/rủi ro hoặc việc ngoài scope nếu có;
+- trạng thái đủ rõ để tiếp tục ở lượt sau.
 
-Không dùng các câu như "đã hoàn tất" thay cho lệnh kiểm chứng và kết quả.
+Không tuyên bố đã chạy kiểm chứng nếu chưa có bằng chứng.
 
 ## Trace Capture (evolution system)
 
-Khi `addons/evolution` active, bổ sung các bước ghi trace **song song** với workflow:
+Khi trace capture được bật và đang thực hiện task cần contract, có thể bổ sung trace
+best-effort; không ghi một step cho mỗi hành động nhỏ:
 
 | Thời điểm | Action | Command |
 |-----------|--------|---------|
 | Bắt đầu task | Tạo session + trace | `evolution_db.py log_session` |
-| Mỗi phase (clarify/plan/impl/review) | Ghi step + outcome | `evolution_db.py log_step` |
+| Bước lớn có ý nghĩa | Ghi step + outcome | `evolution_db.py log_step` |
 | Mỗi friction (retry, error, user correction) | Ghi friction point | `evolution_db.py log_friction` |
 | Dùng skill | Ghi skill usage | `evolution_db.py log_skill_use` |
 | Kết thúc task | Cập nhật outcome | `evolution_db.py update_outcome` |
 
-**Nguyên tắc:** Trace capture là **best-effort, non-blocking**. Nếu DB unavailable
+**Nguyên tắc:** Trace capture là **best-effort, non-blocking**. Chỉ ghi workflow/skill
+nếu được ghi nhận là đã dùng; không suy ra từ loại commit hay file thay đổi. Nếu DB unavailable
 hoặc lệnh ghi fail, tiếp tục task bình thường — không bao giờ để trace capture
 block delivery flow.
 
-Xem `skills/meta/sk-trace-capture/SKILL.md` để biết chi tiết protocol.
+Nạp `sk-trace-capture` theo intent nếu cần xem procedure ghi trace.

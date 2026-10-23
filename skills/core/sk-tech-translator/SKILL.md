@@ -3,10 +3,6 @@ name: sk-tech-translator
 description: |
   Kỹ năng dịch các vấn đề kỹ thuật phức tạp (Database, API, Refactoring) thành ngôn ngữ nghiệp vụ trực quan.
   Sử dụng sơ đồ Mermaid và bảng so sánh để PM/PO dễ hiểu tác động của thay đổi kỹ thuật.
-inputs:
-  - tech-change: Chi tiết kỹ thuật cần giải thích (ví dụ: Db schema diff, refactoring plan)
-output:
-  - business-explanation: Tài liệu giải thích bằng ngôn ngữ nghiệp vụ (lưu trong 01_Wiki/ hoặc trả lời trực tiếp)
 ---
 
 # Technical Translator — sk-tech-translator

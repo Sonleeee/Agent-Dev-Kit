@@ -1,30 +1,21 @@
 ---
 name: sk-knowledge-ingestion
-description: Đưa tài liệu thô vào notebook để tạo nền tri thức
+description: Import tài liệu người dùng chỉ định vào một notebook NotebookLM khi người dùng yêu cầu thêm/import rõ ràng. Không tự tạo notebook, thêm source, đổi tag hay sync Drive từ một yêu cầu research thông thường.
 ---
 
 # Knowledge Ingestion
 
-## Công dụng
-Đưa tài liệu thô vào notebook để tạo nền tri thức.
+Dùng khi người dùng yêu cầu đưa tài liệu cụ thể vào NotebookLM để làm nguồn tri thức.
 
-## MCP Tools
-- `source_add` — thêm sources (url, text, drive, file)
-- `source_sync_drive` — đồng bộ Drive sources
-- `notebook_create` — tạo notebook mới
-- `notebook_rename` — đổi tên/cập nhật notebook
-- `notebook_list` — liệt kê notebooks hiện có
-- `tag` (action=add) — gán tags để phân loại
+## Trước khi ghi
 
-## Input
-- URL tài liệu, meeting transcript, PRD, API docs, feedback, logs
+- Xác định notebook đích và source đầu vào (URL, text, Drive hoặc file). Nếu notebook chưa rõ, hỏi hoặc dùng `notebook_list` để đề xuất; không tạo notebook mới nếu chưa được yêu cầu.
+- Chỉ gọi `source_add`, `source_sync_drive`, `notebook_create`, `notebook_rename` hoặc `tag(action=add)` theo đúng thao tác người dùng đã yêu cầu.
+- Trước khi sync Drive, xác định đúng notebook/source và phạm vi sync. Không xóa/ghi đè source để xử lý lỗi trùng nếu chưa có yêu cầu riêng.
 
-## Output
-- Notebook đã có nguồn dữ liệu đúng ngữ cảnh
+## Import
 
-## Khi nào dùng
-- Đầu dự án, đầu workflow mới, khi có tài liệu mới cần cập nhật
-
-## Lưu ý
-- Không query trên dữ liệu rỗng hoặc sai notebook
-- Luôn gán tags để dễ tìm lại
+1. Kiểm tra notebook tồn tại và có đúng mục đích.
+2. Thêm source đã được người dùng cung cấp/chỉ định; giữ source attribution.
+3. Gán tag chỉ khi người dùng yêu cầu hoặc đã có convention rõ trong notebook.
+4. Báo source nào đã thêm hoặc thao tác nào thất bại. Không query notebook rỗng như thể đã có dữ liệu.

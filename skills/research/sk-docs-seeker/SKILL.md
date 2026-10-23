@@ -4,8 +4,6 @@ description: |
   Tìm và tổng hợp docs cho library/framework đang dùng trong project.
   Dùng khi: cần docs mới nhất, debug library issue, tìm API usage examples.
   Trigger: "tìm docs", "docs cho [library]", "API reference", "cách dùng [library]".
-context-required: false
-output: docs-summary
 ---
 
 # Docs Seeker

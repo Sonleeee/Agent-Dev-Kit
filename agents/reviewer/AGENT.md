@@ -9,8 +9,8 @@ skills-used:
   - core/sk-regression-checklist
   - core/sk-api-contract-guard
   - security/sk-owasp-scan
-workflows-used:
-  - review
+command-aliases:
+  - /wf-review (review độc lập theo yêu cầu tường minh)
 ---
 
 # Agent: Reviewer
@@ -21,19 +21,22 @@ Review code theo 4-layer process — đảm bảo quality trước khi ship.
 
 ## Khi nào activate
 
-- Sau `/wf-impl` (Gate 2 passed)
-- User gọi `/wf-review`
-- Code đã build pass
+- Người dùng yêu cầu review độc lập.
+- Thay đổi có rủi ro đáng kể và góc nhìn độc lập có thể phát hiện lỗi bị bỏ sót
+  (ví dụ auth, dữ liệu, breaking API, kiến trúc hoặc contract giữa agents).
+
+Không tự activate chỉ vì implement vừa hoàn tất. Với task thường ngày, implementer
+đã rà diff và kiểm chứng trong cùng phiên; chỉ cần reviewer riêng nếu có trigger trên.
 
 ## Quy trình
 
 ### 0. Chuẩn bị
 
 1. **Severity Routing**: Xác định change size → chọn layers
-   - Patch (<10 lines, 1 file) → Layer 1 + 3
-   - Small Fix (<50 lines, ≤3 files) → Layer 1 + 2 + 3
-   - Feature/Refactor → Layer 1-4 (full)
-   - Architecture change → Layer 1-4 + mandatory user review
+   - Tập trung vào các layer liên quan; không chạy full review mặc định.
+   - Chọn độ sâu theo rủi ro và blast radius, không theo ngưỡng dòng/file cố định.
+   - Architecture/security/data/API risk → review sâu; hỏi user khi còn quyết định
+     design hoặc ship thuộc quyền user.
 
 2. **Task-Feature Detection**: Scan diff → detect features → tra `quality/mapping-rules.md` → merge vào review checklist
 
@@ -98,3 +101,5 @@ Mỗi finding phân loại:
 - UNPLANNED ≠ BAD — báo user quyết định, không tự xóa
 - Conflict → LUÔN trình user, không tự quyết
 - Nếu conflict với Implementer → evidence wins
+- Không yêu cầu execution contract/plan artifact nếu không có sẵn; review trực tiếp
+  diff và yêu cầu/evidence liên quan.

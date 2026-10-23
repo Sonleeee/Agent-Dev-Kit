@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$KitRoot = (Split-Path -Parent $PSScriptRoot)
 )
 
@@ -17,24 +17,53 @@ function Require-Path([string]$RelativePath) {
     'skills/core/sk-execution-contract/SKILL.md'
 ) | ForEach-Object { Require-Path $_ }
 
-$workflowDocs = Get-ChildItem -Path $KitRoot -Recurse -File -Filter '*.md' |
-    Where-Object { $_.Name -ne 'CHANGELOG.md' -and $_.FullName -notmatch '\\to-do\\' }
+$skillRoots = @(
+    (Join-Path $KitRoot 'skills'),
+    (Join-Path $KitRoot 'addons')
+) | Where-Object { Test-Path $_ }
+$skillDocs = Get-ChildItem -Path $skillRoots -Recurse -File -Filter 'SKILL.md' |
+    Where-Object { $_.Directory.Name -like 'sk-*' }
+$skillNames = @{}
 
-$workflowRefs = $workflowDocs |
-    Select-String -Pattern '/wf-[a-z0-9-]+' -AllMatches |
-    ForEach-Object { $_.Matches.Value } |
-    Sort-Object -Unique |
-    Where-Object {
-        $_ -notmatch '^/wf-(clarify-record|delivery-report|impl-summary|impl-task-matrix|review-checklist|review-summary|phone-sync|docs-mcp)$' -and
-        $_ -notmatch 'YYYY-MM-DD'
+foreach ($skillDoc in $skillDocs) {
+    $content = Get-Content -Path $skillDoc.FullName -Raw
+    $frontmatterMatch = [regex]::Match($content, '(?s)^---\r?\n(?<frontmatter>.*?)\r?\n---(?:\r?\n|$)')
+    if (-not $frontmatterMatch.Success) {
+        $failures.Add("Invalid skill frontmatter: $($skillDoc.FullName)")
+        continue
     }
 
-foreach ($ref in $workflowRefs) {
-    $wfName = "{0}.md" -f $ref.TrimStart('/')
-    $coreWf = Join-Path $KitRoot "workflows/$wfName"
-    $addonWfs = Get-ChildItem -Path (Join-Path $KitRoot "addons") -Recurse -File -Filter $wfName -ErrorAction SilentlyContinue
-    if (-not (Test-Path $coreWf) -and (-not $addonWfs -or $addonWfs.Count -eq 0)) {
-        $failures.Add("Missing: workflows/$wfName")
+    $frontmatter = $frontmatterMatch.Groups['frontmatter'].Value
+    $nameMatch = [regex]::Match($frontmatter, '(?m)^name:\s*([a-z0-9]+(?:-[a-z0-9]+)*)\s*$')
+    if (-not $nameMatch.Success) {
+        $failures.Add("Missing or invalid skill name: $($skillDoc.FullName)")
+        continue
+    }
+
+    $skillName = $nameMatch.Groups[1].Value
+    if ($skillName -ne $skillDoc.Directory.Name) {
+        $failures.Add("Skill name '$skillName' does not match folder '$($skillDoc.Directory.Name)'")
+    }
+    if ($frontmatter -notmatch '(?m)^description:\s*\S') {
+        $failures.Add("Missing skill description: $($skillDoc.FullName)")
+    }
+    if ($skillNames.ContainsKey($skillName)) {
+        $failures.Add("Duplicate skill name '$skillName': $($skillNames[$skillName]) and $($skillDoc.FullName)")
+    } else {
+        $skillNames[$skillName] = $skillDoc.FullName
+    }
+}
+
+# Verify that core skills are properly exposed in .agents/skills for 1-level deep host discovery
+$agentsSkillsDir = Join-Path $KitRoot '.agents/skills'
+if (Test-Path $agentsSkillsDir) {
+    $coreSkills = Get-ChildItem -Path (Join-Path $KitRoot 'skills') -Recurse -Directory |
+        Where-Object { Test-Path (Join-Path $_.FullName 'SKILL.md') }
+    foreach ($cs in $coreSkills) {
+        $exposedPath = Join-Path $agentsSkillsDir $cs.Name
+        if (-not (Test-Path $exposedPath)) {
+            $failures.Add("Core skill '$($cs.Name)' is not exposed in .agents/skills/")
+        }
     }
 }
 
@@ -43,4 +72,4 @@ if ($failures.Count -gt 0) {
     exit 1
 }
 
-Write-Output "Agent-Dev-Kit validation passed: $((Get-ChildItem (Join-Path $KitRoot 'workflows') -Filter 'wf-*.md').Count) workflows checked."
+Write-Output "Agent-Dev-Kit validation passed: $($skillDocs.Count) skills checked."

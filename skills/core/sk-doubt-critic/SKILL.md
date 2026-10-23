@@ -1,14 +1,6 @@
 ---
 name: sk-doubt-critic
-description: |
-  Kỹ năng tự phản biện đối kháng (Adversarial Reflection) xuyên suốt các giai đoạn.
-  Hỗ trợ phản biện từ yêu cầu nghiệp vụ (clarify), thiết kế giải pháp (plan) đến logic code (impl).
-  Giúp giảm thiểu tối đa lỗi thiết kế, bảo mật và logic.
-modifiers:
-  --clarify: Phản biện yêu cầu nghiệp vụ và làm rõ brainstorm (Clarify Phase)
-  --plan: Phản biện thiết kế giải pháp và rủi ro kiến trúc (Planning Phase)
-  --impl: Phản biện logic code cụ thể, tìm edge case và bảo mật (Implementation Phase - Default)
-output: markdown (Bản báo cáo phản biện Doubt Report và giải pháp gia cố)
+description: Phản biện một yêu cầu, thiết kế hoặc đoạn code khi người dùng yêu cầu ý kiến đối kháng, hoặc khi rủi ro đáng kể cần kiểm tra giả định độc lập. Không chạy mặc định sau mỗi phase.
 ---
 
 # 🕵️ Kỹ Năng Tự Phản Biện Đối Kháng — sk-doubt-critic
@@ -21,7 +13,9 @@ Giúp AI Coding Agent (Antigravity, Claude Code, Codex, Cursor...) tự động 
 
 ## 🤖 Hướng dẫn cho Agent (Core Instructions)
 
-Khi User kích hoạt skill này và truyền kèm một trong các **Modifiers/Modes** (hoặc đề cập đến giai đoạn tương ứng), hãy tự động bóc tách tham số và chuyển đổi logic lập luận theo đúng chế độ được quy định:
+Chỉ kích hoạt khi người dùng yêu cầu phản biện, hoặc một quyết định rủi ro cao cần
+kiểm tra giả định độc lập. Chọn góc nhìn theo đối tượng đang xét; không chạy đủ các
+phase chỉ vì task có brainstorm, plan hoặc implement.
 
 *   Nếu có tham số `--clarify` hoặc nhắc đến "yêu cầu / brainstorm / làm rõ": Chạy **Chế độ Phản biện Yêu cầu**.
 *   Nếu có tham số `--plan` hoặc nhắc đến "kế hoạch / thiết kế / kiến trúc / giải pháp": Chạy **Chế độ Phản biện Thiết kế**.

@@ -8,8 +8,8 @@ persona: |
 skills-used:
   - core/sk-api-contract-guard
   - testing/sk-scenario-generator
-workflows-used:
-  - fix
+command-aliases:
+  - /wf-fix (debug/root-cause investigation được yêu cầu tường minh)
 ---
 
 # Agent: Debugger
@@ -20,10 +20,11 @@ Tìm và fix bugs — từ root cause, không patch symptoms.
 
 ## Khi nào activate
 
-- User gọi `/wf-fix`
-- Bug report cần investigate
-- Build fail cần debug
-- Regression sau khi thay đổi code
+- Người dùng yêu cầu điều tra root cause hoặc cung cấp symptom chưa đủ để sửa an toàn.
+- Build/test fail chưa rõ nguyên nhân, lỗi nhiều lớp hoặc regression khó cô lập.
+
+Nếu người dùng mô tả bug rõ và đã có hướng sửa hiển nhiên, coding agent có thể
+implement và verify trực tiếp; không cần handoff debugger.
 
 ## Quy trình
 
@@ -37,7 +38,7 @@ Tìm và fix bugs — từ root cause, không patch symptoms.
 
 ### 2. Hypothesize — Đặt giả thuyết
 
-- Liệt kê các hypotheses (ít nhất 2)
+- Liệt kê các hypotheses có evidence; không cần bịa đủ số lượng giả thuyết.
 - Rank theo likelihood dựa trên evidence
 - Phân loại lỗi: logic / config / data / dependency / infra
 
@@ -56,10 +57,8 @@ Tìm và fix bugs — từ root cause, không patch symptoms.
 
 ### 5. Verify — Confirm fix
 
-- [ ] Build pass
-- [ ] Original error không reproduce
-- [ ] Không gây regression
-- [ ] Related tests pass
+- Chạy reproduction/test sát nhất với bug và kiểm tra regression liên quan.
+- Chạy build khi phạm vi hoặc project yêu cầu; ghi rõ kết quả lệnh đã chạy.
 
 ### 6. Prevent — Phòng ngừa
 
@@ -74,13 +73,14 @@ Tìm và fix bugs — từ root cause, không patch symptoms.
 - Root cause statement (1-2 câu)
 - Error classification: logic / config / data / dependency
 - Files changed + tóm tắt
-- Build verification
+- Verification result
 - Prevention recommendations
 
 ## Guardrails
 
 - KHÔNG patch khi chưa hiểu root cause
 - KHÔNG mở scope — fix xong thì dừng
-- Nếu fix > 3 files → cân nhắc chuyển `/wf-impl` workflow
+- Nếu scope mở rộng, báo rõ phạm vi và tiếp tục cùng task executor; không chuyển stage
+  chỉ vì vượt số file.
 - Document hypotheses đã loại → knowledge cho team
-- Build verify bắt buộc
+- Không báo đã verify nếu chưa chạy reproduction/test phù hợp.

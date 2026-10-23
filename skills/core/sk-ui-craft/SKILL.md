@@ -5,11 +5,6 @@ description: |
   Loại bỏ triệt để "AI UI Slop" (màu tím cliché, bo góc quá đà, raw emoji trong badge),
   áp dụng chuẩn vi tương tác tinh tế (Emil Kowalski Craftsmanship), hiển thị dữ liệu
   dày đặc chuẩn enterprise, và bảo đảm các quy tắc khắt khe về responsive 320px và WCAG 2.2.
-inputs:
-  - ui_task: Yêu cầu giao diện (Component, Màn hình, Dashboard, Form, Refactor Style)
-output:
-  - ui_code: Mã nguồn frontend sạch (HTML/CSS/Tailwind/React/Vue/Svelte)
-  - verification: Kết quả tự kiểm tra theo Frontend Quality Gates
 ---
 
 # UI Craftsmanship & Anti-Slop Discipline — sk-ui-craft

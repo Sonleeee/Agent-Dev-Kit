@@ -8,23 +8,14 @@ Mỗi rule được đánh dấu:
 
 ---
 
-## Nhóm 1 — Delivery Gates [PROTECTED]
+## Nhóm 1 — Task Quality & Evidence [PROTECTED]
 
-### Gate 1 — Ready [PROTECTED]
-Không được bắt đầu implement khi thiếu: Problem statement, Scope in/out, Implementation plan, Acceptance Criteria và Verification Command.
-
-### Gate 2 — Dev Done [PROTECTED]
-Không được chuyển sang review khi chưa hoàn thành self-check và chạy verify lệnh thực thi.
-
-### Gate 3 — Ship Ready [PROTECTED]
-- **Blocked**: Khi còn finding Critical hoặc lệnh verification/tests fail.
-- **Pass có điều kiện**: Không có Critical, nếu có Major phải nêu rõ lý do và residual risks.
-
-### Executable Verification Gate [PROTECTED]
-Chất lượng code bắt buộc phải được chứng minh bằng lệnh thực thi thật của project (compiler, linter, tests):
-- Build/Compilation phải pass với Zero Warnings (hoặc treat warnings as errors).
-- Linter/Typecheck (npm run lint, tsc --noEmit, dotnet format, ruff check...) phải pass 100%.
-- Unit/Integration Tests liên quan phải pass 100%.
+### Scope và cách kiểm chứng
+- Task rõ được implement trực tiếp; không bắt buộc tạo problem statement, scope record, plan artifact hoặc quality card.
+- Chỉ hỏi khi thiếu quyết định có thể đổi hành vi, phạm vi hoặc ranh giới an toàn. Giả định nhỏ, dễ đảo ngược có thể nêu ra và tiếp tục.
+- Chọn build, lint, typecheck hoặc tests theo loại thay đổi, hướng dẫn repo và yêu cầu user. Không yêu cầu chạy toàn bộ bộ lệnh cho thay đổi không liên quan.
+- Báo chính xác lệnh đã chạy và kết quả. Không suy ra PASS từ code review hoặc từ một lệnh kiểm chứng chưa chạy.
+- Full code review và ship decision chỉ chạy khi user yêu cầu hoặc risk cần góc nhìn độc lập; rà diff ngắn vẫn thuộc bước hoàn tất bình thường.
 
 ### Frontend & UI Craft Gate [PROTECTED]
 Đối với mọi task có thay đổi hoặc xây mới mã nguồn Frontend/UI (HTML, CSS, Tailwind, JSX/TSX, Vue, Svelte, Mobile):
@@ -34,24 +25,25 @@ Chất lượng code bắt buộc phải được chứng minh bằng lệnh th�
 - **Touch Target:** Kích thước diện tích chạm cho các nút bấm/liên kết trên màn hình cảm ứng tối thiểu đạt 44x44px.
 
 ### Minimum Acceptance Criteria [PROTECTED]
-- Feature: Tối thiểu 2 happy paths + 2 edge cases trong scope + 1 error handling/user message.
-- Bugfix: Root cause rõ ràng + tối thiểu 1 anti-regression test case + xác nhận bug gốc không còn tái diễn.
+- Xác định happy path, edge case và lỗi có ý nghĩa với phạm vi cụ thể; không áp dụng quota cố định cho mọi feature.
+- Bugfix: kiểm tra nguyên nhân và xác nhận lỗi không còn xảy ra bằng test/reproduction phù hợp khi có thể.
 
 ### Execution Evidence [PROTECTED]
-Không được báo `READY`/"đã hoàn tất" nếu chưa có execution contract hoặc output
-tương đương chứa objective, acceptance criteria, changed files, verification command
-và review result. Nếu không thể chạy verify, status phải là `BLOCKED` hoặc
-`NEEDS_USER_DECISION`, kèm lý do cụ thể.
+Không được khẳng định đã chạy build/test/review nếu chưa có bằng chứng. Nếu chưa thể
+kiểm chứng, ghi rõ điều đã kiểm tra, điều chưa chạy và lý do; không bắt buộc tạo
+execution contract hoặc trạng thái `READY` cho task ngắn.
 
 ---
 
 ## Nhóm 2 — Bugfix Discipline [PROTECTED]
 
 ### Root Cause First [PROTECTED]
-Xác định root cause theo format: "Input X → Output Y hiện tại → Output Z mong muốn → Layer gây lỗi" trước khi sửa.
+Với bug chưa rõ, thu thập evidence đủ để xác định layer/nguyên nhân trước khi sửa.
+Không bắt buộc viết report theo một format cố định cho lỗi hiển nhiên, phạm vi hẹp.
 
 ### Anti-Regression Case [PROTECTED]
-Bugfix phải có ít nhất 1 anti-regression case để đảm bảo lỗi không tái phát.
+Thêm hoặc chạy anti-regression case khi test infra và phạm vi bug phù hợp; nếu không,
+dùng reproduction hoặc kiểm chứng sát nhất và nêu giới hạn.
 
 ---
 
@@ -82,9 +74,10 @@ Ràng buộc bắt buộc:
    implementation và không có kế hoạch mở rộng rõ ràng trong scope hiện tại.
 
 ### Task Ledger [PROTECTED]
-Task nhiều bước phải có progress ledger. Mỗi task bounded chỉ được đánh dấu complete
-sau verify; khi resume sau context compaction, đọc ledger và không chạy lại task đã
-complete.
+Chỉ tạo progress ledger khi task kéo dài qua nhiều lượt, cần resume/context
+compaction, có nhiều nhánh cần theo dõi hoặc có rủi ro cao. Task nhiều bước nhưng
+ngắn, liền mạch và dễ kiểm chứng không cần ledger. Khi đã có ledger, cập nhật nó
+đủ để resume đúng vị trí và chỉ đánh dấu complete sau kiểm chứng phù hợp.
 
 ### Respect Project Passport [PROTECTED]
 Luôn ưu tiên tuân thủ kiến trúc, conventions và ranh giới an toàn (Always / Never / Ask First) được định nghĩa trong file `AGENTS.md` tại root dự án. Code/test đang chạy thực tế vẫn là ground truth tối cao.

@@ -1,56 +1,21 @@
 ---
 name: sk-mobile-capture
-description: Bóc tách và phân loại nội dung capture từ iPhone qua NotebookLM (📥 Inbox)
+description: Đọc, trích xuất và phân loại nội dung trong NotebookLM Inbox từ iPhone khi người dùng muốn triage capture. Kết quả mặc định là danh sách/preview; không tự ghi Obsidian, đánh dấu đã xử lý hoặc xóa nguồn.
 ---
 
 # Mobile Capture
 
-## Công dụng
-Xử lý dữ liệu capture từ iPhone thông qua notebook `📥 Inbox`.
-Hỗ trợ 4 loại input: Quick Notes, Voice Recording, Social Clips (Facebook/Web), Links.
-
-## MCP Tools
-- `notebook_get` — lấy thông tin notebook Inbox
-- `note(action=list)` — liệt kê notes trong Inbox
-- `source_get_content` — đọc nội dung thô (audio transcript, web scrape)
-- `source_describe` — lấy AI summary cho từng source
-- `notebook_query` — hỏi AI phân loại content
+Dùng skill này để hiểu nội dung capture trong notebook `📥 Inbox`, không phải để tự đồng bộ dữ liệu ra vault.
 
 ## Quy trình
 
-### Bước 1: Scan Inbox
-```
-note(notebook_id=INBOX_ID, action=list)
-→ Lấy danh sách notes + sources chưa xử lý
-```
+1. Tìm notebook Inbox bằng `tag(action=select, query="inbox")`; xác nhận đúng notebook trước khi đọc.
+2. Dùng `note(action=list)` để liệt kê notes/sources. Đọc nội dung cần thiết bằng `source_get_content` hoặc tóm tắt bằng `source_describe`.
+3. Phân loại từng item thành `IDEA`, `TASK`, `NOTE`, `KNOWLEDGE` hoặc `SOCIAL_CLIP`; giữ link/source và ghi rõ phần nào chưa đọc được.
+4. Trả bảng ngắn: item, category, project (nếu xác định được), summary và đề xuất đích lưu.
 
-### Bước 2: Phân loại (Classification)
-Dùng `notebook_query` để hỏi AI:
-```
-"Phân loại từng item trong notebook này thành:
- IDEA / TASK / NOTE / KNOWLEDGE / SOCIAL_CLIP.
- Trả về dạng bảng: [item] | [category] | [summary 1 dòng]"
-```
+## Ranh giới
 
-### Bước 3: Extract Content
-- **Notes** → đọc trực tiếp nội dung note
-- **URL Sources** → `source_get_content` để lấy full text
-- **Audio Sources** → `source_get_content` để lấy transcript
-- **Drive Sources** → `source_get_content` để lấy nội dung doc
-
-### Bước 4: Handoff
-Nếu Knowledge addon đã bật, truyền kết quả phân loại + nội dung cho `sk-vault-steward` (Hướng C: Phone-Direct)
-để ghi vào Obsidian Vault.
-
-## Output
-- Danh sách items đã phân loại kèm category
-- Nội dung đã extract sẵn sàng ghi vào vault
-
-## Khi nào dùng
-- Mỗi sáng khi ngồi vào bàn làm việc
-- Khi có nhiều content chưa xử lý trong Inbox
-- Được gọi bởi workflow `/wf-phone-sync`
-
-## Lưu ý
-- Notebook `📥 Inbox` có tag `inbox` — dùng tag để tìm đúng notebook
-- Không xóa sources/notes trên NotebookLM — chỉ đánh dấu "đã xử lý" bằng cách thêm note
+- Đọc và phân loại không cho phép sửa NotebookLM hay Obsidian.
+- Không xóa nguồn/note, đổi tag, thêm note "đã xử lý" hoặc ghi vault nếu người dùng chưa yêu cầu rõ.
+- Nếu người dùng muốn đồng bộ cả Inbox và Daily Ops, dùng `sk-notebooklm-phone-sync`. Nếu chỉ muốn lưu kết quả Inbox, dùng `sk-vault-steward` sau khi người dùng yêu cầu ghi; nếu skill steward không discover được, dừng ở preview.

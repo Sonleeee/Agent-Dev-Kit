@@ -111,74 +111,6 @@ def get_commit_metadata(repo_dir: Path | None = None) -> dict[str, Any] | None:
     }
 
 
-def infer_workflow(subject: str) -> str:
-    """Infer ADK workflow from commit prefix / message."""
-    s = subject.lower()
-    if re.match(r"^(feat|add|feature)(\(.*\))?:", s):
-        return "wf-delivery"
-    if re.match(r"^(fix|bug|hotfix|patch)(\(.*\))?:", s):
-        return "wf-fix"
-    if re.match(r"^(refactor|perf|improve|clean)(\(.*\))?:", s):
-        return "wf-enhance"
-    if re.match(r"^(test|tests)(\(.*\))?:", s):
-        return "wf-test"
-    if re.match(r"^(docs|doc)(\(.*\))?:", s):
-        return "wf-docs"
-    if re.match(r"^(chore|ci|build|deploy|release)(\(.*\))?:", s):
-        return "wf-deploy"
-    if re.match(r"^(sec|security)(\(.*\))?:", s):
-        return "wf-security"
-    return "wf-delivery"
-
-
-def infer_complexity(files_count: int, lines_changed: int) -> str:
-    """Infer task complexity based on blast radius."""
-    if files_count <= 2 and lines_changed <= 50:
-        return "Low"
-    if files_count <= 8 and lines_changed <= 350:
-        return "Medium"
-    return "High"
-
-
-def infer_skills(changed_files: list[dict[str, str]]) -> list[str]:
-    """Map touched files to ADK skills."""
-    skills = {"sk-execution-contract"}
-    for f in changed_files:
-        path = f["path"].lower()
-        if any(k in path for k in ["test", "spec", "__tests__"]):
-            skills.add("sk-test-strategy")
-        if any(k in path for k in ["controller", "route", "api", "handler", "endpoint"]):
-            skills.add("sk-api-contract-guard")
-        if any(k in path for k in ["docker", "dockerfile", "container"]):
-            skills.add("sk-docker-review")
-        if any(k in path for k in [".github", "pipeline", "jenkins", ".gitlab", "workflow"]):
-            skills.add("sk-ci-pipeline-check")
-        if any(k in path for k in ["auth", "jwt", "crypto", "secret", "permission", "oauth"]):
-            skills.add("sk-secret-detection")
-    return sorted(skills)
-
-
-def detect_friction(subject: str, repo_dir: Path | None = None) -> dict[str, str] | None:
-    """Detect if this commit indicates a quick retry/correction following a recent failure."""
-    # Check last 3 commits
-    log_history = run_git(["log", "-3", "--pretty=format:%H%x00%s%x00%aI"], repo_dir)
-    if not log_history:
-        return None
-
-    lines = log_history.splitlines()
-    if len(lines) >= 2:
-        # Check current subject for retry keywords
-        s = subject.lower()
-        if any(k in s for k in ["typo", "fix build", "retry", "oops", "quick fix", "revert"]):
-            return {
-                "category": "user_correction" if "typo" in s else "tool_error",
-                "severity": "medium",
-                "description": f"Consecutive patch commit detected: '{subject}'",
-                "suggested_fix": "Verify build and syntax before committing to prevent patch churn",
-            }
-    return None
-
-
 def record_commit_trace(repo_dir: Path | None = None) -> dict[str, Any]:
     """Capture current HEAD commit into SQLite evolution database."""
     meta = get_commit_metadata(repo_dir)
@@ -188,12 +120,13 @@ def record_commit_trace(repo_dir: Path | None = None) -> dict[str, Any]:
     commit_hash = meta["hash"]
     subject = meta["subject"] or f"Commit {commit_hash[:8]}"
     files_count = len(meta["changed_files"])
-    total_lines = meta["insertions"] + meta["deletions"]
-
-    workflow = infer_workflow(subject)
-    complexity = infer_complexity(files_count, total_lines)
-    skills = infer_skills(meta["changed_files"])
-    friction = detect_friction(subject, repo_dir)
+    # A commit only proves that Git recorded a commit. Its prefix and changed
+    # paths do not prove which workflow/skill ran, whether the task is complete,
+    # or whether the author experienced friction.
+    workflow = None
+    complexity = None
+    skills: list[str] = []
+    friction = None
 
     trace_id = f"trace_git_{commit_hash[:8]}"
     session_id = f"sess_git_{commit_hash[:8]}"
@@ -204,11 +137,17 @@ def record_commit_trace(repo_dir: Path | None = None) -> dict[str, Any]:
     # Evidence summary
     evidence = {
         "commit": commit_hash,
+        "commit_subject": subject,
         "author": meta["author"],
         "date": meta["date"],
         "files_changed_count": files_count,
         "stat": meta["stat_raw"],
         "files": [f["path"] for f in meta["changed_files"][:30]],
+        "capture_type": "git_commit_metadata",
+        "task_outcome_observed": False,
+        "workflow_observed": False,
+        "skill_usage_observed": False,
+        "friction_observed": False,
     }
 
     # Ensure database exists
@@ -221,22 +160,22 @@ def record_commit_trace(repo_dir: Path | None = None) -> dict[str, Any]:
         conn.execute(
             """
             INSERT INTO sessions (id, project, user_intent, workflow_used, outcome, total_turns, summary)
-            VALUES (?, ?, ?, ?, 'SUCCESS', 1, ?)
+            VALUES (?, ?, ?, ?, 'PARTIAL', 0, ?)
             ON CONFLICT(id) DO UPDATE SET
                 summary = excluded.summary,
-                outcome = 'SUCCESS';
+                outcome = 'PARTIAL';
             """,
-            (session_id, project_name, subject, workflow, meta["stat_raw"]),
+            (session_id, project_name, None, workflow, f"Commit metadata only; task outcome unknown. {meta['stat_raw']}"),
         )
 
         # 2. Insert trace
         conn.execute(
             """
             INSERT INTO traces (id, session_id, task_description, workflow, complexity, outcome, duration_turns, tokens_used, acceptance_evidence)
-            VALUES (?, ?, ?, ?, ?, 'SUCCESS', 1, ?, ?)
+            VALUES (?, ?, ?, ?, ?, 'PARTIAL', 0, 0, ?)
             ON CONFLICT(id) DO NOTHING;
             """,
-            (trace_id, session_id, subject, workflow, complexity, total_lines * 5, json.dumps(evidence)),
+            (trace_id, session_id, f"Git commit metadata capture ({commit_hash[:8]})", workflow, complexity, json.dumps(evidence)),
         )
 
         # 3. Associate skills used

@@ -1,62 +1,52 @@
 ---
 name: sk-memory-consolidator
-description: |
-  Kỹ năng chưng cất tri thức (Dream Phase) và quản lý bộ nhớ dài hạn.
-  Ghi nhận nhật ký tương tác chat-by-chat và nén thành tri thức tinh gọn lưu vào Obsidian Vault.
-output: markdown (Tri thức nén lưu vào Obsidian Vault/00_Raw/)
+description: Chưng cất bài học, quyết định và root cause từ nội dung phiên do người dùng chỉ định. Dùng khi người dùng yêu cầu tóm tắt hoặc chuẩn bị lưu memory; không tự ghi log từng lượt chat, không tự đọc transcript hay ghi vault.
 ---
 
-# 🧠 Chưng Cất Tri Thức & Quản Lý Bộ Nhớ — sk-memory-consolidator
+# Memory Consolidator
 
-## 🎯 Mục tiêu
+## Ranh giới
 
-Giúp AI Agent tự động ghi nhận tri thức từ các cuộc hội thoại làm việc hàng ngày, loại bỏ thông tin rác (chat rác) và tự động chưng cất thành các ghi chú tri thức có giá trị lâu dài để lưu trữ vào [Obsidian Vault](file:///<path-to-vault>).
+- Chỉ phân tích nội dung phiên, transcript hoặc log mà người dùng chỉ định hoặc đã cho phép truy cập.
+- Không tự append từng lượt hội thoại vào `.agents/scratch/current_session.log`.
+- Mặc định trả một Memory Candidate để người dùng xem. Chỉ ghi Obsidian khi người dùng yêu cầu lưu rõ hoặc đã thiết lập policy AUTO bền vững.
+- Không xóa, truncate hay reset transcript/log sau khi đọc.
 
----
+## Chưng cất
 
-## ⚙️ Cơ chế hoạt động 2 Pha
+Giữ lại những nội dung có giá trị tái sử dụng:
 
-### Pha 1: Ghi nhận Nóng (Chat-by-Chat Log)
-*   **Trigger:** Mỗi khi có lượt tương tác (User gửi Prompt và Agent phản hồi).
-*   **Hành động của Agent:** 
-    *   Tự động ghi nối tiếp (append) toàn bộ nội dung chat hiện tại vào file log tạm thời tại: `[project-root]/.agents/scratch/current_session.log`.
-    *   Giữ nguyên định dạng Markdown của cuộc hội thoại để lưu trữ ngữ cảnh thô đầy đủ nhất.
+- quyết định kiến trúc và lý do lựa chọn;
+- root cause, pitfall lặp lại và cách khắc phục;
+- convention hoặc quy tắc dự án đã được xác nhận.
 
-### Pha 2: Chưng cất Tri thức (Consolidation - Dream Phase)
-*   **Trigger:** Khi kết thúc một Task lớn (khi User gõ `/done`, `/ship` hoặc hoàn thành Gate 3 của workflow).
-*   **Quy trình của Agent:**
-    1.  **Ingestion:** Đọc file log tạm thời `.agents/scratch/current_session.log`.
-    2.  **Fact Extraction (LLM-based):** Sử dụng LLM để phân tích toàn bộ log và lọc ra các nội dung cốt lõi bao gồm:
-        *   *Quyết định kiến trúc (Architectural Decisions):* Tại sao lại chọn giải pháp này thay vì giải pháp kia?
-        *   *Sửa lỗi quan trọng (Bug Fix Insights):* Lỗi gì đã xảy ra, nguyên nhân gốc rễ và cách khắc phục?
-        *   *Quy ước dự án (Convention Insights):* Các quy tắc, convention mới được thiết lập trong quá trình làm việc.
-    3.  **Deduplication & Format:** Loại bỏ các thông tin rác (như chào hỏi, code nháp bị lỗi, fix lỗi cú pháp nhỏ). Đóng gói tri thức thành định dạng Ghi chú tri thức (Knowledge Note) kèm theo tags, ngày tạo và dự án tham chiếu.
-    4.  **Sync to Obsidian Vault:** 
-        *   Ghi file ghi chú mới vào thư mục `Obsidian Vault/00_Raw/` dưới tên file có format: `[yyyy-mm-dd]_[tên-tri-thức-tóm-tắt].md`.
-        *   Cập nhật liên kết file mới vào file chỉ mục `Obsidian Vault/01_Wiki/01_AI_Agents/INDEX.md` hoặc `AI_INDEX.md`.
-    5.  **Reset:** Xóa rỗng file `.agents/scratch/current_session.log` để chuẩn bị cho session làm việc tiếp theo.
+Bỏ lời chào, tiến độ tạm, raw output, code nháp thất bại không có bài học, và suy đoán chưa được xác nhận. Không gắn trạng thái `Accepted` cho quyết định nếu người dùng chưa chốt.
 
----
+## Candidate và lưu trữ
 
-## 📝 Định dạng file Tri thức lưu vào Obsidian Vault (Output Template)
+Candidate nên có title, project/source, ngày, tags, bối cảnh, insight/decision và references. Nếu được yêu cầu lưu, dùng [`sk-vault-steward`](../sk-vault-steward/SKILL.md) để tìm vault, kiểm tra file đích và ghi không phá dữ liệu. Mặc định lưu note raw trong `00_Raw/`; chỉ tổng hợp sang Wiki khi được yêu cầu.
+
+Mẫu candidate:
 
 ```markdown
 ---
 type: raw_knowledge
-domain: [tên-dự-án-tham-chiếu]
-tags: [tag-chủ-đề, ví-dụ: memory, bug-fix, c-sharp]
-created: YYYY-MM-DD
+project: "{project}"
+source: "{session_or_file}"
+created: "YYYY-MM-DD"
+tags: ["tag1", "tag2"]
 ---
 
-# [Tiêu đề Tri thức Tóm tắt]
+# {title}
 
-## 1. Bối cảnh & Vấn đề (Context & Issue)
-[Mô tả vấn đề hoặc lý do phát sinh quyết định thiết kế này]
+## Context
+{bối cảnh và vấn đề}
 
-## 2. Giải pháp & Tri thức chưng cất (Key Insight)
-[Chi tiết giải pháp, code snippet chuẩn, hoặc bài học kinh nghiệm rút ra]
+## Insight
+{quyết định, root cause hoặc bài học có thể tái sử dụng}
 
-## 3. Tham chiếu (References)
-- Project: [Tên dự án]
-- Session date: YYYY-MM-DD
+## References
+- {source link}
 ```
+
+Sau khi ghi, báo chính xác đường dẫn và nội dung đã lưu. Không tuyên bố đã lưu nếu chưa xác minh được file đích.

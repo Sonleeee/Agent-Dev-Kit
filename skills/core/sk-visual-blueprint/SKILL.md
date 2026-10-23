@@ -5,10 +5,6 @@ description: |
   chuẩn Business Analyst (BA) dạng SVG/HTML tự chứa, siêu nhẹ. Thay thế hoàn toàn các công cụ vẽ cồng kềnh,
   chạy tức thì (0 dependency, 0 build step), giúp lập trình viên và stakeholder nhìn thấy rõ ràng cả
   thành phần dịch vụ lẫn dữ liệu truyền qua lại.
-inputs:
-  - system_flow: Yêu cầu tính năng, kiến trúc module, luồng xử lý hoặc thay đổi CSDL
-output:
-  - visual_artifact: File SVG hoặc HTML tự chứa tại `docs/architecture/<name>.svg` hoặc `.html`
 ---
 
 # Visual Blueprint & Data Architecture — sk-visual-blueprint

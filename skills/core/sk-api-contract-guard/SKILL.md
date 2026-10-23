@@ -4,8 +4,6 @@ description: |
   Bảo vệ API contract khi implement hoặc fix bug. Dùng khi thay đổi endpoint,
   DTO, status code, response shape để tránh breaking change ngoài ý muốn.
   Hoạt động với mọi tech stack — không cần project context.
-context-required: false
-output: api-contract-checklist
 ---
 
 # API Contract Guard

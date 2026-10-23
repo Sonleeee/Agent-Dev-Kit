@@ -1,59 +1,35 @@
-# 📓 Obsidian Addon — Obsidian Vault
+# Obsidian Addon — Obsidian Vault
 
-> Tích hợp Obsidian vault làm "bộ não thứ 2" cho agent —
-> tri thức xuyên projects, xuyên sessions.
+Addon này cung cấp các skill để đọc, chưng cất và lưu tri thức vào Obsidian Vault.
 
-## Tầm nhìn
+## Thiết lập
 
-```
-Obsidian Vault (Global Brain)
-├── brain/
-│   ├── north-star.md          ← Goals & Direction cá nhân
-│   ├── decisions/             ← ADRs xuyên projects
-│   ├── knowledge/             ← Technical knowledge base
-│   │   ├── dotnet/
-│   │   ├── react/
-│   │   └── devops/
-│   ├── projects/              ← Link tới từng project
-│   │   ├── [project-a]/
-│   │   └── [project-b]/
-│   └── daily/                 ← Daily notes, standup logs
-│
-│   🔗 Wikilinks kết nối xuyên suốt
-│   📊 Graph View: Nhìn toàn bộ mạng lưới tri thức
-```
+1. Cài Obsidian và tạo vault.
+2. Có thể khởi đầu từ `vault-template/`.
+3. Khai báo đường dẫn bằng `vault-path` trong `AGENTS.md` hoặc cấu hình dự án phù hợp.
+4. Nếu có quy tắc `AI_INSTRUCTIONS.md` trong vault, agent cần tuân theo.
 
-## Setup
+## Skills
 
-### 1. Cài Obsidian
+- `sk-vault-steward`: lưu tri thức hoặc đồng bộ vào vault theo yêu cầu tường minh.
+- `sk-context-cache`: cache kết quả phân tích có thể tái sử dụng.
+- `sk-memory-consolidator`: chưng cất kiến thức theo yêu cầu; không tự ghi log hội thoại.
 
-- Download từ [obsidian.md](https://obsidian.md/) (free, local-first)
-- Cài trên PC/Mac
+Các skill chỉ dùng được khi addon được cài vào đường dẫn được agent host discover.
 
-### 2. Tạo Vault
+## Alias tương thích
 
-```bash
-mkdir -p <path-to-vault>\brain\decisions
-mkdir -p <path-to-vault>\brain\knowledge
-mkdir -p <path-to-vault>\brain\projects
+`/wf-vault-sync` được giữ như adapter deprecated chỉ khi được gọi trực tiếp. Nó route sang `sk-vault-steward`; không còn một procedure sync riêng trong workflow. Ghi vault luôn cần yêu cầu tường minh hoặc chính sách AUTO đã được người dùng thiết lập rõ.
+
+## Cấu trúc vault gợi ý
+
+```text
+brain/
+├── north-star.md
+├── decisions/
+├── knowledge/
+├── projects/
+└── daily/
 ```
 
-Hoặc copy từ `vault-template/` trong addon này.
-
-### 3. Mở Vault trong Obsidian
-
-- Obsidian → Open folder as vault → chọn `<path-to-vault>\`
-
-### 4. Kết nối với projects
-
-- Tạo `brain/projects/[tên-project]/` cho mỗi project
-- Link tới `.agents/context/architecture.md` của project
-- Link tới `addons/archify/architecture.html` nếu project có architecture artifact
-
-## Vault Template
-
-Xem `vault-template/` để lấy cấu trúc starter.
-
-## Ngôn ngữ
-
-Viết bằng **tiếng Việt** (hoặc tùy cá nhân).
+Có thể dùng `vault-template/` làm điểm khởi đầu; không yêu cầu giữ nguyên cấu trúc này nếu vault hiện tại đã có quy ước riêng.

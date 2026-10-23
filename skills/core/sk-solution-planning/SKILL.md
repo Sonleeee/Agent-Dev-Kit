@@ -1,28 +1,24 @@
 ---
 name: sk-solution-planning
-description: |
-  Lap implementation plan ngan tu clarify record va project context.
-  Dung de chot approach, impacted files, template selection, test obligations,
-  va done criteria truoc khi code.
-context-required: optional
-output: implementation-plan-lite
+description: Lập plan triển khai ngắn khi người dùng yêu cầu chỉ lập kế hoạch, task có nhiều nhánh phụ thuộc hoặc approach chưa hiển nhiên. Không kích hoạt như bước bắt buộc trước task code đã rõ.
 ---
 
 # Solution Planning
 
-## Muc tieu
+## Mục tiêu
 
-Tao plan gon, de implement dung va khong over-formal.
+Tạo plan vừa đủ để triển khai task có nhiều bước hoặc quyết định đáng kể, không
+biến plan thành cổng approval cho mọi thay đổi.
 
-## Context Loading
+## Nạp context
 
-Neu project co:
+Chỉ đọc phần context liên quan. Nếu project có:
 
 - `AGENTS.md`
 - `.agents/context/architecture.md`
 - `.agents/context/templates/*`
 
-thi phai doc de chot:
+thì dùng chúng khi task chạm đến:
 
 - impacted layers
 - pattern constraints
@@ -30,39 +26,40 @@ thi phai doc de chot:
 
 ## Quy trinh
 
-### Buoc 1 - Chot Approach
+### 1. Chốt approach
 
 Chon 1 huong lam ngan gon.
 
-### Buoc 2 - Impacted Files / Modules
+### 2. Phạm vi bị ảnh hưởng
 
-Chi liet ke nhung file/module that su lien quan.
+Chỉ liệt kê module/file thật sự quan trọng; không cần dự đoán mọi file chính xác
+khi implementation có thể khám phá thêm.
 
-### Buoc 3 - Template Selection
+### 3. Pattern và template
 
-Neu project co templates:
+Nếu project có template/pattern áp dụng:
 
-- phai chi ro template nao duoc dung o `/wf-impl`
+- ghi rõ tham chiếu nào cần dùng khi implement.
 
-### Buoc 4 - Test Obligations
+### 4. Kiểm chứng
 
-Chi giu subset can thiet theo task-features.
+Chọn lệnh kiểm chứng phù hợp với behavior và phạm vi thay đổi.
 
-### Buoc 5 - Done Criteria
+### 5. Tiêu chí hoàn thành
 
-Gom:
+Nêu ngắn gọn kết quả mong đợi và các rủi ro cần đóng:
 
-- implement xong
-- self-check xong
-- API contract status ro
-- san sang review
+- implementation đáp ứng yêu cầu
+- kiểm chứng phù hợp có kết quả rõ
+- API/data risk được nêu khi có liên quan
 
-## Output
+## Đầu ra
 
-Dung template `templates/implementation-plan-lite.md.template`.
+Trình bày plan ngắn trong hội thoại. Dùng `templates/implementation-plan-lite.md.template`
+chỉ khi người dùng cần artifact plan riêng hoặc task cần lưu quyết định.
 
 ## Guardrails
 
-- Khong om scope qua lon trong 1 plan
-- Khong bien `/wf-plan` thanh `/solution` + `/solution-plan` cu
-- Neu task lon -> tach work items nho
+- Không ôm scope quá lớn trong một plan.
+- Không yêu cầu user duyệt plan thông thường nếu họ đã giao task implement.
+- Nếu task lớn, tách các phần phụ thuộc/độc lập có ích; không chia nhỏ chỉ để delegate.

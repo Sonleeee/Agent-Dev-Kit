@@ -4,8 +4,6 @@ description: |
   Tìm hardcoded secrets, API keys, passwords trong code và config files.
   Dùng khi: security audit, pre-commit check, review config files.
   Trigger: "tìm secrets", "hardcoded keys", "secret detection", "leak check".
-context-required: false
-output: secrets-report
 ---
 
 # Secret Detection

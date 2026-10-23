@@ -105,7 +105,7 @@ const TOOLS = [
   },
   {
     name: 'evaluate_interview',
-    description: 'Đánh giá kết quả phỏng vấn kiến trúc (12 trụ cột), tính điểm độ phức tạp (Complexity Score), tự động lưu trữ Ephemeral Scratchpad (.agents/.cache/scaffold-session.json) chống trôi context và sinh sẵn tài liệu ADR-001.md.',
+    description: 'Đánh giá input kiến trúc và ghi scratchpad chứa ADR draft vào project_dir/.agents/.cache/scaffold-session.json. Chỉ gọi khi người dùng yêu cầu rõ interview/chấm điểm và đồng ý side effect ghi file.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -135,7 +135,7 @@ const TOOLS = [
   },
   {
     name: 'scaffold_project',
-    description: 'Tự động giải nén và dựng toàn bộ cây thư mục source base chuẩn ra đĩa (Clean Architecture, Docker, config, entities, use cases, ADRs). Tự động nạp cấu hình từ Ephemeral Scratchpad nếu có và dọn sạch cache sau khi hoàn tất.',
+    description: 'Ghi source base từ blueprint vào target_dir; hiện ghi đè file blueprint trùng tên mà không kiểm tra xung đột. Chỉ gọi khi người dùng yêu cầu tạo source base và target_dir đã được kiểm tra là thư mục mới hoặc rỗng.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -157,7 +157,7 @@ const TOOLS = [
   },
   {
     name: 'inject_pattern',
-    description: 'Nhúng trực tiếp mã nguồn của 1 pattern (ví dụ: outbox worker, idempotency middleware, db queue) vào dự án hiện tại.',
+    description: 'Ghi code pattern vào target_dir/src/patterns/<pattern>.<ext>, ghi đè file cùng tên nếu có. Chỉ gọi khi người dùng yêu cầu rõ việc inject và đã kiểm tra file đích không có nội dung cần giữ.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -367,7 +367,7 @@ function handleToolCall(name, args) {
       return {
         content: [{
           type: 'text',
-          text: `## 📦 Danh sách các Source Base Blueprints có sẵn:\n\n${list}\n\n👉 Dùng tool 'scaffold_project' để tự động tạo cây thư mục và sinh mã nguồn ra đĩa.`
+          text: `## 📦 Danh sách các Source Base Blueprints có sẵn:\n\n${list}\n\nNếu người dùng yêu cầu tạo source base, dùng skill scaffold để xác nhận target_dir trước khi gọi tool ghi file.`
         }]
       };
     }

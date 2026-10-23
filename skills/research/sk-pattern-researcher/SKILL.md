@@ -5,8 +5,6 @@ description: |
   Dùng khi: chọn architecture pattern, compare libraries, evaluate trade-offs.
   Trigger: "nên dùng pattern nào", "so sánh approaches", "kiến trúc cho [use case]",
   "compare [A] vs [B]", "evaluate trade-offs".
-context-required: false
-output: pattern-comparison
 ---
 
 # Pattern Researcher

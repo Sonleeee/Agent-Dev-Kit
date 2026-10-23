@@ -4,8 +4,6 @@ description: |
   Đề xuất test strategy cho module — loại test, coverage target, priority.
   Dùng khi: module mới cần test plan, review test coverage, đánh giá test quality.
   Trigger: "test strategy", "testing plan", "coverage analysis", "cần test gì".
-context-required: optional
-output: test-strategy-doc
 ---
 
 # Test Strategy

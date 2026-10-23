@@ -1,35 +1,28 @@
 ---
 name: sk-skill-synthesizer
-description: |
-  Phân tích execution traces thành công để phát hiện reusable procedures,
-  tự động sinh SKILL.md draft cho patterns mới. Lấy cảm hứng từ
-  Hermes Agent autonomous skill creation.
-triggers:
-  - Sau /wf-delivery hoặc /wf-fix hoàn thành SUCCESS với complexity ≥ Medium
-  - Manual: /wf-evolve --synthesize
-  - Auto-trigger khi Phase G active
-requires:
-  - tools/evolution_db.py (Phase A)
-  - Đủ traces trong evolution.db
-phase: B (Skill Synthesis — Core)
+description: Phân tích execution trace có evidence để đề xuất quy trình tái sử dụng và tạo bản nháp skill khi maintainer yêu cầu. Không tự chạy sau task hoặc commit; cần người duyệt trước khi thêm skill.
 ---
 
 # sk-skill-synthesizer — Tự Tạo Skills Từ Traces
 
 ## Tổng quan
 
-Sau mỗi task phức tạp thành công, skill này kiểm tra: "Chuỗi bước vừa thực
-hiện có thể trở thành skill tái sử dụng không?" Nếu có → sinh SKILL.md draft
-→ trình user approve.
+Chỉ chạy khi maintainer yêu cầu phân tích trace hoặc đề xuất skill. Trace/commit
+đơn lẻ không đủ để kết luận có quy trình tái sử dụng; candidate cần evidence từ
+nhiều task độc lập và người dùng duyệt draft trước khi thêm vào kit.
 
 ## Điều kiện kích hoạt
 
-Chạy check sau mỗi task khi **tất cả** điều kiện thỏa:
+Xét candidate khi **tất cả** điều kiện sau có evidence:
 
 1. `outcome = 'SUCCESS'`
 2. `complexity IN ('Medium', 'High')`
 3. `duration_turns >= 8`
 4. Chưa có skill tương tự trong registry
+
+Không xem commit metadata-only, outcome `PARTIAL`, workflow/skill suy đoán từ commit
+prefix hoặc file path là bằng chứng task thành công hay procedure đã được dùng.
+Nếu trace không ghi được cách task hoàn thành và kiểm chứng, loại nó khỏi candidate.
 
 ### Query kiểm tra
 
@@ -42,6 +35,11 @@ WHERE t.outcome = 'SUCCESS'
   AND t.complexity IN ('Medium', 'High')
   AND t.duration_turns >= 8
   AND t.created_at >= date('now', '-7 days')
+  AND CASE
+        WHEN json_valid(t.acceptance_evidence)
+        THEN json_extract(t.acceptance_evidence, '$.task_outcome_observed') = 1
+        ELSE 0
+      END
   AND NOT EXISTS (
     SELECT 1 FROM patterns p
     WHERE p.pattern_type = 'reusable_procedure'
@@ -85,13 +83,7 @@ Dựa trên trace steps, tạo skill file theo template chuẩn ADK:
 ```markdown
 ---
 name: sk-{generated-name}
-description: |
-  {Mô tả ngắn 1-2 câu dựa trên task_description}
-triggers:
-  - {Khi nào nên dùng skill này}
-synthesized_from: {trace-id}
-synthesis_confidence: {0.0-1.0}
-synthesis_date: {ISO8601}
+description: {Mô tả ngắn về intent và khi nào dùng skill này}
 ---
 
 # sk-{name} — {Title}
@@ -118,9 +110,9 @@ synthesis_date: {ISO8601}
 
 ## Ghi chú
 
-- Skill này được tự động sinh từ trace `{trace-id}`
+- Nguồn đề xuất: trace `{trace-id}` (ghi provenance trong body, không thêm metadata host-specific)
 - Confidence: {score} — cần user review và refine
-- Sau {N} lần sử dụng, GEPA-Lite sẽ tối ưu nếu cần
+- Maintainer có thể yêu cầu GEPA-Lite đánh giá sau khi có thêm evidence sử dụng
 ```
 
 ### Step 4: Similarity check
@@ -154,24 +146,25 @@ Nếu overlap > 30% → đề xuất **mở rộng skill hiện có** thay vì t
 ### Skill đề xuất: `sk-{name}`
 {Preview 3 dòng đầu description}
 
-**Đặt trong:** skills/{group}/sk-{name}/SKILL.md
+Đặt trong source: `skills/{group}/sk-{name}/SKILL.md`. Installer export skill vào
+`.agents/skills/sk-{name}/` để Antigravity và Codex tìm thấy.
 
 [Approve] [Edit trước] [Reject] [Reject + lý do]
 ```
 
-### Step 6: Commit & register
+### Step 6: Add the approved draft
 
 Nếu user approve:
 
-1. Ghi SKILL.md vào `skills/{group}/sk-{name}/SKILL.md`
-2. Register vào DB:
+1. Chỉ sau khi user duyệt draft, ghi SKILL.md vào `skills/{group}/sk-{name}/SKILL.md`.
+2. Register vào DB chỉ khi maintainer yêu cầu hoặc trace logging đã được bật:
    ```sql
    INSERT INTO skills (name, skill_group, current_version)
    VALUES ('sk-{name}', '{group}', '1.0');
    
    INSERT INTO skill_versions (skill_name, version, change_reason, change_description)
    VALUES ('sk-{name}', '1.0', 'synthesis',
-           'Auto-synthesized from trace {trace-id}');
+           'Reviewed synthesis from trace set {trace-ids}');
    
    INSERT INTO patterns (pattern_type, description, status)
    VALUES ('reusable_procedure', '{task_description}', 'active');
@@ -179,16 +172,20 @@ Nếu user approve:
 3. Log synthesis event:
    ```sql
    INSERT INTO evolution_runs (target_type, target_name, trigger, strategy, outcome)
-   VALUES ('skill', 'sk-{name}', 'auto', 'synthesize', 'upgraded');
+    VALUES ('skill', 'sk-{name}', 'manual', 'synthesize', 'upgraded');
    ```
 
 ### Step 7: Post-synthesis tracking
 
-Sau khi skill được tạo, theo dõi qua `sk-trace-capture`:
+Sau khi skill được tạo, nếu maintainer bật trace capture, theo dõi qua `sk-trace-capture`:
 - Đếm times_used, times_succeeded, times_failed
-- Khi times_used >= 5 → kích hoạt Phase D (GEPA-Lite) để tối ưu
+- Khi có đủ evidence sử dụng → đề xuất GEPA-Lite để maintainer cân nhắc; không tự kích hoạt.
 
 ## Ví dụ cụ thể
+
+Ví dụ dưới đây chỉ minh họa hình dạng artifact. Một trace Stripe đơn lẻ **không đủ**
+evidence để kết luận đây là procedure dùng lại được; cần các task độc lập khác cho
+thấy cách tiếp cận tương tự trước khi đề xuất draft.
 
 ### Input: Trace của task "Set up Stripe webhook với idempotency"
 
@@ -214,15 +211,10 @@ Steps:
 ```markdown
 ---
 name: sk-webhook-resilient
-description: |
-  Thiết lập webhook endpoint với signature verification, idempotency,
-  retry + exponential backoff, và dead letter queue.
-triggers:
-  - Tạo webhook endpoint cho payment/notification provider
-  - Tích hợp third-party webhook (Stripe, PayPal, Twilio, ...)
-synthesized_from: trace-2026-10-15-003
-synthesis_confidence: 0.88
+description: Thiết lập webhook endpoint với signature verification, idempotency, retry và dead letter queue cho integration cần reliability cao.
 ---
+
+Đề xuất từ trace-2026-10-15-003; maintainer đã review và chốt nội dung.
 
 # sk-webhook-resilient — Resilient Webhook Setup
 
@@ -279,9 +271,8 @@ Nếu user reject proposal, ghi lý do:
 
 ```sql
 INSERT INTO evolution_runs (target_type, target_name, trigger, strategy, outcome)
-VALUES ('skill', 'sk-{proposed-name}', 'auto', 'synthesize', 'rejected');
+VALUES ('skill', 'sk-{proposed-name}', 'manual', 'synthesize', 'rejected');
 ```
 
-Lý do rejection được dùng cho Phase H (Meta-Evolution) để cải thiện
-synthesis strategy: "User reject 60% proposals vì quá generic"
-→ nâng threshold confidence lên 0.9.
+Chỉ ghi rejection nếu maintainer yêu cầu lưu feedback này; không tự cập nhật threshold
+hoặc synthesis strategy từ một lần từ chối.

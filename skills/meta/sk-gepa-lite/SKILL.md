@@ -1,17 +1,6 @@
 ---
 name: sk-gepa-lite
-description: |
-  Lightweight evolutionary optimizer cho SKILL.md, workflow, và rule files.
-  Lấy cảm hứng từ GEPA (Genetic-Pareto Prompt Evolution) của Hermes Agent.
-  Dùng LLM-as-judge thay vì DSPy framework — giữ triết lý zero-runtime của ADK.
-triggers:
-  - /wf-evolve phát hiện skill/workflow/rule cần optimize
-  - Manual: /wf-evolve --optimize --target <name>
-  - Auto (Phase G): skill success_rate drop dưới threshold
-requires:
-  - tools/evolution_db.py
-  - Ít nhất 5 traces liên quan đến target cần optimize
-phase: D/E/F (GEPA-Lite Optimization — Core)
+description: Đề xuất và đánh giá có kiểm soát thay đổi cho skill, workflow hoặc rule khi maintainer yêu cầu. Dựa trên trace có evidence; không tự sửa file hoặc chạy sau mỗi task.
 ---
 
 # sk-gepa-lite — Evolutionary Optimization Engine
@@ -34,6 +23,11 @@ READ → DIAGNOSE → MUTATE → EVALUATE → SELECT
 ---
 
 ## Step 1: READ — Đọc target và thu thập evidence
+
+Chỉ tính trace có invocation evidence cho target. Loại commit metadata-only,
+outcome PARTIAL/unknown và dữ liệu suy ra từ commit prefix/file path; success rate
+hoặc friction aggregate chỉ là tín hiệu tìm kiếm, phải đối chiếu trace gốc trước
+khi đưa ra kết luận.
 
 ### Input cần thu thập
 
@@ -394,13 +388,15 @@ HAVING violations >= 3;
 
 ---
 
-## Phase G: Continuous Loop Config
+## Gợi ý candidate khi được yêu cầu
 
-Auto-trigger evolution khi thỏa điều kiện trong `config/evolution.toml`:
+Không cấu hình auto-trigger, cron hoặc check sau mỗi task. Khi maintainer yêu cầu
+phân tích evolution, dùng các truy vấn dưới đây để tìm candidate; chỉ trình bày
+đề xuất dựa trên trace có evidence và không tự sửa target.
 
 ```toml
 [evolution.triggers]
-# Chạy /wf-evolve sau mỗi N traces mới
+# Ngưỡng lọc gợi ý; không tự kích hoạt action
 trace_threshold = 20
 
 # Chạy GEPA-Lite khi skill success rate drop dưới threshold
@@ -410,11 +406,11 @@ skill_degradation_threshold = 0.70
 friction_spike_window = "7d"
 friction_spike_threshold = 5
 
-# Tự synthesize khi phát hiện task SUCCESS + High + ≥8 turns
-auto_synthesize = true
+# Không synthesize tự động
+auto_synthesize = false
 ```
 
-### Check triggers (chạy sau mỗi task)
+### Check candidate (chỉ khi maintainer yêu cầu)
 
 ```sql
 -- Check 1: Đủ traces mới?
@@ -439,9 +435,10 @@ WHERE outcome = 'SUCCESS' AND complexity IN ('Medium','High')
 
 ---
 
-## Phase H: Meta-Evolution
+## Phase H: Review evolution evidence
 
-Phân tích **hiệu quả của chính quá trình evolution** và tự điều chỉnh:
+Phân tích hiệu quả của các thay đổi evolution chỉ khi maintainer yêu cầu. Kết quả
+là đề xuất; không tự điều chỉnh strategy hoặc ghi config:
 
 ```sql
 -- Evolution nào hiệu quả?
@@ -458,4 +455,5 @@ GROUP BY ec.mutation_type
 ORDER BY succeeded DESC;
 ```
 
-**Output:** Cập nhật `preferred_mutations` và `avoid_mutations` trong config/evolution.toml.
+**Output:** Đề xuất thay đổi `preferred_mutations` hoặc `avoid_mutations` trong
+config/evolution.toml, kèm evidence. Chỉ cập nhật file khi maintainer chọn rõ đề xuất.

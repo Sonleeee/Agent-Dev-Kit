@@ -5,10 +5,6 @@ description: |
   bẻ Epic thành User Stories chuẩn INVEST và AC Gherkin (Given-When-Then).
   Tích hợp kỹ thuật 5 Whys Elicitation để bóc tách yêu cầu tiềm ẩn.
   Bắt buộc mô hình hóa sơ đồ bằng Mermaid.
-inputs:
-  - raw-requirements: Yêu cầu thô từ khách hàng hoặc stakeholder
-output:
-  - prd: Tài liệu PRD hoặc User Stories
 ---
 
 # Agile Business Analysis — sk-agile-ba

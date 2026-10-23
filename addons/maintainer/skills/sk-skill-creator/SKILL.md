@@ -1,12 +1,9 @@
 ---
 name: sk-skill-creator
 description: |
-  Meta-skill để tạo mới skill hoặc onboard project vào global agent system.
+  Tạo hoặc cập nhật Agent Skill theo chuẩn portable, hoặc onboard project khi được yêu cầu.
   Dùng khi: tạo SKILL.md mới từ ý tưởng, onboard project mới vào registry,
-  hoặc extract pattern từ codebase có sẵn thành context files.
-  Trigger: "tạo skill", "onboard project", "tạo AGENTS.md", "extract pattern từ code".
-context-required: false
-output: new-skill-package | project-context-files
+  hoặc extract pattern từ codebase thành context files.
 ---
 
 # Skill Creator (Meta)
@@ -51,54 +48,42 @@ Hỏi tuần tự, dừng khi đã đủ thông tin:
 5. Rules / constraints quan trọng (không được làm gì, giới hạn gì)?
 6. Edge cases cần xử lý?
 7. Ví dụ thực tế 1 lần dùng? (input → output mẫu)
-8. Platform nào? (Cursor / Claude / All) — Global hay project-specific?
+8. Host nào cần hỗ trợ? (Antigravity, Codex hoặc cả hai) — global hay project-specific?
 
-### Phase 3 — Complexity Detection
+Chỉ hỏi những điều chưa thể suy ra an toàn từ yêu cầu hoặc repo; không bắt buộc đi
+hết danh sách nếu đã đủ thông tin để tạo artifact đúng scope.
 
-Tính điểm để chọn output structure:
+### Phase 3 — Chọn kích thước nhỏ nhất
 
-| Yếu tố | Điểm |
-|---|---|
-| Nhiều steps (>5) | +2 |
-| Nhiều edge cases (>3) | +2 |
-| Cần project context | +3 |
-| Cần templates/examples | +2 |
-| Multi-platform | +1 |
-| Orchestration nhiều skill | +3 |
-
-| Score | Output |
-|---|---|
-| 1–5 | Chỉ `SKILL.md` |
-| 6–12 | `SKILL.md` + `templates/` |
-| 13–20 | `SKILL.md` + `phases/` + `templates/` |
-| 21+ | Full package: SKILL.md + phases/ + templates/ + examples/ |
+Mặc định chỉ tạo SKILL.md. Thêm references, scripts, examples hoặc assets khi
+chúng giúp dùng lại quy trình hoặc tránh nạp nội dung lớn vào mỗi lần kích hoạt.
+Không tạo phases/package nhiều tầng chỉ vì skill có nhiều bước.
 
 ### Phase 4 — Generate
 
-**SKILL.md bắt buộc có:**
+**SKILL.md dùng portable Agent Skills frontmatter:**
 
 ```yaml
 ---
 name: [kebab-case]
-description: |
-  [Trigger rõ — viết "pushy", cover nhiều cách user hỏi]
-  [Mô tả mục đích + khi nào dùng]
-context-required: true/false/optional
-output: [loại output]
+description: [Mục đích và intent đủ rõ để agent biết khi nào nạp skill]
 ---
 ```
 
-**Sections bắt buộc:** Mục Tiêu, Quy trình (steps), Guardrails
+Không thêm top-level metadata riêng như triggers, context-required, inputs, output
+hoặc phase. Đưa input, output và điều kiện dùng vào description hoặc body.
+
+**Sections nên có:** Khi nào dùng, Quy trình (steps), Guardrails
 **Sections tùy chọn:** Known Pitfalls, Examples, References
 
 **7 Nguyên Tắc SKILL.md Tốt:**
 1. **Atomic**: 1 skill = 1 việc. Tên có "và" → tách
-2. **Trigger rõ**: description đủ để AI tự kích hoạt đúng lúc
+2. **Trigger rõ**: description phân biệt skill này với các skill gần intent
 3. **Steps cụ thể**: đủ để execute không cần hỏi thêm
 4. **Examples > Rules**: 2–3 ví dụ tốt hơn 50 dòng quy tắc
 5. **Guardrails thực tế**: từ pitfalls đã gặp, không lý thuyết
-6. **Ngắn gọn**: SKILL.md < 150 dòng, dài hơn → tách phases/
-7. **Context-aware**: khai báo rõ `context-required`
+6. **Ngắn gọn**: chỉ tách reference/template/script khi chúng giúp giảm context nạp thường xuyên
+7. **Context-aware**: nêu context cần đọc trong body, không dựa vào custom metadata
 
 **15 Anti-Patterns cần tránh:**
 - 🐙 **Octopus**: skill làm quá nhiều việc → tách
@@ -109,12 +94,14 @@ output: [loại output]
 
 ### Phase 5 — Dry Run
 
-Mô phỏng 1–2 tình huống thực tế với skill vừa tạo.
-Kiểm tra output có đúng mong muốn không. Điều chỉnh nếu cần.
+Rà lại trigger với một yêu cầu thuộc phạm vi và một yêu cầu gần giống nhưng
+không thuộc phạm vi khi user yêu cầu eval hoặc skill ảnh hưởng rộng. Không bắt
+buộc dựng benchmark cho mọi skill mới.
 
 ### Phase 6 — Register
 
-- Đặt vào folder đúng: `core/` / `orchestration/` / `domain/` / `meta/`
+- Đặt source vào category phù hợp: `core/`, `devops/`, `meta/`, `research/`, `security/`, `testing/` hoặc addon owner.
+- Khi cài kit, export skill vào `.agents/skills/<skill-name>/`.
 - Nếu project-specific: đặt vào `[project]/.agents/skills/`
 - Ghi vào `CHANGELOG.md` global
 
@@ -127,7 +114,8 @@ Kiểm tra output có đúng mong muốn không. Điều chỉnh nếu cần.
 
 ### Phase 1 — Quick Scan
 
-Hỏi user 5 câu để định hướng scan:
+Đọc passport và các entrypoint của repo trước. Chỉ hỏi các thông tin quan trọng
+mà không thể suy ra từ code/config; các chủ đề sau là gợi ý, không phải bộ câu hỏi bắt buộc:
 
 1. Project tên gì? Làm gì (1 câu)?
 2. BE tech stack? (ngôn ngữ, framework, ORM...)
@@ -239,6 +227,6 @@ Tạo đầy đủ các file sau:
 
 - Không tạo skill quá generic ("làm tất cả mọi thứ") — tách nhỏ
 - Không tự điền context mà user chưa cung cấp hoặc code chưa có
-- SKILL.md > 150 dòng → refactor ra `phases/` hoặc `templates/`
+- Giữ phần hướng dẫn thường dùng gọn; chuyển tài liệu dài sang references khi điều đó giảm context nạp mỗi lần.
 - Mode 2: luôn dry-run propose trước khi ghi file — không ghi thẳng
 - Mode 2: documented rõ deviations (code vi phạm pattern) để user quyết định fix hay ghi exception

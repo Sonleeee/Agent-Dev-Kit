@@ -3,8 +3,6 @@ name: sk-db-inspector
 description: |
   Sử dụng Gridex MCP (hoặc công cụ Database Inspector tương thích) để kết nối, tra cứu cấu trúc (schema) và truy vấn dữ liệu một cách an toàn.
   Hỗ trợ phân tích dữ liệu thực tế để đối chiếu nghiệp vụ, gỡ lỗi EF Core, viết migrations và tối ưu câu lệnh SQL.
-context-required: required
-output: SQL queries, schema reports, data validation results
 accelerators: gridex
 ---
 

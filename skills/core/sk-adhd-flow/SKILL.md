@@ -5,8 +5,6 @@ description: |
   Đưa hành động lên dòng đầu tiên, đánh số các bước tuần tự, giới hạn tối đa 5 mục/nhóm,
   cập nhật trạng thái tiến độ mỗi lượt, ước tính thời gian cụ thể, loại bỏ hoàn toàn
   preamble, recap thừa và lời chào/kết sáo rỗng.
-context-required: optional
-output: actionable-minimal-markdown
 ---
 
 # ADHD Flow — Cognitive Ergonomics & Action-First Output

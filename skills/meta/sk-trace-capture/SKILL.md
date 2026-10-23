@@ -1,35 +1,27 @@
 ---
 name: sk-trace-capture
-description: |
-  Ghi lại structured execution traces vào SQLite (evolution.db) sau mỗi bước
-  trong workflow. Là nền tảng cho toàn bộ self-evolution pipeline.
-  Tích hợp vào sk-execution-contract như một protocol bổ sung.
-triggers:
-  - Tự động khi evolution system được kích hoạt
-  - Chạy ngầm song song với mọi workflow
-requires:
-  - tools/evolution_db.py
-  - SQLite 3.35+ với FTS5
-phase: A (Trace Infrastructure — Core)
+description: Ghi structured execution traces khi người dùng hoặc cấu hình ADK bật trace capture. Ghi sự kiện và skill thực sự đã dùng; không chạy ngầm sau mọi bước hoặc suy diễn từ commit.
 ---
 
-# sk-trace-capture — Ghi Execution Traces
+# sk-trace-capture — Ghi execution traces có evidence
 
 ## Tổng quan
 
-Skill này **bổ sung** (không thay thế) vào `sk-execution-contract`. Khi được
-kích hoạt, mọi task thay đổi đều ghi trace có cấu trúc vào `evolution.db`.
+Chỉ ghi trace khi người dùng hoặc cấu hình ADK đã bật cơ chế này. Capture là
+best-effort: không tạo record cho từng hành động nhỏ và không làm chậm task.
+Task ngắn có thể chỉ cần metadata commit; chỉ ghi workflow/skill khi thực sự được
+dùng trong phiên.
 
 ## Protocol — Khi nào ghi gì
 
-### 1. Bắt đầu task → Tạo session + trace
+### 1. Bắt đầu trace khi capture đã bật
 
 ```
 python evolution_db.py log_session '{
   "id": "<session-id>",
   "project": "<tên project từ AGENTS.md>",
   "user_intent": "<nguyên văn yêu cầu user>",
-  "workflow_used": "<wf-delivery|wf-fix|...>"
+  "workflow_used": "<command thực sự được gọi, hoặc null nếu không dùng workflow>"
 }'
 ```
 
@@ -37,7 +29,7 @@ python evolution_db.py log_session '{
 - session-id: `sess-YYYY-MM-DD-NNN` (NNN tăng dần trong ngày)
 - trace-id: `trace-YYYY-MM-DD-NNN`
 
-### 2. Sau mỗi phase → Ghi trace step
+### 2. Ghi bước có ý nghĩa
 
 ```
 python evolution_db.py log_step '{
@@ -52,7 +44,8 @@ python evolution_db.py log_step '{
 }'
 ```
 
-**Ghi gọn, không ghi raw output.** Chỉ ghi 1-2 câu mô tả và kết quả.
+Chỉ ghi bước lớn có ý nghĩa, retry, user correction hoặc handoff. Không tạo phase
+giả nếu task đi thẳng từ yêu cầu sang implement. Ghi gọn, không ghi raw output.
 
 ### 3. Khi gặp friction → Ghi friction point
 
@@ -89,7 +82,7 @@ python evolution_db.py log_friction '{
 | `rule_violation` | Vi phạm rule rồi tự phát hiện hoặc bị sửa | "Quên chạy build verification" |
 | `tool_error` | Tool lỗi (không phải agent sai) | "MCP server timeout" |
 
-### 4. Khi dùng skill → Ghi skill usage
+### 4. Khi skill thực sự được dùng → ghi skill usage
 
 ```
 python evolution_db.py log_skill_use '{
@@ -98,6 +91,8 @@ python evolution_db.py log_skill_use '{
   "outcome": "success|partial|failed"
 }'
 ```
+
+Không suy ra skill usage từ tên folder/file trong diff hoặc từ commit prefix.
 
 ### 5. Kết thúc task → Cập nhật outcome
 
@@ -117,8 +112,12 @@ python evolution_db.py update_outcome '{
 1. **Gọn gàng:** Mỗi step description ≤2 câu. Không dump raw output.
 2. **Trung thực:** Ghi friction thật, không bỏ qua lỗi mình gây ra.
 3. **Nhất quán:** Luôn dùng đúng category và severity.
-4. **Không blocking:** Nếu DB không available, ghi warning và tiếp tục task.
+4. **Không blocking:** Nếu DB không available, tiếp tục task bình thường.
    Trace capture là best-effort, không được block delivery flow.
+5. **Không bịa metrics:** Không ghi `SUCCESS`, turns, tokens, workflow, skills hoặc
+   friction như dữ liệu quan sát nếu chỉ có metadata commit. Với commit-only record,
+   dùng outcome không khẳng định task đã xong, để turns/tokens bằng 0, workflow null
+   và không thêm skill usage.
 
 ## Kiểm tra database
 
@@ -133,15 +132,8 @@ python evolution_db.py search '{"table": "traces", "query": "pagination API"}'
 python evolution_db.py query '{"sql": "SELECT * FROM v_skill_health"}'
 ```
 
-## Tích hợp với Execution Contract
+## Quan hệ với Execution Contract
 
-Skill này **bổ sung** vào `sk-execution-contract`, không thay thế.
-Khi evolution system active:
-
-1. Contract bootstrap → thêm bước `log_session`
-2. Mỗi phase update ledger → thêm bước `log_step`
-3. Mỗi retry/error → thêm bước `log_friction`
-4. Task kết thúc → thêm bước `update_outcome`
-
-Nếu evolution system không active, `sk-execution-contract` chạy bình thường
-mà không ghi trace.
+Trace capture độc lập với `sk-execution-contract`. Khi được bật, ghi session, bước
+lớn, friction có thật và outcome có evidence. Không bắt buộc contract/ledger và
+không ghi trace tự động chỉ vì skill đã được nạp.

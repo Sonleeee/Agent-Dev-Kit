@@ -79,7 +79,7 @@ try {
     },
     {
       name: "evaluate_interview",
-      description: "Đánh giá kết quả phỏng vấn kiến trúc (12 trụ cột), tính điểm độ phức tạp (Complexity Score), tự động lưu trữ Ephemeral Scratchpad (.agents/.cache/scaffold-session.json) chống trôi context và sinh sẵn tài liệu ADR-001.md.",
+      description: "Đánh giá input kiến trúc và ghi scratchpad chứa ADR draft vào project_dir/.agents/.cache/scaffold-session.json. Chỉ gọi khi người dùng yêu cầu rõ interview/chấm điểm và đồng ý side effect ghi file.",
       parameters: {
         type: "object",
         properties: {
@@ -103,7 +103,7 @@ try {
     },
     {
       name: "scaffold_project",
-      description: "Tự động giải nén và dựng toàn bộ cây thư mục source base chuẩn cho dự án mới ra đĩa (Clean Architecture, Docker, config, entities, use cases, ADRs). Chuẩn xác 100% không lo lỗi syntax.",
+      description: "Ghi source base từ blueprint vào target_dir; hiện ghi đè file blueprint trùng tên mà không kiểm tra xung đột. Chỉ gọi khi người dùng yêu cầu tạo source base và target_dir đã được kiểm tra là thư mục mới hoặc rỗng.",
       parameters: {
         type: "object",
         properties: {
@@ -116,7 +116,7 @@ try {
     },
     {
       name: "inject_pattern",
-      description: "Nhúng trực tiếp mã nguồn của 1 pattern (ví dụ: outbox worker, idempotency middleware) vào dự án hiện tại.",
+      description: "Ghi code pattern vào target_dir/src/patterns/<pattern>.<ext>, ghi đè file cùng tên nếu có. Chỉ gọi khi người dùng yêu cầu rõ việc inject và đã kiểm tra file đích không có nội dung cần giữ.",
       parameters: {
         type: "object",
         properties: {
@@ -147,10 +147,11 @@ try {
   }
 
   const instructions = `# System Design MCP Server Instructions
-Sử dụng server này khi:
-1. Cần tra cứu kiến trúc hệ thống, patterns (outbox, idempotency, circuit breaker, caching) thay vì tìm kiếm ngoài internet.
-2. Cần dựng khung source base mới (scaffold_project) theo chuẩn Clean Architecture (TypeScript hoặc Python).
-3. Cần nhúng pattern mẫu vào codebase hiện tại (inject_pattern).
+Sử dụng các tool tra cứu pattern/blueprint khi phù hợp với yêu cầu.
+
+Chỉ gọi evaluate_interview khi người dùng yêu cầu rõ vì tool này ghi scratchpad/ADR vào project_dir.
+Chỉ gọi scaffold_project khi người dùng yêu cầu tạo source base. Tool ghi đè file blueprint nếu trùng tên; trước khi gọi, xác nhận target_dir không tồn tại hoặc đang rỗng.
+Chỉ gọi inject_pattern khi người dùng yêu cầu nhúng code vào project hiện có và đã kiểm tra file đích.
 `;
   fs.writeFileSync(path.join(antigravityMcpDir, 'instructions.md'), instructions, 'utf8');
   console.log(`✅ [Antigravity] Đã sinh tool schemas vào: ${antigravityMcpDir}`);

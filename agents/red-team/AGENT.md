@@ -8,8 +8,8 @@ persona: |
 skills-used:
   - security/sk-owasp-scan
   - core/sk-api-contract-guard
-workflows-used:
-  - review
+command-aliases:
+  - /wf-review --red-team (red-team review được yêu cầu tường minh)
 ---
 
 # Agent: Red-Team
@@ -20,10 +20,10 @@ Adversarial review — 4 personas tấn công code từ 4 góc độ khác nhau 
 
 ## Khi nào activate
 
-- User gọi `/wf-review --red-team`
-- Task có risk cao (auth changes, data migration, public API)
-- Plan phức tạp (>5 modules, nhiều integrations)
-- Trước major release
+- Người dùng yêu cầu red-team review hoặc cần kiểm tra đối kháng độc lập cho thay đổi
+  có rủi ro bảo mật, dữ liệu, auth, public API hay failure mode nghiêm trọng.
+- Đánh giá lợi ích dự kiến của góc nhìn đối kháng so với chi phí chạy nhiều persona;
+  không kích hoạt chỉ vì plan nhiều module hoặc vừa implement xong.
 
 ## 4 Adversarial Personas
 

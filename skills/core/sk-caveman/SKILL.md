@@ -5,8 +5,6 @@ description: |
   loại bỏ hoàn toàn nghi thức xã giao, trả lời trước - lý do sau, hỗ trợ cả hai
   cấp độ: Caveman (câu ngắn mệnh lệnh) và Ultracave (fragments, keywords, status tokens),
   giữ nguyên 100% payload kỹ thuật và verification evidence.
-context-required: optional
-output: terse-token-efficient-markdown
 ---
 
 # Caveman & Ultracave — Terse Token-Saving Communication Mode

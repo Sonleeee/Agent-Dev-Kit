@@ -6,8 +6,6 @@ description: |
   thêm auth/input handling, hoặc sau khi AI agent sinh lượng code lớn.
   Trigger: "security scan", "OWASP check", "kiểm tra bảo mật", "vulnerability scan".
   Nguồn bổ sung: tanviet12/vbsec (https://github.com/tanviet12/vbsec)
-context-required: false
-output: owasp-scan-report
 ---
 
 # OWASP Scan + AI Code Security

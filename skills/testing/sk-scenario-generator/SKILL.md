@@ -4,8 +4,6 @@ description: |
   Generate test scenarios từ requirements — happy path, edge cases, error cases.
   Dùng khi: viết acceptance criteria, tạo QA checklist, generate test cases.
   Trigger: "generate scenarios", "test cases", "acceptance criteria", "QA checklist".
-context-required: optional
-output: test-scenarios-list
 ---
 
 # Scenario Generator

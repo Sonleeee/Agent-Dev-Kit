@@ -1,55 +1,24 @@
 ---
 name: sk-daily-task-sync
-description: Đồng bộ tasks từ notebook 📋 Daily Ops về Obsidian Vault local
+description: Đọc và tổng hợp tasks từ NotebookLM Daily Ops; chỉ cập nhật Obsidian khi người dùng yêu cầu sync task list một cách tường minh.
 ---
 
 # Daily Task Sync
 
-## Công dụng
-Đọc tasks từ notebook `📋 Daily Ops` trên NotebookLM và đồng bộ
-về file `02_Brain/Task Systems.md` trong Obsidian Vault.
+## Đọc và tổng hợp
 
-## MCP Tools
-- `notebook_get` — lấy thông tin notebook Daily Ops
-- `note(action=list)` — liệt kê tất cả notes (daily + backlog)
-- `notebook_query` — hỏi AI tổng hợp trạng thái tasks
+1. Tìm notebook `📋 Daily Ops` bằng `tag(action=select, query="daily-ops")`; xác nhận đúng notebook.
+2. Dùng `note(action=list)` để đọc daily notes và backlog. Giữ nguyên trạng thái checkbox, ngày và project nếu có.
+3. Dùng `notebook_query` để tổng hợp các task chưa hoàn thành; đối chiếu nội dung nguồn khi kết quả query không rõ.
+4. Nếu người dùng chỉ muốn xem trạng thái, trả task list và dừng ở chế độ chỉ đọc.
 
-## Quy trình
+## Cập nhật Obsidian
 
-### Bước 1: Tìm notebook Daily Ops
-```
-tag(action=select, query="daily-ops")
-→ Lấy notebook_id của 📋 Daily Ops
-```
+Chỉ thực hiện khi người dùng yêu cầu rõ việc sync/update task list. Dùng `sk-vault-steward` để xác định vault và kiểm tra file đích; nếu skill steward không discover được, dừng ở preview. Đường dẫn mặc định theo cấu hình vault, thường là `02_Brain/Task Systems.md`.
 
-### Bước 2: Đọc notes
-```
-note(notebook_id=DAILY_OPS_ID, action=list)
-→ Lấy danh sách notes: daily notes + Backlog
-```
+- Thêm task mới mà chưa có; đối chiếu project và nội dung để tránh append trùng ở lần sync sau.
+- Đánh dấu task hoàn thành chỉ khi cùng task được nhận diện chính xác trong nguồn. Không xóa task hoặc thay đổi NotebookLM.
+- Nếu file đích không tồn tại, cấu trúc khác hoặc trạng thái task mâu thuẫn, dừng và hỏi trước khi tạo/ghi.
+- Báo số task thêm/cập nhật và đường dẫn sau khi đã xác minh file.
 
-### Bước 3: Extract tasks
-Dùng `notebook_query` để hỏi AI:
-```
-"Liệt kê tất cả tasks chưa hoàn thành ([ ]) từ mọi notes.
- Nhóm theo project. Format: [project] | [task] | [ngày tạo]"
-```
-
-### Bước 4: Sync về local
-Ghi output vào `02_Brain/Task Systems.md`:
-- Tasks mới → append vào section tương ứng
-- Tasks đã hoàn thành ([x]) → đánh dấu done
-- Backlog items → section riêng "Backlog"
-
-## Output
-- File `02_Brain/Task Systems.md` đã cập nhật
-- Báo cáo: X tasks mới, Y tasks hoàn thành, Z backlog
-
-## Khi nào dùng
-- Khi cần snapshot tasks về local
-- Khi cần review tuần qua
-- Được gọi bởi workflow `/wf-phone-sync`
-
-## Lưu ý
-- Notes trong Daily Ops dùng format checkbox markdown: `- [ ]` / `- [x]`
-- Notebook `📋 Daily Ops` có tag `daily-ops`
+Để đồng bộ cả Inbox và Daily Ops trong một lần, dùng `sk-notebooklm-phone-sync`.

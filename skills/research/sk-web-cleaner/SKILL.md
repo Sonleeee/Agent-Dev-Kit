@@ -3,9 +3,6 @@ name: sk-web-cleaner
 description: |
   Kỹ năng làm sạch nội dung trang web (Web Clipping) lưu tại `00_Raw/` bằng script cục bộ.
   Bóc tách quảng cáo, menu điều hướng, script, style và xuất ra Markdown sạch sẽ.
-inputs:
-  - input_path: Đường dẫn file HTML thô hoặc Markdown thô cần làm sạch
-  - output_path: Đường dẫn file kết quả Markdown sạch
 ---
 
 # Web Cleaner — sk-web-cleaner
@@ -20,7 +17,9 @@ Giúp AI Agent tự động dọn dẹp các tài liệu tải về từ interne
 ### Bước 1: Chạy script làm sạch cục bộ
 Agent kích hoạt script Python dọn dẹp offline bằng lệnh terminal:
 ```bash
-python .agents/skills/research/sk-web-cleaner/scripts/defuddle_cleaner.py <input_path> <output_path>
+python "<đường-dẫn-thư-mục-skill>/scripts/defuddle_cleaner.py" <input_path> <output_path>
+
+Lấy đường dẫn thư mục từ path của SKILL.md mà host cung cấp; không giả định có category folder.
 ```
 
 ### Bước 2: Đọc và sử dụng kết quả

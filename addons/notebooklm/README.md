@@ -1,33 +1,27 @@
-# 🔬 NotebookLM Addon — Research & Synthesis
+# NotebookLM Addon — Research & Synthesis
 
-> Tích hợp NotebookLM để research tài liệu, tổng hợp insights,
-> và tạo deliverables (podcast, slide deck, quiz...).
+Addon tích hợp NotebookLM MCP để đọc, truy vấn và tạo artifact từ các notebooks. Cài MCP server và đăng nhập theo cấu hình hiện có trước khi dùng các skill.
 
-## Vai trò
+## Skills hiện có
 
-| Role | Mô tả | Ví dụ |
-|------|-------|-------|
-| **Research on-demand** | Tìm kiếm tài liệu mới khi cần | "Best practice DDD với .NET 9?" |
-| **Knowledge synthesis** | Tổng hợp multi-source thành insight | "So sánh CQRS patterns từ 5 sources" |
-| **Artifact generation** | Tạo deliverable từ tri thức | Podcast, slide deck, quiz cho team |
-| **Cross-project validation** | So sánh patterns xuyên notebooks | "Architecture hiện tại vs Best Practice?" |
+| Skill | Dùng cho |
+|---|---|
+| `sk-knowledge-ingestion` | Thêm tài liệu vào notebook khi người dùng yêu cầu |
+| `sk-mobile-capture` | Đọc và phân loại nội dung trong iPhone Inbox; mặc định chỉ preview |
+| `sk-daily-task-sync` | Đọc Daily Ops; cập nhật task list chỉ khi user yêu cầu sync |
+| `sk-notebooklm-phone-sync` | Đồng bộ Inbox và Daily Ops sang Obsidian theo yêu cầu tường minh |
+| `sk-notebooklm-mcp` | Tham chiếu tool/API và troubleshooting NotebookLM MCP |
 
-## Setup
+Procedure nằm trong `SKILL.md` tương ứng; tài liệu MCP tổng quan ở `addons/notebooklm/SKILL.md`. Với thao tác ghi, import, sync hoặc xóa, yêu cầu phải nêu rõ hành động; không tự thay đổi NotebookLM hay Obsidian do auto-trigger.
 
-1. Cần có NotebookLM MCP server
-2. Đăng nhập: `nlm login` (qua terminal)
-3. Xem SKILL.md để biết các skills có sẵn
-4. Xem workflows/ để biết các workflow có sẵn
+## Alias tương thích
 
-## Files
+`/wf-phone-sync` vẫn tồn tại tạm thời dưới dạng adapter deprecated, chỉ chạy khi được gọi trực tiếp. Nội dung chuẩn nằm trong `sk-notebooklm-phone-sync`.
 
-| File | Mô tả |
-|------|--------|
-| `SKILL.md` | NotebookLM skills (quản trị notebooks, tạo artifacts) |
-| `workflows/` | Các workflow chuyên biệt cho NotebookLM |
+Cụm "check đầu ngày" hoặc "xem Inbox" chỉ yêu cầu đọc/tạo preview; không tự ghi vault, thêm note "đã xử lý" hay xóa source.
 
-## Lưu ý
+## Giới hạn
 
-- NotebookLM KHÔNG sync realtime với Obsidian
-- Dùng khi cần **research & synthesis**
-- Kết quả quan trọng → export vào Obsidian vault thành note vĩnh viễn
+- NotebookLM không đồng bộ realtime với Obsidian.
+- Chỉ dùng các thao tác MCP được host cung cấp; nếu MCP/auth chưa sẵn sàng, báo rõ và không giả lập kết quả.
+- Đọc quy tắc vault và xác nhận đúng đường dẫn trước khi ghi Obsidian.

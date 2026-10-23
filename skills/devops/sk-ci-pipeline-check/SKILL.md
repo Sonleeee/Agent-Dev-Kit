@@ -5,8 +5,6 @@ description: |
   Dùng khi: review CI config (GitHub Actions, GitLab CI, Azure DevOps),
   thêm pipeline mới, hoặc debug CI fail.
   Trigger: "kiểm tra CI", "review pipeline", "CI fail", "thêm GitHub Actions".
-context-required: false
-output: ci-review-checklist
 ---
 
 # CI Pipeline Check

@@ -1,17 +1,13 @@
 ---
 name: sk-regression-checklist
-description: |
-  Checklist regression trước khi bàn giao. Dùng sau implement để xác nhận
-  luồng chính, edge cases và các luồng liên quan không bị phá vỡ.
-  Hoạt động với mọi project — không cần context cụ thể.
-context-required: false
-output: regression-report
+description: Lập checklist regression cho thay đổi có blast radius đáng kể hoặc khi người dùng yêu cầu QA checklist. Không kích hoạt sau mọi task nhỏ.
 ---
 
 # Regression Checklist
 
 ## Mục tiêu
-Xác nhận thay đổi mới không làm hỏng luồng cũ quan trọng.
+Xác định những luồng cũ có khả năng bị ảnh hưởng và kiểm tra chúng theo rủi ro.
+Không chạy toàn bộ checklist nếu task chỉ chạm một hành vi cô lập.
 
 ## Quy trình
 
@@ -20,8 +16,8 @@ Xác nhận luồng chính của tính năng vừa thay đổi hoạt động đ
 - Input hợp lệ → output đúng
 - Luồng từ đầu đến cuối không bị gián đoạn
 
-### Bước 2 — Edge Cases Liên Quan Task
-Kiểm tra các edge case được chốt trong quality card:
+### Bước 2 — Edge cases liên quan
+Kiểm tra edge cases liên quan đến yêu cầu và code path:
 - Empty / null inputs
 - Boundary values
 - Concurrent actions

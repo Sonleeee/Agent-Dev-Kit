@@ -1,6 +1,6 @@
 ---
 name: sk-notebooklm-mcp
-description: Bộ skills sử dụng NotebookLM MCP để quản trị tri thức, tạo artifact và hỗ trợ delivery cho các vai trò Senior
+description: Tham chiếu danh mục tool và cách quản trị NotebookLM MCP khi người dùng hỏi về khả năng server, auth hoặc cách chọn tool. Với triage Inbox, Daily Ops và sync, dùng các skill chuyên biệt thay vì nạp toàn bộ tài liệu này.
 ---
 
 # NotebookLM MCP Skills
@@ -11,7 +11,8 @@ Bộ skills này biến NotebookLM từ công cụ hỏi đáp thành hệ thố
 
 - Không xem NotebookLM là nơi trả lời thay con người
 - Xem NotebookLM là nơi tổng hợp tri thức và tạo artifact để con người ra quyết định nhanh hơn
-- Mọi workflow quan trọng đều cần guardrails và definition of done
+- Mọi quy trình quan trọng đều cần guardrails và definition of done
+- Đây là tài liệu MCP tham khảo; thao tác tạo/sửa/xóa/sync/import cần yêu cầu tường minh của người dùng. Skill được kích hoạt không tự cấp quyền ghi.
 
 ## Tool API Reference
 
@@ -53,37 +54,13 @@ Bộ skills này biến NotebookLM từ công cụ hỏi đáp thành hệ thố
 
 | # | Skill | Thư mục | Mô tả |
 |---|-------|---------|-------|
-| 1 | Knowledge Ingestion | `knowledge-ingestion/` | Đưa tài liệu thô vào notebook |
-| 2 | Context Query | `context-query/` | Hỏi đáp theo ngữ cảnh notebook |
-| 3 | Spec Summarizer | `spec-summarizer/` | Tóm tắt PRD, BRD, API spec |
-| 4 | Cross-Notebook Validation | `cross-notebook-validation/` | So sánh chéo nhiều notebooks |
-| 5 | Requirement Extraction | `requirement-extraction/` | Trích yêu cầu từ tài liệu |
-| 6 | Risk Radar | `risk-radar/` | Xác định rủi ro và unknowns |
-| 7 | Meeting-to-Action | `meeting-to-action/` | Chuyển biên bản thành action items |
-| 8 | Architecture Recall | `architecture-recall/` | Truy vấn quyết định kiến trúc |
-| 9 | UX Rule Extractor | `ux-rule-extractor/` | Bóc tách flow, edge case, validation |
-| 10 | Structured Research | `structured-research/` | Nghiên cứu tài liệu mới |
-| 11 | Artifact Generation | `artifact-generation/` | Tạo deliverable từ tri thức |
-| 12 | Operational Notes | `operational-notes/` | Ghi runbook, checklist vận hành |
-| 13 | System Health | `system-health/` | Kiểm tra sức khỏe MCP system |
-| 14 | Mobile Capture | `mobile-capture/` | Bóc tách & phân loại content từ iPhone (📥 Inbox) |
-| 15 | Daily Task Sync | `daily-task-sync/` | Đồng bộ tasks từ 📋 Daily Ops về local |
+| 1 | Knowledge Ingestion | `sk-knowledge-ingestion/SKILL.md` | Đưa tài liệu thô vào notebook |
+| 2 | Mobile Capture | `sk-mobile-capture/SKILL.md` | Đọc và phân loại capture trong Inbox; mặc định chỉ preview |
+| 3 | Daily Task Sync | `sk-daily-task-sync/SKILL.md` | Đọc Daily Ops; ghi task list chỉ khi user yêu cầu sync |
+| 4 | NotebookLM Phone Sync | `sk-notebooklm-phone-sync/SKILL.md` | Điều phối sync Inbox + Daily Ops sang Obsidian theo yêu cầu tường minh |
 
-## Gợi ý theo Role
+## Alias tương thích
 
-| Role | Skills ưu tiên |
-|------|---------------|
-| Dev / Tech Lead | Context Query, Architecture Recall |
-| BA | Requirement Extraction, Spec Summarizer, Cross-Notebook Validation |
-| PM / PO | Risk Radar, Meeting-to-Action, Artifact Generation |
-| QA | Context Query, Cross-Notebook Validation, Artifact Generation |
-| SRE / DevOps | Operational Notes, Context Query, Artifact Generation |
-| Designer | UX Rule Extractor, Cross-Notebook Validation |
-| Personal / Mobile | Mobile Capture, Daily Task Sync, Knowledge Ingestion |
+`/wf-phone-sync` được giữ trong `workflows/wf-phone-sync.md` như adapter deprecated, chỉ chạy khi người dùng gọi trực tiếp. Procedure chuẩn nằm trong `sk-notebooklm-phone-sync`. Câu "check đầu ngày" hoặc yêu cầu xem trạng thái chỉ tạo preview, không ghi Obsidian hay sửa NotebookLM.
 
-## Workflows liên quan
-
-Xem `c:\Sonlee\.agents\workflows\notebooklm\` hoặc dùng `/notebooklm_senior_roles` để xem danh sách workflows.
-
-### Phone Sync (iPhone → Obsidian Vault)
-- `/wf-phone-sync` — Đồng bộ nhanh từ iPhone qua NotebookLM về Obsidian Vault (xem `workflows/wf-phone-sync.md`)
+Các skill chuyên biệt có thể được gọi trực tiếp theo cơ chế của host. Không giả định slash command của Antigravity và cách gọi skill của Codex là một cú pháp chung.

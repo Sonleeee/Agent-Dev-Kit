@@ -1,56 +1,58 @@
 ---
 name: sk-business-discovery
-description: |
-  Lam ro yeu cau nghiep vu truoc khi lap plan hoac implement.
-  Dung khi can chot problem statement, scope, risks, va open questions.
-context-required: false
-output: clarify-record
+description: Làm rõ mục tiêu, phạm vi và ràng buộc nghiệp vụ khi người dùng muốn chốt yêu cầu hoặc còn quyết định nghiệp vụ có thể đổi giải pháp. Không kích hoạt cho brainstorm mở rộng ý tưởng hay task code đã rõ.
 ---
 
 # Business Discovery
 
-## Muc tieu
+## Mục tiêu
 
-Bien mo ta mo ho -> clarify record ngan, du de lap plan ky thuat.
+Chốt vấn đề và các quyết định nghiệp vụ cần thiết để người dùng hoặc coding agent
+có thể chọn hướng tiếp theo. Đây là skill discovery riêng, không phải cổng bắt buộc
+trước mọi lần implement.
 
 ## Khong can project context
 
-Skill nay hoat dong dua tren input cua user.
+Skill này có thể chạy từ mô tả của người dùng, nhưng chỉ kích hoạt khi cần discovery.
 
-## Quy trinh
+## Cách làm
 
-### Buoc 1 - Chot Problem
+### 1. Chốt vấn đề
 
-Viet lai van de trong 1-2 cau.
-Neu input mo ho -> hoi toi da 3 cau.
+Viết lại vấn đề bằng 1–2 câu. Hỏi tối đa 3 câu, chỉ hỏi điều có thể đổi phạm vi,
+hành vi người dùng hoặc tiêu chí chấp nhận.
 
-### Buoc 2 - Scope
+### 2. Phạm vi
 
 - In-scope
 - Out-of-scope
 
-### Buoc 3 - Risks
+### 3. Rủi ro và ràng buộc
 
-Liet ke risk va edge cases chinh.
+Liệt kê các rủi ro, ràng buộc và edge case nghiệp vụ đáng kể.
 
-### Buoc 4 - Questions / Assumptions
+### 4. Câu hỏi và giả định
 
-Chi ghi nhung gi can de sang `/wf-plan`.
+Chỉ ghi câu hỏi còn mở và giả định đang dùng. Không đẩy user sang `/wf-plan` nếu
+họ đã yêu cầu làm luôn và không còn quyết định cần họ chốt.
 
-### Buoc 5 - API Contract Flag
+### 5. Ảnh hưởng kỹ thuật nếu đã biết
 
-Danh dau:
+Chỉ đánh dấu trạng thái API/data contract nếu thông tin đã có:
 
 - `Yes`
 - `No`
 - `Unknown`
 
-## Output
+## Đầu ra
 
-Dung template `templates/wf-clarify-record.md.template`.
+Trình bày gọn trong hội thoại. Chỉ tạo clarify record bằng template
+`templates/clarify-record.md.template` khi người dùng yêu cầu artifact hoặc task
+cần lưu lại quyết định.
 
 ## Guardrails
 
-- Khong tao plan chi tiet trong buoc nay
-- Khong mo rong thanh analysis dai
-- Khong de xuat refactor hay implementation detail som
+- Không tạo plan kỹ thuật chi tiết.
+- Không mở rộng thành analysis dài.
+- Không kích hoạt chỉ vì task code còn vài chi tiết có thể giả định an toàn.
+- Brainstorm ý tưởng thuộc `sk-brainstorm`; PRD/Epic/Stories thuộc `sk-agile-ba`.

@@ -34,13 +34,15 @@ git clone https://github.com/Sonleeee/Agent-Dev-Kit.git .agents; .\.agents\insta
 
 ### 🚀 Bắt đầu làm việc ngay với AI
 
-Bạn **không cần phải mở file điền tay**. Hãy mở IDE (Antigravity hoặc Codex CLI) và gõ lệnh chat đầu tiên:
+Bạn không cần gọi chuỗi workflow cho task thông thường. Mô tả trực tiếp việc cần làm trong Antigravity hoặc Codex:
 
 ```bash
-/wf-clarify "Mô tả tính năng bạn muốn làm..."
+Thêm bộ lọc trạng thái vào trang danh sách đơn hàng. Hãy theo pattern hiện tại,
+viết test cho behavior mới, triển khai và chạy kiểm chứng phù hợp.
 ```
 
-*(AI Agent sẽ tự động quét mã nguồn dự án, nhận diện tech stack và tự điền thông tin vào `AGENTS.md`).*
+Muốn mở rộng lựa chọn trước khi quyết định, yêu cầu brainstorm. Muốn chỉ làm rõ nghiệp vụ,
+lập plan, review độc lập hoặc deploy, hãy nói rõ intent đó hoặc gọi command tương thích.
 
 ---
 
@@ -52,9 +54,9 @@ Bạn **không cần phải mở file điền tay**. Hãy mở IDE (Antigravity 
 ├── SYSTEM.md                     ← Agent behavior specification
 ├── rules/
 │   └── global.md                 ← Quality gates & guardrails toàn cục
-├── workflows/                    ← 18 workflows (stage, utility, advanced, evolve)
+├── workflows/                    ← Lệnh tương thích; không phải pipeline mặc định
 ├── agents/                       ← 6 system agent personas
-├── skills/                       ← 20 skills (6 categories)
+├── skills/                       ← Skills được agent chọn theo intent
 │   ├── core/                     ← Discovery, planning, execution contract, regression
 │   ├── meta/                     ← Tạo/cải thiện agent system
 │   ├── devops/                   ← CI/CD pipeline, Docker review
@@ -74,70 +76,48 @@ Bạn **không cần phải mở file điền tay**. Hãy mở IDE (Antigravity 
 
 ---
 
-## 📋 Workflows (23)
+## 🧭 Skill-first, task liền mạch
 
-### Stage Pipeline (core flow)
+Với task code đã rõ, coding agent khảo sát phần liên quan, implement, chạy kiểm chứng
+phù hợp và rà diff trong cùng phiên. Làm rõ, plan riêng, full review và execution ledger
+chỉ bật khi intent, độ phức tạp hoặc rủi ro thực sự cần.
 
-| Lệnh | Mô tả | Gate |
-|-------|--------|------|
-| `/wf-clarify` | Làm rõ requirements | — |
-| `/wf-plan` | Lập kế hoạch implementation | Gate 1 |
-| `/wf-impl` | Implement code | Gate 2 |
-| `/wf-review` | Review 5-layer + ship decision | Gate 3 |
+| Ý định | Skill / hành vi |
+|---|---|
+| Brainstorm và cân nhắc nhiều hướng | `sk-brainstorm`; dừng ở các lựa chọn, không tự chuyển sang plan/code |
+| Chốt mục tiêu nghiệp vụ còn mơ hồ | `sk-business-discovery` |
+| Lập plan riêng hoặc task có nhiều phụ thuộc | `sk-solution-planning` |
+| Technical spec cho thay đổi thiết kế lớn | `sk-sdd` khi user yêu cầu hoặc còn quyết định rủi ro cần chốt |
+| Implement task rõ | Làm trực tiếp; TDD khi thay đổi behavior và test phù hợp |
+| Debug lỗi chưa rõ nguyên nhân | `sk-systematic-debugging`; bug nhỏ, rõ thì sửa trực tiếp |
+| Review độc lập hoặc test riêng | `sk-code-review`, `sk-test-strategy`, `sk-scenario-generator`, `sk-test-authoring` theo yêu cầu |
+| Cập nhật docs hoặc soạn nội dung Git | `sk-docs-maintenance`, `sk-git-content` theo intent rõ |
 
-### Shortcuts & Auto-pipeline
+`sk-execution-contract` chỉ dùng cho task nhiều bước, dài qua nhiều lượt, cần resume
+hoặc có rủi ro cao. Delegate, worktree và reviewer độc lập là lựa chọn theo lợi ích,
+không phải bước bắt buộc.
 
-| Lệnh | Mô tả |
-|-------|--------|
-| `/wf-delivery` | Full flow: clarify → plan → impl → review; hỗ trợ `--fast`, `--deep`, `--tdd`, `--auto`, `--parallel` |
+Source skills được nhóm theo category trong repo. `install.ps1` và `update.ps1` export
+từng skill thành thư mục trực tiếp dưới `.agents/skills/<skill-name>/`; khi chạy
+`adk addon add <name>`, skill của addon cũng được export theo layout này. Skill trùng
+tên với skill riêng của user được giữ nguyên, không bị installer ghi đè.
 
-### Execution discipline
+## 📋 Lệnh `/wf-*` còn lại
 
-Mọi task có thay đổi dùng `skills/core/sk-execution-contract/SKILL.md`:
+Các file lệnh được giữ làm adapter trong giai đoạn chuyển đổi. Chỉ host còn hỗ trợ
+workflow mới gọi được chúng; với task tự nhiên, agent chọn intent/skill phù hợp.
+Chúng không bắt buộc tạo chuỗi stage.
 
-1. Đọc passport, rules và context manifest trước công cụ đầu tiên.
-2. Tạo execution contract với objective, scope, acceptance criteria và risk.
-3. Ghi progress ledger sau từng phase; task đã `complete` không chạy lại sau compaction.
-4. Với task độc lập, subagent mới nhận context tối thiểu và qua hai review: spec compliance, code quality.
-5. Chỉ báo `READY` khi có build/test/review evidence.
+| Lệnh | Dùng khi |
+|---|---|
+| `/wf-clarify`, `/wf-plan` | Muốn discovery hoặc plan-only |
+| `/wf-impl`, `/wf-fix`, `/wf-enhance` | Muốn gọi rõ entrypoint implement/debug/refactor |
+| `/wf-review`, `/wf-test`, `/wf-docs`, `/wf-research` | Muốn review, viết test, sửa docs hoặc research riêng |
+| `/wf-security`, `/wf-xia`, `/wf-retro`, `/wf-status` | Audit/port/retrospective/resume được yêu cầu riêng |
+| `/wf-git`, `/wf-deploy`, `/wf-scaffold`, `/wf-evolve` | Side effect hoặc maintainer task có intent tường minh |
 
----
-
-
-
-### Utilities
-
-| Lệnh | Mô tả |
-|-------|--------|
-| `/wf-enhance` | Refactor/optimize có chủ đích |
-| `/wf-deploy` | Deploy checklist |
-| `/wf-fix` | Debug pipeline: scout → diagnose → fix → verify → prevent |
-| `/wf-test` | Generate & run tests cho module |
-| `/wf-docs` | Generate/update documentation |
-| `/wf-git` | Git commit messages, PR descriptions, changelog |
-| `/wf-security` | Security scan: OWASP, secrets, auth review |
-| `/wf-research` | Research docs, best practices, compare approaches |
-
-### Advanced
-
-| Lệnh | Mô tả |
-|-------|--------|
-| `/wf-xia` | Port features từ external repos (compare/port/copy/improve) |
-| `/wf-retro` | Sprint retrospective — git metrics → health scores → action items |
-
----
-
-## 🎛️ Mode Modifiers
-
-Thêm flags vào workflows để điều chỉnh hành vi:
-
-```bash
-/wf-impl --fast          # Rút gọn, code luôn
-/wf-review --red-team    # 4 adversarial personas tấn công code
-/wf-delivery --tdd       # Test trước rồi implement
-/wf-xia --compare        # So sánh kiến trúc, không port code
-/wf-retro --churn        # Focus hot spots (files thay đổi nhiều)
-```
+Modifiers như `--red-team`, `--compare` hay `--churn` thuộc command cụ thể; skills
+không phụ thuộc vào cú pháp modifier riêng của một host.
 
 ---
 
@@ -145,27 +125,29 @@ Thêm flags vào workflows để điều chỉnh hành vi:
 
 | Agent | Role | Khi nào dùng |
 |-------|------|--------------|
-| `planner` | Lập plan, phân tích scope | `/wf-clarify`, `/wf-plan` |
-| `implementer` | Code theo plan, bám sát template | `/wf-impl` |
-| `reviewer` | Review 5-layer, ship decision | `/wf-review` |
-| `debugger` | Debug root cause, không patch bừa | `/wf-fix` |
-| `tester` | Generate tests, coverage analysis | `/wf-test` |
-| `red-team` | 4 adversarial personas tấn công code | `/wf-review --red-team` |
+| `planner` | Discovery và lập plan riêng | User yêu cầu hoặc còn quyết định quan trọng |
+| `implementer` | Thực thi task code liền mạch | Task create/fix/refactor đã rõ |
+| `reviewer` | Review độc lập theo risk | User yêu cầu hoặc rủi ro đáng kể |
+| `debugger` | Điều tra root cause | Symptom chưa rõ hoặc lỗi nhiều lớp |
+| `tester` | Test strategy, test authoring, coverage | User yêu cầu test riêng hoặc QA độc lập |
+| `red-team` | Phản biện đối kháng | User yêu cầu hoặc risk cao |
 
-> IDE hỗ trợ subagent → tự invoke. IDE không hỗ trợ → user copy persona prompt.
+> Delegate khi lợi ích vượt chi phí handoff; nếu host không hỗ trợ subagent, xử lý inline.
 
 ---
 
-## 🔌 Môi trường hỗ trợ (Đã kiểm thử thực tế)
+## 🔌 Môi trường mục tiêu
 
-Kit hoạt động dựa trên **plain markdown files** và **quy ước thư mục**, hiện tại được cấu hình, tối ưu hóa và **kiểm thử hoạt động thực tế trên 2 môi trường chính**:
+Kit dùng Agent Skills format và markdown thuần, ưu tiên hai coding agent mà maintainer đang dùng. Invocation thủ công và discovery có khác biệt theo host:
 
 | Môi trường | AI Agent / Engine | Trạng thái | Ghi chú |
 |---|---|---|---|
-| **Google Antigravity** | Built-in Agent + MCP | ✅ Chính thức (Full support) | Hỗ trợ đầy đủ native workflows, skills, subagents, MCP tools và artifacts |
-| **Codex CLI** | OpenAI / Terminal Agent | ✅ Chính thức (Tested) | Thao tác dòng lệnh linh hoạt, nạp context nhanh qua CLI |
+| **Google Antigravity** | Built-in Agent + MCP | Mục tiêu hỗ trợ | Skill có thể tự chọn theo mô tả; slash invocation là đường gọi tường minh của host |
+| **Codex (ChatGPT / CLI)** | OpenAI coding agent | Mục tiêu hỗ trợ | Dùng cùng skill format; invocation và UI metadata có thể khác Antigravity |
 
-> 💡 *Về mặt nguyên lý:* Bất kỳ IDE/editor nào có AI đọc được file (như Cursor, VS Code) đều có thể nạp các quy tắc Markdown này. Tuy nhiên, kit hiện tại chỉ cam kết chất lượng và benchmark chuẩn nhất trên **Antigravity** và **Codex CLI**.
+> Cấu trúc source trong ADK được nhóm theo category; installer export về đường dẫn
+> discovery trực tiếp `.agents/skills/<skill-name>/`. Không giả định slash command
+> của Antigravity dùng được trên Codex hoặc ngược lại.
 
 ---
 
@@ -175,7 +157,7 @@ Chỉ bật khi cần mở rộng tính năng. Xem `addons/README.md` để bi�
 
 | Addon | Mô tả | Loại |
 |---|---|---|
-| [system-design/](./addons/system-design/) | Kho kiến trúc chuẩn (ByteByteGo/Cloud) & Engine tự động scaffold Clean Architecture | MCP Server / CLI |
+| [system-design/](./addons/system-design/) | Kho tham khảo kiến trúc và scaffold source base theo yêu cầu | MCP Server / Skill |
 | `codegraph/` | Semantic Code Intelligence: lập chỉ mục AST, call graph & symbols (19+ ngôn ngữ) | MCP Server / CLI |
 | `archify/` | Biên dịch dữ liệu kiến trúc thành sơ đồ HTML vector tương tác | CLI / Skill |
 | `database/` | Tra cứu schema bảng, quan hệ khóa ngoại và query SQL an toàn | Gridex MCP Server |

@@ -26,245 +26,136 @@ Bộ agent dùng chung cho mọi project và mọi platform/IDE.
     └── developer.md    ← Global Developer Profile (Gu code, tone áp dụng cho MỌI repo)
 ```
 
-## Luồng agent khi nhận task
+## Cách xử lý task
 
-### Thứ tự workflow chuẩn:
-```text
-/wf-clarify -> /wf-plan -> /wf-impl -> /wf-review
-```
+### Đường mặc định
 
-### Pre-flight Context Resolution (Nạp ngữ cảnh trước khi hành động):
-1. **Global Guardrails:** `rules/global.md` (Tối cao: Executable gates, Hard invariants, Zero-warning).
-2. **Project Pattern:** `[project-root]/AGENTS.md` (Stack, Reference modules, Team conventions).
-3. **Developer Profile (Personal Style):**
-   - Đọc `.agents/developer.local.md` nếu có (Local override cho repo này).
-   - Nếu không có: Đọc `~/.agents/developer.md` hoặc `%USERPROFILE%\.agents\developer.md` (Global Profile).
-   - Áp dụng Communication Preset: `standard`, `concise` (mặc định), `adhd-flow` (xem `skills/core/sk-adhd-flow`), `caveman` / `ultracave` (xem `skills/core/sk-caveman`), hoặc `adhd-caveman` (Hybrid mode kết hợp cấu trúc hành động ADHD + độ nén token Ultracave).
-   - **Heuristic Auto-Sensing:** Khi nhận prompt ngắn, mệnh lệnh gấp gáp ("fix ngay", "cho lệnh", "lỗi gì nói nhanh", "làm luôn", "lệnh?"), agent tự động kích hoạt chế độ `adhd-caveman` / `ultracave` ngay trong phiên mà không đòi hỏi cấu hình trước.
-4. **Codebase Intelligence:** Gọi CodeGraph (`mcp__codegraph.codegraph_explore` / `codegraph_node`) để lấy AST và Ground Truth code patterns thực tế.
-5. **Task Execution Contract:** Khóa scope, invariants và verification command vào `.agents/runtime/<task-id>/execution-contract.md`.
+Với yêu cầu đã rõ, xử lý liền mạch trong cùng phiên:
 
-### Thứ tự ưu tiên giải quyết xung đột (Conflict Resolution Priority):
-$$\text{Global Guardrails (Tối cao)} > \text{Project Conventions (Team)} > \text{Developer Personal Style (Cá nhân)} > \text{Agent Default}$$
+1. Đọc đúng context và phần code liên quan đến yêu cầu.
+2. Hỏi làm rõ chỉ khi thiếu quyết định có thể làm đổi kết quả hoặc gây rủi ro đáng kể.
+3. Lập plan ngắn trong đầu hoặc trong câu trả lời khi task có nhiều bước; không tạo artifact chỉ để đủ thủ tục.
+4. Khi đổi behavior và có test phù hợp, dùng TDD: viết một test thất bại, sửa tối thiểu để pass, rồi refactor nếu cần.
+5. Chạy kiểm chứng phù hợp với phạm vi và rà diff một lần trước khi báo kết quả.
 
-### Execution Contract — Always-On
+Task một bước, dễ kiểm chứng không cần đi qua chuỗi clarify → plan → implement → review.
+Không cần thông báo tên skill/workflow trước mỗi hành động; chỉ nêu khi cách tiếp cận ảnh hưởng đáng kể đến người dùng.
 
-Đây là lớp bắt buộc để agent không “trôi” khỏi yêu cầu sau nhiều lượt hoặc sau
-context compaction. Chi tiết nằm ở `skills/core/sk-execution-contract/SKILL.md`.
+### Nạp context và skill
 
-Trước hành động đầu tiên của task có thay đổi, agent phải:
+- Đọc `AGENTS.md` cùng `rules/global.md` để hiểu ranh giới và quy ước áp dụng; chỉ nạp thêm context liên quan đến task.
+- Đọc `.agents/developer.local.md` hoặc `~/.agents/developer.md` khi chúng có sẵn và ảnh hưởng đến cách thực hiện/giao tiếp.
+- Chọn skill theo intent thực tế từ `name` và `description`. Nếu không có skill phù hợp, xử lý trực tiếp; không tìm skill như một bước hình thức.
+- Áp dụng communication preset phù hợp (`standard`, `concise`, `adhd-flow`, `caveman`/`ultracave`). Với prompt ngắn, ưu tiên câu trả lời gọn và đưa hành động lên trước.
+- Với tác vụ source code, dùng CodeGraph trước khi đọc/tìm source nếu repo có index và CodeGraph khả dụng. Dùng công cụ đọc/tìm thông thường cho docs, config, literal text, git diff/status hoặc file chưa index.
 
-1. Đọc `AGENTS.md`, `SYSTEM.md`, `rules/global.md` và `context/manifest.md` nếu có.
-2. Chọn workflow/skill phù hợp và nêu ngắn mục đích.
-3. Tạo execution contract trong `.agents/runtime/<task-id>/` với objective, scope,
-   acceptance criteria, risk, context pack và verification commands.
-4. Giữ progress ledger; khi resume sau compaction đọc ledger trước và không chạy lại
-   task đã complete.
+### Execution contract và ledger
 
-Mỗi task implementation phải có bước verify độc lập. Chỉ báo `READY` khi có
-acceptance evidence, changed files, unplanned-change decision và review result.
+`sk-execution-contract` là lựa chọn cho task nhiều bước, dài qua nhiều lượt, cần resume,
+có rủi ro cao hoặc có nhiều người/agent cùng làm. Không tạo contract/ledger cho task ngắn,
+một bước, phạm vi rõ và kết quả dễ kiểm chứng. Khi đã tạo ledger, cập nhật nó đủ để resume
+đúng vị trí; trace capture là best-effort và không được chặn delivery.
 
-### Skill routing trước hành động
+### Planning và delegation
 
-Agent phải kiểm tra skill/workflow liên quan trước khi hỏi, đọc code hoặc sửa file.
-Nếu host không hỗ trợ invocation tự động, dùng skill markdown tương ứng như SOP và
-ghi tên skill vào execution contract. User instruction luôn có quyền ưu tiên cao nhất.
+- Dùng `sk-solution-planning` khi người dùng yêu cầu plan riêng, task có nhiều nhánh phụ thuộc,
+  hoặc approach chưa hiển nhiên. Dùng `sk-sdd` khi cần spec/ADR hoặc thay đổi kiến trúc,
+  API hay dữ liệu có ảnh hưởng đáng kể.
+- Delegate khi phần việc thực sự độc lập và lợi ích dự kiến lớn hơn chi phí handoff, hợp nhất
+  và review. Số file/subtask riêng lẻ không tự tạo nghĩa vụ delegate.
+- Reviewer subagent, worktree và multi-agent protocol chỉ dùng khi được yêu cầu hoặc khi rủi ro,
+  tính song song và khả năng cô lập làm chúng đáng giá. Không review subtask theo thủ tục.
 
-### Plan và subtask contract
+### Tự kiểm tra và báo kết quả
 
-Plan nhiều bước phải chia thành task bounded, có file/symbol, output và lệnh verify cụ
-thể; không dùng placeholder kiểu “implement later”.
-
-**Delegation policy (BẮT BUỘC):**
-
-- Khi plan có ≥ 2 subtasks ĐỘC LẬP (không sửa cùng file): **PHẢI** gọi
-  `invoke_subagent(TypeName="self", Workspace="branch")` cho mỗi subtask.
-- Mỗi subagent chỉ nhận: plan-lite + file scope. **KHÔNG** gửi chat history.
-- Áp dụng giao thức nén output (`skills/core/sk-compressed-delegation/SKILL.md`) cho subagents
-  (Investigator / Builder / Reviewer) để chống tràn context window của agent chính.
-- Sau mỗi subtask: **PHẢI** invoke reviewer subagent cho spec compliance review,
-  rồi code quality review (bắt buộc kèm bằng chứng `verified_cmd`).
-- Không fan-out nếu các task cùng sửa một file hoặc contract chưa rõ.
-- Host không có subagent → chạy inline theo cùng contract và review gates.
-
-**Ví dụ tool call (2 subagent song song — gọi riêng biệt trong cùng lượt, Antigravity tự chạy parallel):**
-
-```
-# Hai lần gọi riêng biệt trong cùng tool_calls block, không dependency → tự động chạy song song:
-
-invoke_subagent(
-  TypeName="self", Role="Implementer Task-1",
-  Prompt="[plan-lite cho task-1]. Chỉ sửa file: [file scope]. Chạy build khi xong.",
-  Workspace="branch"
-)
-
-invoke_subagent(
-  TypeName="self", Role="Implementer Task-2",
-  Prompt="[plan-lite cho task-2]. Chỉ sửa file: [file scope]. Chạy build khi xong.",
-  Workspace="branch"
-)
-```
+- Rà diff để tìm thay đổi ngoài ý muốn và lỗi rõ ràng; full review là intent riêng, không phải
+  gate bắt buộc sau mọi lần implement.
+- Nêu lệnh kiểm chứng đã chạy và kết quả thật. Nếu không chạy được hoặc không phù hợp, ghi rõ;
+  không suy diễn test/build pass từ việc code có vẻ đúng.
+- Giữ nguyên scope đã yêu cầu. Hỏi user trước hành động có side effect ngoài ý định rõ ràng,
+  như deploy, commit/push, ghi dữ liệu vào vault hoặc scaffold source base.
 
 ### Minimality checkpoint
 
-Trước khi thêm abstraction/dependency, agent phải kiểm tra: có cần tồn tại không,
-đã có helper/pattern chưa, standard library/native feature có đủ không, và cách nào
-ít file/state nhất. Không được giản lược validation ở trust boundary, security,
-accessibility, error handling chống mất dữ liệu hoặc yêu cầu user nêu rõ.
+Trước khi thêm abstraction/dependency, cân nhắc nhu cầu thực, helper/pattern sẵn có,
+standard library/native feature và phương án ít file/state nhất. Không giản lược validation
+ở trust boundary, security, accessibility, chống mất dữ liệu hoặc yêu cầu user nêu rõ.
 
 ### CodeGraph-First Scout
 
-Khi task cần đọc, hiểu, sửa, review hoặc debug source code, agent phải scout bằng CodeGraph trước khi dùng công cụ đọc/tìm truyền thống:
+Khi task cần đọc, hiểu, sửa, review hoặc debug source code và CodeGraph khả dụng:
 
-1. Dùng `mcp__codegraph.codegraph_explore` cho feature/flow/khu vực code liên quan.
-2. Dùng `mcp__codegraph.codegraph_node` khi đã biết file hoặc symbol cụ thể cần đọc.
-3. Dùng `mcp__codegraph.codegraph_callers` để phân tích impact trước khi đổi behavior, signature, hoặc contract.
-4. Chỉ fallback sang `rg`, `Get-Content`, `ls`, `find` khi CodeGraph không phù hợp: docs/config/assets, literal text/i18n key, git diff/status, hoặc file chưa được index.
+1. Dùng `mcp__codegraph.codegraph_explore` cho feature/flow/khu vực liên quan.
+2. Dùng `mcp__codegraph.codegraph_node` khi đã biết file hoặc symbol cần đọc.
+3. Dùng `mcp__codegraph.codegraph_callers` để phân tích impact trước khi đổi behavior,
+   signature hoặc contract.
+4. Fallback sang `rg`, `Get-Content` hoặc công cụ tương đương cho docs/config/assets,
+   literal text, git diff/status hoặc file CodeGraph không index.
 
-Output từ CodeGraph có source hiện tại thì được xem như đã đọc file; không đọc lại cùng nội dung bằng tool khác nếu không có lý do rõ ràng.
+Output CodeGraph có source hiện tại được xem như đã đọc file; không đọc lại cùng nội dung
+nếu không có lý do rõ ràng.
 
-## Flow chuẩn
+## Định tuyến theo intent
 
-Flow ưu tiên:
+Skill auto-trigger giúp agent nạp procedure phù hợp; đây không phải pipeline cứng và không
+thay đổi phạm vi yêu cầu của user.
 
-```text
-/wf-clarify -> /wf-plan -> /wf-impl -> /wf-review
-```
-
-Shortcut:
-
-- `/wf-delivery --fast` — task rõ ràng, đi nhanh
-- `/wf-delivery` — task cần plan và verification đầy đủ
-
-## Auto-Route (Intent → Skill / Workflow)
-
-Khi user mô tả task bằng ngôn ngữ tự nhiên (không gõ `/wf-`),
-agent phân loại intent và chọn skill hoặc workflow phù hợp.
-Agent **THÔNG BÁO** ngắn gọn skill/workflow đang dùng trước khi bắt đầu.
-
-| Tín hiệu từ user | Skill / Workflow |
+| Ý định | Hành vi mặc định |
 |---|---|
-| brainstorm, cùng nghĩ ý tưởng, cho nhiều hướng để cân nhắc | `sk-brainstorm` — chỉ khám phá lựa chọn; không tự chuyển sang delivery |
-| fix, bug, lỗi, crash, exception, sai | `/wf-fix` |
-| thêm, tạo mới, feature, implement | `/wf-delivery` |
-| refactor, optimize, cải thiện | `/wf-clarify` → `/wf-plan` → `/wf-impl` |
-| nghiên cứu, research, tìm hiểu | `/wf-research` |
-| review, kiểm tra code | `/wf-review` |
-| test, viết test | `/wf-test` |
-| deploy, release | `/wf-deploy` |
-| commit, PR, changelog | `/wf-git` |
-| trạng thái, đang làm gì | `/wf-status` |
+| Task code đã rõ: thêm, sửa bug, refactor | Thực hiện trực tiếp; TDD khi đổi behavior và test phù hợp; verify theo phạm vi |
+| Brainstorm, cần nhiều hướng để cân nhắc | `sk-brainstorm`; kết thúc ở các lựa chọn, không tự sang plan/code |
+| Bug chưa rõ nguyên nhân hoặc nhiều layer | `sk-systematic-debugging`; bug hiển nhiên, phạm vi hẹp thì sửa trực tiếp |
+| Mục tiêu nghiệp vụ chưa rõ và user muốn chốt yêu cầu | `sk-business-discovery` |
+| PRD, Epic, Stories hoặc AC | `sk-agile-ba` |
+| User muốn plan riêng hoặc task nhiều nhánh/rủi ro | `sk-solution-planning`; `sk-sdd` cho thiết kế rủi ro cao |
+| User yêu cầu review độc lập | `sk-code-review` |
+| User yêu cầu test strategy/scenario/test authoring | `sk-test-strategy`, `sk-scenario-generator`, `sk-test-authoring`; TDD vẫn diễn ra trong task sửa code |
+| Cập nhật docs theo thay đổi source | `sk-docs-maintenance`; docs/library research dùng `sk-docs-seeker` |
+| Pattern hoặc NotebookLM research | `sk-pattern-researcher` hoặc `sk-notebooklm-research` theo nguồn |
+| Soạn commit/PR/changelog | `sk-git-content`; commit/push vẫn chỉ khi user yêu cầu rõ |
+| Deploy, scaffold, retro, kit evolution, ghi vault | Chỉ khi user yêu cầu intent đó; dùng skill/adapter tương ứng và giữ side-effect guard |
 
-> Nếu intent không rõ → hỏi user. Không đoán bừa.
+Chỉ hỏi user khi câu trả lời có thể đổi lựa chọn hoặc ranh giới an toàn; nếu không, nêu giả định
+và tiếp tục với phạm vi có thể xác định.
 
-## Mode Modifiers
+## Modifiers theo host
 
-Nhiều workflows hỗ trợ mode modifiers để điều chỉnh hành vi:
+Các file `/wf-*` còn được giữ làm adapter tài liệu trong giai đoạn chuyển đổi. Chỉ host
+còn hỗ trợ workflow mới gọi được chúng; dùng intent/skill làm đường portable mặc định.
+Workflow stage cũ được thu gọn thành adapter tới skill phù hợp hoặc thao tác trực tiếp.
+Modifiers chỉ áp dụng cho workflow nhận chúng; không giả định skill host khác hiểu cú pháp này.
 
-| Modifier | Ý nghĩa | Dùng ở |
+## Nhóm skill
+
+Skills được nạp theo intent qua `name` và `description`; nhóm thư mục chỉ giúp
+maintainer sắp xếp source. Không dùng số lượng skill hay category làm router cứng.
+
+| Nhóm | Ví dụ |
+|---|---|
+| `core/` | brainstorm, business discovery, planning, execution contract, API guard |
+| `meta/` | skill synthesis, trace capture, tối ưu agent instructions |
+| `devops/` | CI/CD và Docker review |
+| `security/` | OWASP, secrets, API contract |
+| `testing/` | test strategy và test scenarios |
+| `research/` | docs/library lookup, pattern research, NotebookLM research |
+
+Context cache, vault writeback, database inspection, scaffold và kit evolution nằm
+trong addons; các side effect chỉ chạy theo intent rõ ràng. Domain skills riêng của
+project thuộc project `.agents/skills/` hoặc vị trí mà host hỗ trợ.
+
+## Workflow command còn lại
+
+Các file lệnh dưới đây được giữ làm adapter trong giai đoạn chuyển đổi. Chỉ host còn
+hỗ trợ workflow mới gọi được chúng; chúng không định nghĩa đường chạy mặc định. Chỉ
+dùng command có side effect khi user yêu cầu rõ.
+
+| Nhóm | Command | Vai trò sau migration |
 |---|---|---|
-| `--fast` | Rút gọn, bỏ bước không critical | plan, impl, review, delivery |
-| `--deep` | Research kỹ, kiểm tra sâu | plan, review, predict |
-| `--auto` | Tự approve gates khi verification PASS, không hỏi user (vẫn bắt buộc chạy verify thật) | plan, review, delivery |
-| `--tdd` | Viết test trước rồi code | impl, delivery |
-| `--parallel` | Multi-agent song song (cần swarm) | impl, delivery |
-| `--no-test` | Bỏ test obligations | impl, delivery |
-| `--red-team` | Adversarial review 4 personas | review |
-| `--no-review` | Bỏ review step | cook |
-| `--compare` | Chỉ so sánh, không port code | xia |
-| `--port` | Lấy ý tưởng, code lại (default) | xia |
-| `--copy` | Bê nguyên structure, adapt naming | xia |
-| `--improve` | Copy + refactor + best practices | xia |
-| `--period` | Chỉ định khoảng thời gian phân tích | retro |
-| `--team` | Focus phân tích theo contributor | retro |
-| `--churn` | Focus files thay đổi nhiều nhất | retro |
-| `--full` | Phân tích đầy đủ tất cả dimensions | retro |
-
-Cách dùng: `/wf-impl --fast` hoặc `/wf-delivery --parallel --auto`
-
-## Gates
-
-### Gate 1 — Ready (sau /wf-plan)
-
-Không code nếu thiếu:
-
-- Problem statement rõ
-- Scope in/out
-- Plan theo thứ tự
-- Quality card
-- Task assignment rõ (nếu multi-agent)
-
-### Gate 2 — Dev Done (sau /wf-impl)
-
-Không review nếu thiếu:
-
-- Build pass
-- Self-check pass
-- API contract status rõ
-
-### Gate 3 — Ship Ready (sau /wf-review)
-
-Blocked nếu:
-
-- Còn finding Critical
-- Còn FAIL items chưa fix
-- UNPLANNED items chưa được user review
-
-## Phân loại skills
-
-| Nhóm | Mô tả | Cần project context? |
-|---|---|---|
-| `core/` | Brainstorm, discovery, planning, execution contract, guard, regression | Không |
-| `meta/` | Tạo/cải thiện agent system | Không |
-| `devops/` | CI/CD pipeline, Docker review | Không |
-| `security/` | OWASP scan, secret detection | Không |
-| `testing/` | Test strategy, scenario generation | Tùy chọn |
-| `research/` | Docs lookup, document parsing, pattern research | Không |
-
-> Context cache, vault writeback, database inspection, kit maintenance và
-> **self-evolution** nằm trong các addon tùy chọn dưới `addons/`;
-> core không yêu cầu chúng để chạy delivery.
-
-> **Ghi chú:** Domain skills (backend/frontend) không nằm trong core kit.
-> Mỗi project tự tạo domain skills riêng trong `.agents/context/` hoặc repo riêng.
-
-## Workflows
-
-### Stage pipeline (core flow)
-
-| Workflow | Mô tả | Gate |
-|---|---|---|
-| `/wf-clarify` | Thu thập requirements, xác nhận scope | — |
-| `/wf-plan` | Chốt approach, chọn template | Gate 1 |
-| `/wf-impl` | Implement code theo plan | Gate 2 |
-| `/wf-review` | Review 5-layer, ship decision | Gate 3 |
-
-### Shortcuts & Auto-pipeline
-
-| Workflow | Mô tả |
-|---|---|
-| `/wf-delivery` | Full flow: clarify → plan → impl → review |
-| `/wf-delivery` | Full flow; dùng `--fast` cho task nhỏ và `--deep` cho task rủi ro cao |
-
-### Utilities
-
-| Workflow | Mô tả |
-|---|---|
-| `/wf-enhance` | Enhancement/refactor có chủ đích |
-| `/wf-deploy` | Deploy checklist |
-| `/wf-fix` | Debug pipeline: scout → diagnose → fix → verify → prevent |
-| `/wf-test` | Generate & run tests cho module |
-| `/wf-docs` | Generate/update documentation |
-| `/wf-git` | Git commit messages, PR descriptions, changelog |
-| `/wf-security` | Security scan: OWASP, secrets, auth review |
-| `/wf-research` | Research docs, best practices, compare approaches |
-
-### Advanced
-
-| Workflow | Mô tả |
-|---|---|
-| `/wf-xia` | Port features từ external repos (compare/port/copy/improve) |
-| `/wf-retro` | Sprint retrospective: git metrics → health scores → action items |
+| Alias theo host | `/wf-clarify`, `/wf-plan`, `/wf-impl`, `/wf-delivery` | Lệnh cũ cho host còn hỗ trợ workflow; intent/skill là đường dùng chung |
+| Alias theo host | `/wf-review`, `/wf-fix`, `/wf-test`, `/wf-docs` | Gọi procedure chuyên biệt theo intent; không tự chạy sau mỗi lần code |
+| Research/security | `/wf-research`, `/wf-security` | Adapter tới skill theo nguồn/phạm vi |
+| Side effect | `/wf-git`, `/wf-deploy`, `/wf-scaffold` | Chỉ theo yêu cầu rõ; giữ xác nhận cần thiết trước thao tác |
+| Maintainer/analysis | `/wf-status`, `/wf-retro`, `/wf-xia`, `/wf-evolve`, `/wf-enhance` | Lệnh tường minh; không tự kích hoạt sau commit hay delivery |
 
 ## Nếu project chưa có AGENTS.md
 
@@ -280,16 +171,16 @@ Kit cung cấp 6 agent personas trong `agents/`. Mỗi agent là 1 `AGENT.md` ch
 
 | Agent | Role | Khi nào dùng |
 |---|---|---|
-| `planner` | Lập plan, phân tích scope, chọn approach | `/wf-clarify`, `/wf-plan` |
-| `implementer` | Code theo plan, bám sát template | `/wf-impl` |
-| `reviewer` | Review 4-layer, severity-based, ship decision | `/wf-review` |
-| `debugger` | Debug root cause, không patch bừa | `/wf-fix` |
-| `tester` | Generate tests, coverage analysis | `/wf-test` |
-| `red-team` | 4 adversarial personas tấn công code | `/wf-review --red-team` |
+| `planner` | Discovery, approach và plan riêng | User yêu cầu plan/discovery hoặc còn quyết định đáng kể |
+| `implementer` | Thực thi task code liền mạch | Yêu cầu create/fix/refactor đã rõ |
+| `reviewer` | Review độc lập theo risk | User yêu cầu hoặc thay đổi cần góc nhìn thứ hai |
+| `debugger` | Điều tra nguyên nhân gốc | Symptom chưa rõ, lỗi nhiều lớp hoặc regression khó cô lập |
+| `tester` | Test strategy, test authoring, coverage | User yêu cầu test riêng hoặc cần QA độc lập |
+| `red-team` | Phản biện đối kháng | User yêu cầu hoặc risk bảo mật/dữ liệu cao |
 
 **IDE-agnostic:** `AGENT.md` chỉ chứa persona + instructions dạng markdown.
-- IDE hỗ trợ subagent → tự invoke agent phù hợp
-- IDE không hỗ trợ → user copy persona prompt thủ công
+- Host hỗ trợ subagent → delegate khi lợi ích vượt chi phí handoff.
+- Host không hỗ trợ → xử lý inline hoặc dùng persona trong hội thoại.
 - Swarm setup → xem `addons/swarm/README.md`
 
 ## Tiered Context Loading
@@ -298,15 +189,15 @@ Khi project có `architecture.md` theo TIER format, agent load theo nhu cầu:
 
 | Tier | Nội dung | Load khi nào | Token ước tính |
 |------|---------|-------------|:--------------:|
-| **TIER-0** | Core rules, naming, folder, anti-pattern index | Luôn luôn | ≤1,000 |
+| **TIER-0** | Core rules, naming, folder, anti-pattern index | Khi task chạm vào phần này | ≤1,000 |
 | **TIER-1** | Pattern detail theo [TAG] | Theo task-feature | ~500-1,000 |
 | **TIER-2** | Full examples, decision tree, legacy notes | On-demand | ~0-2,000 |
 
 ### Loading Protocol
 
 ```
-1. LUÔN đọc TIER-0 (≤200 lines)
-2. Xác định task-feature → tìm [TAG] phù hợp → đọc TIER-1 section đó
+1. Đọc đúng TIER-0 rule cần cho task; không nạp toàn bộ architecture mặc định.
+2. Xác định task-feature → tìm [TAG] phù hợp → đọc TIER-1 section đó.
 3. Chỉ đọc TIER-2 khi:
    - Cần ✅/❌ code examples
    - Cần decision tree cho pattern có variants
@@ -321,7 +212,7 @@ Khi project có `architecture.md` theo TIER format, agent load theo nhu cầu:
 
 ### Truth Resolution Order (Thứ tự chân lý):
 
-1. 🥇 **Executable Verification:** Build/Tests/Linters thực tế đang chạy trên máy (Zero-warning).
+1. 🥇 **Executable Verification:** Kết quả build/test/lint thực tế đã chạy phù hợp với phạm vi task.
 2. 🥈 **CodeGraph Intelligence:** Đồ thị AST, quan hệ hàm (call graph) và symbol relationships thực tế của codebase.
 3. 🥉 **Project Conventions:** File `AGENTS.md` (Passport và reference modules).
 4. 🏅 **Developer Profile:** `~/.agents/developer.md` hoặc `.agents/developer.local.md`.
@@ -335,16 +226,14 @@ Khi project có `architecture.md` theo TIER format, agent load theo nhu cầu:
 
 ## Addon Hooks
 
-Các addon (obsidian, codegraph, database...) có thể mở rộng workflow bằng hook riêng.
-Xem `addons/<tên>/README.md` để biết chi tiết.
-
----
+Addon có thể bổ sung skill, command, MCP hoặc hook riêng. Nạp addon chỉ khi intent
+cần đến capability đó; xem `addons/<tên>/README.md`.
 
 ## Multi-Agent Delegation
 
-> [!IMPORTANT]
-> Subagent delegation là **chức năng mặc định**, không phải tùy chọn.
-> Khi plan có subtasks độc lập, agent **PHẢI** delegate — xem Delegation Policy
-> ở section “Plan và subtask contract” ở trên.
->
-> Swarm/orchestration nâng cao: xem `addons/swarm/README.md`.
+Delegation là lựa chọn theo lợi ích dự kiến. Dùng subagent khi task độc lập, có thể
+chạy song song hoặc cần góc nhìn chuyên biệt và lợi ích lớn hơn handoff, merge, review.
+Không delegate theo số file/subtask cố định và không chạy reviewer sau từng phần theo
+thủ tục. Khi host không có subagent, xử lý inline.
+
+Swarm/orchestration nâng cao: xem `addons/swarm/README.md`.

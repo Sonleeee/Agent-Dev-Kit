@@ -2,20 +2,13 @@
 id: vault-sync
 type: addon-bridge
 entry-command: /wf-vault-sync
-skills-suggested:
-  - core/sk-execution-contract
-  - addons/obsidian/skills/sk-vault-steward
+replacement-skill: sk-vault-steward
+status: deprecated
+invocation: explicit-only
 ---
 
-# /wf-vault-sync
+# Adapter cũ: `/wf-vault-sync`
 
-**Mục tiêu:** ghi tri thức đã chưng cất vào Obsidian Vault theo policy, không dump chat.
+Đây là alias tường minh để tương thích với lệnh cũ; không tự chạy ở cuối workflow hoặc vì agent phát hiện tri thức có thể lưu lại.
 
-## Routing
-
-- Research/decision: tạo Memory Candidate trước, mặc định `ASK`.
-- Root cause, recurring pitfall, architecture evolution đã approved: `AUTO`.
-- Status tạm thời/raw output: `SKIP`.
-
-Verify `vault-path` và cấu trúc vault trước khi ghi. Nếu không verify được, report
-blocker và không tự tạo đường dẫn mới.
+Khi người dùng gọi trực tiếp lệnh này, dùng [`sk-vault-steward`](../skills/sk-vault-steward/SKILL.md). Chỉ đọc/chuẩn bị candidate nếu chưa có yêu cầu ghi; trước mọi cập nhật, phải xác định vault và kiểm tra file đích.

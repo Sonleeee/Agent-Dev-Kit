@@ -3,7 +3,6 @@ name: sk-kit-doctor
 description: |
   Kỹ năng tự chẩn đoán (Health Check) và bảo trì hạ tầng hoạt động của Agent-Dev-Kit.
   Kiểm tra connectivity của các MCP, kiểm tra git config, kiểm tra cấu trúc thư mục core.
-output: markdown (Bản báo cáo sức khỏe Health Report và danh sách các điểm tự động fix)
 ---
 
 # 🏥 Trình Chẩn Đoán & Bảo Trì Hệ Thống — sk-kit-doctor

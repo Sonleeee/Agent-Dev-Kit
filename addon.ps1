@@ -24,7 +24,7 @@ if (-not (Test-Path $LocalKitPath)) {
 $AddonsData = @{
     "system-design" = @{
         Title       = "System Design (Knowledge Base & Scaffolding MCP)"
-        Description = "Kho kien truc he thong chuan (Outbox, Idempotency, Circuit Breaker...) va Engine tu dong sinh source base Clean Architecture qua MCP."
+        Description = "Kho kiến trúc tham khảo (Outbox, Idempotency, Circuit Breaker...) và skill scaffold source base theo yêu cầu qua MCP."
         DocsUrl     = "https://github.com/Sonleeee/Agent-Dev-Kit/tree/main/addons/system-design"
         RepoUrl     = ""
         InstallCmd  = "powershell -File .agents/addons/system-design/setup.ps1"
@@ -56,7 +56,7 @@ $AddonsData = @{
     }
     "obsidian" = @{
         Title       = "Obsidian (Second Brain Integration)"
-        Description = "Đồng bộ tri thức hai chiều, lưu trữ quyết định kiến trúc (ADR) và ghi nhận bài học vào Second Brain."
+        Description = "Đọc và lưu tri thức, ADR hoặc bài học vào Obsidian Vault theo yêu cầu rõ ràng."
         DocsUrl     = "https://obsidian.md"
         RepoUrl     = "https://obsidian.md/download"
         InstallCmd  = ""
@@ -77,6 +77,42 @@ $AddonsData = @{
         RepoUrl     = ""
         InstallCmd  = "powershell -File .agents/tools/validate-kit.ps1"
         Type        = "Kit Script"
+    }
+}
+
+function Export-AddonSkills([string]$AddonKey) {
+    $sourceRoot = Join-Path $LocalKitPath "addons\$AddonKey"
+    if (-not (Test-Path $sourceRoot)) { return }
+
+    $targetRoot = Join-Path (Get-Location) ".agents\skills"
+    New-Item -ItemType Directory -Path $targetRoot -Force | Out-Null
+    $skillDirs = Get-ChildItem -Path $sourceRoot -Directory -Recurse |
+        Where-Object { $_.Name -like "sk-*" -and (Test-Path (Join-Path $_.FullName "SKILL.md")) } |
+        Sort-Object FullName
+    $seen = @{}
+    $exported = 0
+
+    foreach ($skillDir in $skillDirs) {
+        $skillName = $skillDir.Name
+        if ($seen.ContainsKey($skillName)) { continue }
+        $seen[$skillName] = $true
+
+        $destination = Join-Path $targetRoot $skillName
+        $marker = Join-Path $destination ".adk-managed"
+        if ((Test-Path $destination) -and -not (Test-Path $marker)) {
+            Write-Warning "Giữ nguyên skill người dùng '$skillName'; không ghi đè."
+            continue
+        }
+
+        New-Item -ItemType Directory -Path $destination -Force | Out-Null
+        Get-ChildItem -Path $skillDir.FullName -Force |
+            ForEach-Object { Copy-Item -Path $_.FullName -Destination $destination -Recurse -Force }
+        New-Item -ItemType File -Path $marker -Force | Out-Null
+        $exported++
+    }
+
+    if ($exported -gt 0) {
+        Write-Host "🧩 Đã export $exported skill của addon '$AddonKey' vào .agents/skills/." -ForegroundColor Gray
     }
 }
 
@@ -309,10 +345,12 @@ if ($target -in "list", "ls", "all", "") {
 }
 elseif ($Action.ToLower() -in "add", "install", "i") {
     if ($NameStr -and $AddonsData.ContainsKey($NameStr.ToLower())) {
+        Export-AddonSkills $NameStr.ToLower()
         Show-Addon-Details $NameStr.ToLower()
     } else {
         $inputName = Read-Host "👉 Nhập tên addon bạn muốn thêm (codegraph, archify, database, obsidian, notebooklm)"
         if ($AddonsData.ContainsKey($inputName.ToLower())) {
+            Export-AddonSkills $inputName.ToLower()
             Show-Addon-Details $inputName.ToLower()
         } else {
             Write-Warning "Không tìm thấy addon '$inputName'. Hãy chạy 'adk addon' để xem danh sách."

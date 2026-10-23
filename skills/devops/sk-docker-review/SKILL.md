@@ -5,8 +5,6 @@ description: |
   Dùng khi: tạo Docker setup mới, optimize image size, debug container issues,
   review Docker config trước deploy.
   Trigger: "review Docker", "optimize Dockerfile", "docker-compose review".
-context-required: false
-output: docker-review-checklist
 ---
 
 # Docker Review

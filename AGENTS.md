@@ -13,13 +13,12 @@
 
 ## Phạm vi repo này (tránh nhầm với dự án app)
 
-- Repo này **không** phải source một sản phẩm cụ thể (ví dụ TL BIOMASS hay web app bất kỳ).
 - Danh tính và tech stack của **ứng dụng** nằm ở **Tầng 2**: file `AGENTS.md` ở **root của từng repo dự án**, và `.agents/context/` trong repo đó. Thông tin đó **chỉ** sửa/thêm trong repo của dự án đó, không ghi vào đây.
 
 ## Tech stack (bản thân kit)
 
-- **Định dạng:** Markdown, cấu trúc thư mục theo convention (portable mọi IDE có AI).
-- **Code runtime:** không có — kit là tài liệu + skills + template.
+- **Tri thức & Giao thức:** Markdown theo chuẩn Agent Skills & Directory Conventions (portable 100% mọi IDE/host có AI).
+- **Runtime & Tooling hỗ trợ:** Python, Shell/PowerShell, Lifecycle Hooks (`hooks.json`), MCP Servers và executable scripts trong skills (đảm bảo tính tự động hóa và kiểm soát xác định — deterministic execution).
 
 ## Context & điểm vào chính (đọc theo thứ tự khi onboard kit)
 

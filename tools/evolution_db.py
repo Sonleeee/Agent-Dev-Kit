@@ -348,6 +348,102 @@ def cmd_health(args: Any) -> dict[str, Any]:
         return {"status": "ok", "count": len(rows), "skills": rows}
 
 
+def cmd_log_preference(args: Any) -> dict[str, Any]:
+    """Insert or update user preference in user_preferences table."""
+    if not isinstance(args, dict):
+        raise ValueError("log_preference expects a JSON object payload.")
+    key = args.get("preference_key") or args.get("key")
+    val = args.get("preference_value") or args.get("value")
+    if not key or val is None:
+        raise ValueError("Fields 'preference_key' and 'preference_value' are required for log_preference.")
+    confidence = float(args.get("confidence", 0.7))
+    source_session = args.get("source_session")
+
+    with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO user_preferences (preference_key, preference_value, confidence, source_session, learned_at, last_confirmed)
+            VALUES (?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now'), strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
+            ON CONFLICT(preference_key) DO UPDATE SET
+                preference_value = excluded.preference_value,
+                confidence = MIN(1.0, user_preferences.confidence + 0.1),
+                source_session = COALESCE(excluded.source_session, user_preferences.source_session),
+                last_confirmed = excluded.last_confirmed;
+            """,
+            (key, str(val), confidence, source_session),
+        )
+        return {"status": "ok", "preference_key": key, "preference_value": val, "confidence": confidence}
+
+
+def cmd_get_preferences(args: Any = None) -> dict[str, Any]:
+    """Query user preferences, optionally filtered by prefix or min_confidence."""
+    prefix = ""
+    min_confidence = 0.0
+    if isinstance(args, dict):
+        prefix = args.get("prefix", "")
+        min_confidence = float(args.get("min_confidence", 0.0))
+    elif isinstance(args, str) and args.strip():
+        prefix = args.strip()
+
+    with get_connection() as conn:
+        if prefix:
+            cur = conn.execute(
+                "SELECT * FROM user_preferences WHERE preference_key LIKE ? AND confidence >= ? ORDER BY confidence DESC, last_confirmed DESC",
+                (f"{prefix}%", min_confidence),
+            )
+        else:
+            cur = conn.execute(
+                "SELECT * FROM user_preferences WHERE confidence >= ? ORDER BY confidence DESC, last_confirmed DESC",
+                (min_confidence,),
+            )
+        rows = [dict(row) for row in cur.fetchall()]
+        return {"status": "ok", "count": len(rows), "preferences": rows}
+
+
+def cmd_sync_profile(args: Any = None) -> dict[str, Any]:
+    """Synchronize high-confidence preferences into ~/.agents/developer.md."""
+    min_conf = 0.6
+    if isinstance(args, dict):
+        min_conf = float(args.get("min_confidence", 0.6))
+    profile_path = Path.home() / ".agents" / "developer.md"
+    profile_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with get_connection() as conn:
+        cur = conn.execute(
+            "SELECT preference_key, preference_value, confidence, last_confirmed FROM user_preferences WHERE confidence >= ? ORDER BY preference_key ASC",
+            (min_conf,),
+        )
+        prefs = [dict(r) for r in cur.fetchall()]
+
+    if not prefs:
+        return {"status": "ok", "message": "No high-confidence preferences to sync", "synced": 0}
+
+    section_header = "## Auto-Learned Preferences (from Evolution DB)"
+    lines = [
+        f"\n{section_header}",
+        "> Tự động đồng bộ từ ~/.adk/evolution.db qua session_curator.",
+        "",
+    ]
+    for p in prefs:
+        lines.append(f"- **{p['preference_key']}**: {p['preference_value']} *(confidence: {p['confidence']:.2f}, confirmed: {str(p['last_confirmed'])[:10]})*")
+    lines.append("")
+    new_section = "\n".join(lines)
+
+    existing_content = profile_path.read_text(encoding="utf-8") if profile_path.exists() else ""
+    if section_header in existing_content:
+        parts = existing_content.split(section_header)
+        prefix = parts[0].rstrip()
+        remainder = parts[1]
+        next_sec_idx = remainder.find("\n## ")
+        suffix = remainder[next_sec_idx:] if next_sec_idx != -1 else ""
+        updated_content = f"{prefix}\n{new_section}{suffix}".strip() + "\n"
+    else:
+        updated_content = (existing_content.rstrip() + "\n" + new_section).strip() + "\n"
+
+    profile_path.write_text(updated_content, encoding="utf-8")
+    return {"status": "ok", "profile_path": str(profile_path), "synced_count": len(prefs)}
+
+
 COMMANDS = {
     "init": cmd_init,
     "log_session": cmd_log_session,
@@ -355,6 +451,9 @@ COMMANDS = {
     "log_friction": cmd_log_friction,
     "update_outcome": cmd_update_outcome,
     "log_skill_use": cmd_log_skill_use,
+    "log_preference": cmd_log_preference,
+    "get_preferences": cmd_get_preferences,
+    "sync_profile": cmd_sync_profile,
     "query": cmd_query,
     "search": cmd_search,
     "health": cmd_health,
@@ -374,6 +473,9 @@ def print_help() -> None:
             "log_friction": "Record friction point (JSON: trace_id, step_id, category, description, severity, suggested_fix)",
             "update_outcome": "Update trace outcome and skill stats (JSON: trace_id, outcome, duration_turns, tokens_used)",
             "log_skill_use": "Record skill use and upsert skills (JSON: trace_id, skill_name, outcome, skill_group)",
+            "log_preference": "Insert/update user preference (JSON: preference_key, preference_value, confidence, source_session)",
+            "get_preferences": "Query learned user preferences (JSON: prefix, min_confidence)",
+            "sync_profile": "Sync high-confidence preferences into ~/.agents/developer.md (JSON: min_confidence)",
             "query": "Execute arbitrary SQL query (JSON: sql, params)",
             "search": "Run FTS5 search (JSON: query, target='traces'|'friction')",
             "health": "Query v_skill_health view (JSON: skill_name optional)",

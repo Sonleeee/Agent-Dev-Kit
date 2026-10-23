@@ -1,4 +1,4 @@
-# Global Rules
+﻿# Global Rules
 
 Tất cả rules trong file này áp dụng cho mọi project và mọi platform. Những quy tắc này là "tòa tối cao" của hệ thống.
 
@@ -25,6 +25,13 @@ Chất lượng code bắt buộc phải được chứng minh bằng lệnh th�
 - Build/Compilation phải pass với Zero Warnings (hoặc treat warnings as errors).
 - Linter/Typecheck (npm run lint, tsc --noEmit, dotnet format, ruff check...) phải pass 100%.
 - Unit/Integration Tests liên quan phải pass 100%.
+
+### Frontend & UI Craft Gate [PROTECTED]
+Đối với mọi task có thay đổi hoặc xây mới mã nguồn Frontend/UI (HTML, CSS, Tailwind, JSX/TSX, Vue, Svelte, Mobile):
+- **Zero Horizontal Overflow:** Giao diện co giãn liên tục, không xuất hiện thanh cuộn ngang ngoài ý muốn ở mọi kích thước từ 320px đến 1920px.
+- **Interactive State Completeness:** Mọi element tương tác (button, input, select, link) bắt buộc phải có đầy đủ 4 trạng thái trực quan: default, `:hover`, `:focus-visible` (viền focus rõ ràng cho bàn phím), và `:active` / `:disabled`.
+- **Anti-Slop Compliance:** Tuyệt đối cấm các anti-patterns mặc định của AI: dải màu tím-xanh rập khuôn (`from-purple-600 to-blue-600`), icon emoji trang trí trong nút/badge thay vì SVG stroke, bo góc pill dài bất thường (`rounded-full px-12+`), font không chủ đích. Phải bám sát `DESIGN.md` của dự án.
+- **Touch Target:** Kích thước diện tích chạm cho các nút bấm/liên kết trên màn hình cảm ứng tối thiểu đạt 44x44px.
 
 ### Minimum Acceptance Criteria [PROTECTED]
 - Feature: Tối thiểu 2 happy paths + 2 edge cases trong scope + 1 error handling/user message.
@@ -136,6 +143,15 @@ Decision table nhanh:
 
 ### R-TEMP-PROFILE-CLEANUP — Dọn dẹp thư mục tạm an toàn [PROTECTED]
 - Thư mục profile tạm thời (`--user-data-dir` tạm, `scoped_dir*`) chỉ được xoá khi đã kiểm tra chắc chắn không còn tiến trình nào đang chiếm giữ (InUse = False).
+
+---
+
+## Nhóm 6 — Autonomous Evolution & Dev Style [PROTECTED]
+
+### R-AUTONOMOUS-DEV-STYLE — Tự giác thích ứng và ghi nhận phong cách Dev [PROTECTED]
+- **Tự giác nạp gu code:** Đầu mỗi phiên làm việc, luôn ưu tiên đọc `~/.agents/developer.md` (hoặc `.agents/developer.local.md`) để tuân thủ phong cách giao tiếp, tech stack và quy ước của Developer.
+- **Tự động bắt Preference:** Khi Developer đưa ra góp ý chỉnh sửa phong cách, chỉ dẫn công nghệ hoặc quy ước mới trong lúc chat, Agent có thể chủ động ghi nhận vào `evolution.db` và profile cá nhân mà không bắt người dùng phải gọi workflow thủ công.
+- **Lifecycle Hook Curator:** Sau mỗi phiên làm việc hoặc khi luồng tác vụ kết thúc, hệ thống hook ngầm (`tools/session_curator.py`) tự động trích xuất Session Summary, Dev Preferences và Friction Points vào `~/.adk/evolution.db`.
 
 ---
 

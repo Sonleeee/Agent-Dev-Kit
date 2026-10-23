@@ -1,0 +1,11 @@
+{
+  "evolution-session-curator": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "tools\\curator_hook.cmd",
+        "timeout": 30
+      }
+    ]
+  }
+}

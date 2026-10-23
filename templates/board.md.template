@@ -1,0 +1,48 @@
+# 📋 Project Status & Visual Control Board
+
+> **Bảng điều phối trực quan cho Developer & AI Agent.**  
+> Cập nhật tự động sau mỗi phase: `/wf-clarify`, `/wf-plan`, `/wf-impl`, `/wf-review`.
+
+---
+
+## 🎯 1. Nhiệm vụ Hiện tại (Active Tasks & Execution Contracts)
+
+| Task ID | Tên tính năng / Nhiệm vụ | Workflow | Trạng thái Gate | Trạng thái Task | Execution Contract Link |
+|---|---|---|---|---|---|
+| `TASK-001` | [Mô tả tính năng] | `/wf-impl` | `Gate 2: Dev Done` | 🟢 `IN_PROGRESS` | [`contract.md`](file:///.agents/runtime/TASK-001/execution-contract.md) |
+
+*Ghi chú trạng thái Task:*
+- 🟢 `IN_PROGRESS` : Đang triển khai code hoặc chạy tests
+- 🟡 `NEEDS_DECISION` : Cần Developer phản hồi hoặc phê duyệt spec
+- 🔴 `BLOCKED` : Bị tắc do lỗi môi trường hoặc thiếu dependency
+- 🚀 `SHIP_READY` : Đã vượt qua toàn bộ Quality Gates, sẵn sàng merge
+
+---
+
+## 🛡️ 2. Trạng thái Quality Gates
+
+```text
+[GATE 1: READY]              ──► [GATE 2: DEV DONE]          ──► [GATE 3: SHIP READY]
+  ✅ Problem statement              ✅ Executable verification        ✅ Zero critical findings
+  ✅ Scope In / Out                 ✅ Unit/Integration tests        ✅ Anti-regression verified
+  ✅ Verification command           ✅ Zero horizontal overflow      ✅ Residual risks recorded
+```
+
+---
+
+## 👁️ 3. Thư viện Trực quan hóa (Visual Blueprints & Architecture Artifacts)
+
+| Tên sơ đồ | Dạng biểu diễn | Phạm vi nghiệp vụ | Đường dẫn Artifact |
+|---|---|---|---|
+| `Checkout Flow` | 4-Layer Service Blueprint | Toàn bộ luồng thanh toán | [Xem SVG](file:///docs/architecture/checkout-blueprint.svg) |
+| `Order State Machine` | Entity Lifecycle | Vòng đời đơn hàng | [Xem SVG](file:///docs/architecture/order-state-blueprint.svg) |
+| `Design System Spec` | UI Design Identity | Hợp đồng giao diện & Tokens | [Xem DESIGN.md](file:///DESIGN.md) |
+
+---
+
+## 🧠 4. Trạng thái Đồng bộ Tri thức (SecondBrain Sync Status)
+
+- **Trạng thái kết nối:** `Connected` (`c:\Sonlee\AI\SecondBrain`)
+- **Tri thức đã trích xuất về dự án:** [Liệt kê các bài Wiki hoặc Skill đã nạp]
+- **Kiến thức mới sẵn sàng đẩy lên (Writeback):**
+  - [ ] Bug pattern / Architectural decision cần lưu vào `00_Raw/`

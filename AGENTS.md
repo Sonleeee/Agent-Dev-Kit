@@ -9,7 +9,7 @@
 - **project-type:** agent-dev-kit (meta — không phải ứng dụng nghiệp vụ)
 - **display-name:** Agent-Dev-Kit
 - **description:** Bộ công cụ và quy ước giúp AI agent code đúng pattern, giữ quality gates, tích lũy tri thức — nhân bản vào dự án qua thư mục kit (thường mount dưới tên `.agents/`).
-- **agent-system-version:** 0.7.0
+- **agent-system-version:** 0.7.1
 
 ## Phạm vi repo này (tránh nhầm với dự án app)
 
@@ -29,6 +29,7 @@
 - **quality gates:** `rules/global.md`
 - **execution contract:** `skills/core/sk-execution-contract/SKILL.md` + `templates/execution-contract.md.template`
 - **mẫu passport cho app (Tầng 2):** `templates/AGENTS.md.template` — copy ra root repo dự án rồi điền theo app
+- **mẫu hợp đồng UI & design token:** `templates/DESIGN.md.template` — đặc tả thẩm mỹ, token và anti-slop rules cho frontend
 
 ## Integrations
 

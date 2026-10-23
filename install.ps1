@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Agent-Dev-Kit Installer (adk init)
 .DESCRIPTION
@@ -97,6 +97,16 @@ try {
         }
     } else {
         Write-Host "📦 Core Kit đã sẵn sàng trong .agents/" -ForegroundColor Gray
+    }
+
+    # 3.1 Cài đặt Lifecycle Hook tự động bắt Dev Style & Session Summary (.agents/hooks.json)
+    $TargetHooks = Join-Path $TargetAgentsDir "hooks.json"
+    if (-not (Test-Path $TargetHooks)) {
+        $TemplateHooks = Join-Path $SourcePath "templates\hooks.json.template"
+        if (Test-Path $TemplateHooks) {
+            Copy-Item -Path $TemplateHooks -Destination $TargetHooks -Force
+            Write-Host "⚡ Đã kích hoạt Antigravity Lifecycle Hook (.agents/hooks.json)" -ForegroundColor Green
+        }
     }
 
     # 4. Tạo AGENTS.md tại root (nếu chưa có)

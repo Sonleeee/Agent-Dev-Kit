@@ -37,8 +37,9 @@ walkthrough*.md
 implementation_plan*.md
 clarify-record*.md
 delivery-report*.md
-.agents/runtime/
-.agents/scratch/
+# Agent runtime & local artifacts (ch? dùng local khi dev kit, không push lên repo kit)
+.agents/
+.agent/
 
 # MÃ´i trÆ°á»ng / IDE áº©n
 .env

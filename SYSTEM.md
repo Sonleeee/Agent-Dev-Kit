@@ -136,14 +136,15 @@ Shortcut:
 - `/wf-delivery --fast` — task rõ ràng, đi nhanh
 - `/wf-delivery` — task cần plan và verification đầy đủ
 
-## Auto-Route (Intent → Workflow)
+## Auto-Route (Intent → Skill / Workflow)
 
 Khi user mô tả task bằng ngôn ngữ tự nhiên (không gõ `/wf-`),
-agent phân loại intent và chọn workflow phù hợp.
-Agent **THÔNG BÁO** cho user workflow đang dùng trước khi bắt đầu.
+agent phân loại intent và chọn skill hoặc workflow phù hợp.
+Agent **THÔNG BÁO** ngắn gọn skill/workflow đang dùng trước khi bắt đầu.
 
-| Tín hiệu từ user | Workflow |
+| Tín hiệu từ user | Skill / Workflow |
 |---|---|
+| brainstorm, cùng nghĩ ý tưởng, cho nhiều hướng để cân nhắc | `sk-brainstorm` — chỉ khám phá lựa chọn; không tự chuyển sang delivery |
 | fix, bug, lỗi, crash, exception, sai | `/wf-fix` |
 | thêm, tạo mới, feature, implement | `/wf-delivery` |
 | refactor, optimize, cải thiện | `/wf-clarify` → `/wf-plan` → `/wf-impl` |
@@ -213,7 +214,7 @@ Blocked nếu:
 
 | Nhóm | Mô tả | Cần project context? |
 |---|---|---|
-| `core/` | Discovery, planning, execution contract, guard, regression | Không |
+| `core/` | Brainstorm, discovery, planning, execution contract, guard, regression | Không |
 | `meta/` | Tạo/cải thiện agent system | Không |
 | `devops/` | CI/CD pipeline, Docker review | Không |
 | `security/` | OWASP scan, secret detection | Không |

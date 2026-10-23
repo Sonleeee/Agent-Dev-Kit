@@ -1,0 +1,106 @@
+---
+# ==============================================================================
+# DESIGN.md — Hợp đồng Thiết kế & Thẩm mỹ Giao diện (UI/UX Contract)
+# Kế thừa chuẩn Google Labs DESIGN.md + Bổ sung Anti-Slop & Enterprise Data Rules
+# ==============================================================================
+name: "Project Design Identity"
+version: "1.0.0"
+
+# --- Machine-Readable Design Tokens ---
+colors:
+  # Primary Brand & Surfaces
+  primary: "#0F172A"          # Slate 900 - Nền tảng hoặc điểm nhấn chính
+  primary-foreground: "#FFFFFF"
+  secondary: "#475569"        # Slate 600 - Nhãn phụ, phụ đề, viền thứ cấp
+  secondary-foreground: "#F8FAFC"
+  accent: "#2563EB"           # Blue 600 - Điểm chạm tương tác (CTA, links, focus)
+  accent-foreground: "#FFFFFF"
+  
+  # Neutral Backgrounds & Layers
+  background: "#FFFFFF"       # Light mode background (hoặc #0B0F19 cho dark mode)
+  surface: "#F8FAFC"          # Slate 50 - Card background, containers
+  surface-border: "#E2E8F0"   # Slate 200 - Viền thẻ, divider mảnh
+  
+  # Business Status & Semantic Colors (Data State)
+  status:
+    draft: "#94A3B8"          # Slate 400 - Bản nháp
+    pending: "#F59E0B"        # Amber 500 - Đang chờ xử lý / Cảnh báo
+    success: "#10B981"        # Emerald 500 - Thành công / Đã duyệt
+    error: "#EF4444"          # Red 500 - Lỗi / Từ chối / Nguy hiểm
+    info: "#06B6D4"           # Cyan 500 - Thông tin / Hướng dẫn
+
+typography:
+  font-sans: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+  font-mono: "'JetBrains Mono', 'Fira Code', ui-monospace, monospace"
+  scales:
+    h1: { fontSize: "2rem", lineHeight: "2.5rem", fontWeight: "700" }       # 32px
+    h2: { fontSize: "1.5rem", lineHeight: "2rem", fontWeight: "600" }       # 24px
+    h3: { fontSize: "1.25rem", lineHeight: "1.75rem", fontWeight: "600" }   # 20px
+    body: { fontSize: "0.9375rem", lineHeight: "1.5rem", fontWeight: "400" } # 15px
+    body-sm: { fontSize: "0.8125rem", lineHeight: "1.25rem", fontWeight: "400" } # 13px
+    caption: { fontSize: "0.75rem", lineHeight: "1rem", fontWeight: "500" }  # 12px
+
+radius:
+  sm: "4px"                   # Input, tag, badge
+  md: "8px"                   # Nút bấm, dropdown menu
+  lg: "12px"                  # Card, modal, container
+  full: "9999px"              # Chỉ dùng cho avatar hoặc tròn tuyệt đối
+
+spacing:
+  touch-target-min: "44px"    # Kích thước bấm tối thiểu trên mobile
+  card-padding: "1.25rem"     # 20px
+  table-cell-y: "0.75rem"     # 12px - Chiều cao dòng chuẩn data-dense
+---
+
+# 🎨 Triết lý Thiết kế & Nguyên tắc Ứng dụng
+
+## 1. Phong cách Thẩm mỹ (Aesthetic Persona)
+- **Định hình:** *Modern Clean meets Industrial Precision*.
+- Giao diện hướng đến sự rõ ràng, mạch lạc, ưu tiên dữ liệu nghiệp vụ và giảm thiểu nhiễu thị giác.
+- Mỗi pixel, khoảng cách và màu sắc xuất hiện đều phải phục vụ một mục đích thông tin cụ thể.
+
+---
+
+## 🚫 2. Danh mục Mẫu Bị Cấm Tuyệt Đối (Anti-Slop Banned Patterns)
+
+Khi Agent sinh mã nguồn Frontend (HTML, CSS, Tailwind, JSX/TSX), **CẤM** các mẫu sau:
+
+| Mã cấm | Tên lỗi | Mô tả chi tiết & Cách sửa chuẩn |
+|---|---|---|
+| **`BAN-01`** | `generic-purple-ai` | **Cấm** lạm dụng dải màu tím-xanh rập khuôn (`from-purple-600 to-blue-600` hoặc gradient neon lòe loẹt). Dùng màu brand vững chắc, contrast cao. |
+| **`BAN-02`** | `toy-box-logo` | **Cấm** logo tạo kiểu "hộp đồ chơi": 2 ký tự viết hoa đặt trong một ô vuông bo tròn tô gradient. Hãy dùng icon SVG ngữ cảnh hoặc text logo tinh gọn. |
+| **`BAN-03`** | `emoji-in-badge` | **Cấm** nhét raw emoji (🚀, ✨, 🔥, 💡) vào trong nút bấm hoặc status badge. Phải dùng SVG stroke icons mảnh (1.5px stroke). |
+| **`BAN-04`** | `elongated-pill-cta` | **Cấm** các nút bấm bo tròn quả lê dài bất thường (`rounded-full px-12`). Ưu tiên bo góc tinh tế (`rounded-md` hoặc `rounded-lg`). |
+| **`BAN-05`** | `ai-slop-fonts` | **Cấm** tự ý chọn các font rập khuôn (`Space Grotesk`, `Syne`, `Outfit`). Bám sát `font-sans` chuẩn công nghiệp đã định nghĩa ở trên. |
+| **`BAN-06`** | `hero-giant-headline`| **Cấm** phóng to headline vượt quá $3\times$ body text trừ khi có yêu cầu đặc thù. Tránh lãng phí không gian hiển thị (screen economy). |
+
+---
+
+## 📊 3. Quy chuẩn Giao diện Dữ liệu & Nghiệp vụ (Enterprise Data-Dense UI)
+
+1. **Hiển thị số liệu & tiền tệ:**
+   - Mọi nhãn số liệu, giá trị tiền tệ, chỉ số đếm, hoặc ngày giờ phải dùng lớp font số đơn cách (`font-mono` hoặc `tabular-nums`) để các con số thẳng hàng khi xếp theo cột.
+2. **Bảng dữ liệu (Data Table):**
+   - Header bảng phải in hoa nhẹ hoặc có font-weight rõ (`font-semibold text-xs text-secondary tracking-wider`).
+   - Khoảng đệm dòng (cell padding) vừa phải (`py-2.5 px-4`), tránh các bảng rỗng tuếch làm người dùng phải cuộn chuột vô tận.
+   - Luôn có trạng thái rỗng (`EmptyState`), trạng thái đang tải (`Skeleton/Spinner`), và thông báo lỗi rõ ràng.
+3. **Thẻ trạng thái (Status Badges):**
+   - Sử dụng màu nền nhạt kết hợp chữ đậm tương ứng (`bg-amber-50 text-amber-700 border-amber-200` cho `pending`).
+   - Kèm chấm tròn màu (status dot) hoặc icon ngữ cảnh để người mù màu dễ nhận diện.
+
+---
+
+## ⚡ 4. Nguyên lý Vi tương tác & Chuyển động (Micro-interactions & Motion)
+
+Kế thừa nguyên tắc thủ công tinh tế (Emil Kowalski Craftsmanship):
+- **Tactile Feedback:** Mọi nút bấm phải có phản hồi nhấn chuột rõ rệt (`active:scale-[0.98]` hoặc đổi tone màu nhẹ).
+- **Không bao giờ animate từ `scale(0)`:** Đối với modal/dialog/popover, chuyển động xuất hiện nên bắt đầu từ `scale(0.95)` lên `scale(1)` với đường cong tự nhiên (Spring/Ease-out), tránh cảm giác bật nảy từ hư không.
+- **Origin-Aware Popover:** Dropdown hoặc tooltip phải mở ra từ đúng hướng của điểm chạm kích hoạt nó.
+- **Tôn trọng `prefers-reduced-motion`:** Tự động tắt hoặc giảm thiểu hiệu ứng chuyển động nếu người dùng bật chế độ chống chóng mặt trên hệ điều hành.
+
+---
+
+## 📱 5. Quy chuẩn Tương thích Màn hình & Tiếp cận (Responsive & Accessibility)
+- **Độ rộng tối thiểu 320px:** Giao diện bắt buộc không được xuất hiện thanh cuộn ngang (Zero Horizontal Overflow) từ màn hình điện thoại 320px đến màn hình 4K.
+- **Touch Target $\ge 44 \times 44$px:** Mọi diện tích bấm trên màn hình cảm ứng phải đạt chuẩn tối thiểu của Apple/Android HIG.
+- **Keyboard Navigation:** Mọi element tương tác phải có viền focus nổi bật khi duyệt bằng phím Tab (`focus-visible:ring-2 focus-visible:ring-offset-2`).

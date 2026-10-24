@@ -96,6 +96,8 @@ ADK mặc định tách bạch ranh giới giữa người và máy:
 | Lập plan riêng hoặc task có nhiều phụ thuộc | `adk-solution-planning` |
 | Technical spec cho thay đổi thiết kế lớn | `adk-sdd` khi user yêu cầu hoặc còn quyết định rủi ro cần chốt |
 | Implement task rõ | Làm trực tiếp; TDD khi thay đổi behavior và test phù hợp |
+| Tự chủ trọn gói ("Let him cook") | `adk-cook` — tự động 5 bước qua 4 subagents đến khi ship |
+| Tiếp thu / port feature từ repo ngoài | `adk-xia` — phân tích external repo và chuyển giao theo chuẩn local |
 | Debug lỗi chưa rõ nguyên nhân | `adk-systematic-debugging`; bug nhỏ, rõ thì sửa trực tiếp |
 | Review độc lập hoặc test riêng | `adk-code-review`, `adk-test-strategy`, `adk-scenario-generator`, `adk-test-authoring` theo yêu cầu |
 | Cập nhật docs hoặc soạn nội dung Git | `adk-docs-maintenance`, `adk-git-content` theo intent rõ |

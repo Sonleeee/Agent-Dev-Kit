@@ -46,6 +46,8 @@ try {
   console.warn(`[Warning] Không thể ghi file config Antigravity: ${err.message}`);
 }
 
+let tools = [];
+
 // 2. Sinh Tool Schemas cho Antigravity Lazy Loading (~/.gemini/antigravity/mcp/system-design)
 const antigravityMcpDir = path.join(userHome, '.gemini', 'antigravity', 'mcp', 'system-design');
 try {
@@ -53,7 +55,7 @@ try {
     fs.mkdirSync(antigravityMcpDir, { recursive: true });
   }
 
-  const tools = [
+  tools = [
     {
       name: "search_patterns",
       description: "Tìm kiếm mẫu kiến trúc hệ thống (System Design Patterns) chuẩn từ kho tri thức nội bộ đã được thẩm định. Không cần tra cứu internet.",
@@ -175,6 +177,35 @@ try {
   }
 } catch (err) {
   // Bỏ qua nếu Claude không có
+}
+
+// 4. Cấu hình cho OpenAI Codex (~/.codex/config.toml nếu có)
+const codexConfigFile = path.join(userHome, '.codex', 'config.toml');
+try {
+  if (fs.existsSync(codexConfigFile)) {
+    let tomlContent = fs.readFileSync(codexConfigFile, 'utf8');
+    const serverName = 'system-design';
+    const serverBlock = `[mcp_servers.${serverName}]
+command = "node"
+args = [${JSON.stringify(mcpServerJs)}]
+
+${tools.map(t => `[mcp_servers.${serverName}.tools.${t.name}]\napproval_mode = "approve"`).join('\n\n')}
+`;
+
+    const regex = new RegExp(`\\[mcp_servers\\.${serverName}\\][\\s\\S]*?(?=(\\n\\[mcp_servers|\\n\\[projects|\\Z))`, 'g');
+    if (regex.test(tomlContent)) {
+      tomlContent = tomlContent.replace(regex, serverBlock.trim() + '\n\n');
+    } else {
+      const backupFile = `${codexConfigFile}.bak-adk-${serverName}`;
+      fs.copyFileSync(codexConfigFile, backupFile);
+      tomlContent = tomlContent.trimEnd() + '\n\n' + serverBlock;
+    }
+
+    fs.writeFileSync(codexConfigFile, tomlContent, 'utf8');
+    console.log(`✅ [Codex] Đã đăng ký '${serverName}' MCP vào: ${codexConfigFile}`);
+  }
+} catch (err) {
+  console.warn(`[Warning] Không thể cấu hình Codex config.toml: ${err.message}`);
 }
 
 console.log('🎉 Hoàn tất cấu hình System Design MCP Server cho Agent-Dev-Kit!');

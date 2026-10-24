@@ -125,6 +125,8 @@ thay đổi phạm vi yêu cầu của user.
 | Ý định | Hành vi mặc định |
 |---|---|
 | Task code đã rõ: thêm, sửa bug, refactor | Thực hiện trực tiếp; TDD khi đổi behavior và test phù hợp; verify theo phạm vi |
+| Tự chủ trọn gói ("Let him cook", 1 lệnh khép kín) | `adk-cook`; tự động điều phối subagents qua 5 bước đến khi sẵn sàng ship |
+| Port, so sánh hoặc tiếp thu pattern từ repo ngoài | `adk-xia`; phân tích reference repo và chuyển giao code theo chuẩn local |
 | Brainstorm, cần nhiều hướng để cân nhắc | `adk-brainstorm`; kết thúc ở các lựa chọn, không tự sang plan/code |
 | Bug chưa rõ nguyên nhân hoặc nhiều layer | `adk-systematic-debugging`; bug hiển nhiên, phạm vi hẹp thì sửa trực tiếp |
 | Mục tiêu nghiệp vụ chưa rõ và user muốn chốt yêu cầu | `adk-business-discovery` |
@@ -147,12 +149,12 @@ maintainer sắp xếp source. Không dùng số lượng skill hay category là
 
 | Nhóm | Ví dụ |
 |---|---|
-| `core/` | brainstorm, business discovery, planning, execution contract, API guard |
+| `core/` | brainstorm, business discovery, planning, autonomous cooking (`adk-cook`), execution contract, API guard |
 | `meta/` | skill synthesis, trace capture, tối ưu agent instructions |
 | `devops/` | CI/CD và Docker review |
 | `security/` | OWASP, secrets, API contract |
 | `testing/` | test strategy và test scenarios |
-| `research/` | docs/library lookup (`adk-docs-seeker`), pattern comparison (`adk-pattern-researcher`), multi-source deep research (`adk-deep-research`) |
+| `research/` | docs/library lookup (`adk-docs-seeker`), pattern comparison (`adk-pattern-researcher`), multi-source deep research (`adk-deep-research`), external repo assimilation (`adk-xia`) |
 
 Context cache, vault writeback, database inspection, scaffold và kit evolution nằm
 trong addons; các side effect chỉ chạy theo intent rõ ràng. Domain skills riêng của
@@ -167,7 +169,9 @@ Nếu người dùng vẫn gõ lệnh slash legacy theo thói quen hoặc host I
 | Lệnh Legacy | Vai trò / Intent chuẩn thay thế | Skill / Cơ chế xử lý |
 |---|---|---|
 | `/wf-clarify`, `/wf-plan` | Khảo sát & lập kế hoạch khi có yêu cầu | `adk-business-discovery`, `adk-solution-planning` |
+| `/cook`, `/wf-cook` | Chế độ tự chủ trọn gói từ đầu đến cuối ("Let him cook") | `adk-cook` |
 | `/wf-impl`, `/wf-fix`, `/wf-enhance` | Triển khai code, sửa lỗi hoặc refactor trực tiếp | Thực thi trực tiếp + TDD; `adk-systematic-debugging` |
+| `/wf-xia`, `/xia` | Port / đối chiếu mã nguồn từ external repo | `adk-xia` |
 | `/wf-review`, `/wf-test`, `/wf-docs` | Review độc lập, tạo test, bảo trì tài liệu | `adk-code-review`, `adk-test-authoring`, `adk-docs-maintenance` |
 | `/wf-research`, `/wf-security` | Tra cứu mẫu kiến trúc hoặc quét bảo mật | `adk-pattern-researcher`, `adk-owasp-scan` |
 | `/wf-git`, `/wf-deploy`, `/wf-scaffold` | Tạo commit/PR, deploy, scaffold kiến trúc | `adk-git-content`, `adk-system-design-scaffold` |

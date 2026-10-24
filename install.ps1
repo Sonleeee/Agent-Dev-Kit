@@ -263,7 +263,7 @@ function global:adk {
             Write-Host "📌 1. LỆNH CLI CƠ BẢN:" -ForegroundColor Yellow
             Write-Host "  adk, adk help, adk -h     : Hiển thị bảng trợ giúp này" -ForegroundColor White
             Write-Host "  adk i, adk install        : Tải/Khởi tạo kit vào project (.agents/)" -ForegroundColor White
-            Write-Host "  adk full, adk setup       : Full Setup 1-chạm (.agents/ + AGENTS.md + CodeGraph & System Design MCP)" -ForegroundColor White
+            Write-Host "  adk full, adk setup       : Full Setup 1-chạm (.agents/ + AGENTS.md + CodeGraph + System Design + UI Design MCP + Addon Skills)" -ForegroundColor White
             Write-Host "  adk u, adk update         : Cập nhật core kit lên bản mới nhất" -ForegroundColor White
             Write-Host "  adk profile               : Thiết lập gu code cá nhân (~/.agents/developer.md)" -ForegroundColor White
             Write-Host "  adk addon [tên]           : Quản lý và cài đặt addons (codegraph, system-design...)" -ForegroundColor White
@@ -278,7 +278,8 @@ function global:adk {
             Write-Host "  • Tác vụ phức tạp / lớn : Kích hoạt Execution Contract tự động (adk-execution-contract)" -ForegroundColor White
             Write-Host "  • Specialist Subagents  : scout, worker, verifier, critic" -ForegroundColor White
             Write-Host ""
-            Write-Host "📦 3. DANH SÁCH 5 ADDONS (Gõ 'adk addon' để chọn và cài đặt):" -ForegroundColor Yellow
+            Write-Host "📦 3. DANH SÁCH 6 ADDONS (Gõ 'adk addon' để chọn và cài đặt):" -ForegroundColor Yellow
+            Write-Host "  • ui-design   : Kho Design Tokens, 8 Archetypes, Emil Kowalski Motion & Anti-Slop (MCP)"
             Write-Host "  • system-design: Kho kiến trúc chuẩn & tự động scaffold source base (MCP)" -ForegroundColor Gray
             Write-Host "  • codegraph  : Lập chỉ mục AST, call graph & symbols (giảm 35% token)" -ForegroundColor Gray
             Write-Host "  • database   : Tra cứu schema & query an toàn qua Gridex MCP" -ForegroundColor Gray
@@ -343,7 +344,55 @@ function global:adk {
                 node $sysDesignSetupJs
             }
         } catch {
-            Write-Warning "Không thể tự động kích hoạt System Design MCP: $_. Bạn có thể thử lại sau bằng lệnh: adk addon system-design"
+            Write-Warning "Không thể tự động kích hoạt System Design MCP: $_. Bạn có thể thử lại sau bằng lệnh: adk addon add system-design"
+        }
+    }
+
+    # 9. Cài đặt UI Design MCP Server (Craftsmanship & Anti-Slop Engine)
+    if ($setupCodeGraph -or $Full.IsPresent) {
+        Write-Host ""
+        Write-Host "🎨 [UI Design] Đang tự động kích hoạt MCP Server Thiết Kế UI & Anti-Slop..." -ForegroundColor Cyan
+        try {
+            $uiDesignSetupJs = Join-Path $TargetAgentsDir "addons\ui-design\setup.js"
+            if (-not (Test-Path $uiDesignSetupJs)) {
+                $uiDesignSetupJs = Join-Path $SourcePath "addons\ui-design\setup.js"
+            }
+            if (Test-Path $uiDesignSetupJs) {
+                node $uiDesignSetupJs
+            }
+        } catch {
+            Write-Warning "Không thể tự động kích hoạt UI Design MCP: $_. Bạn có thể thử lại sau bằng lệnh: adk addon add ui-design"
+        }
+    }
+
+    # 10. Kích hoạt toàn bộ Addon Skills khi chạy Full Setup
+    if ($Full.IsPresent) {
+        Write-Host ""
+        Write-Host "📦 [Addon Skills] Đang tự động kích hoạt toàn bộ kỹ năng từ các Addons..." -ForegroundColor Cyan
+        $AddonSourceRoot = Join-Path $SourcePath "addons"
+        if (-not (Test-Path $AddonSourceRoot)) {
+            $AddonSourceRoot = Join-Path $TargetAgentsDir "addons"
+        }
+        if (Test-Path $AddonSourceRoot) {
+            $addonDirs = Get-ChildItem -Path $AddonSourceRoot -Directory
+            $totalAddonSkills = 0
+            foreach ($ad in $addonDirs) {
+                $adSkillRoot = Join-Path $ad.FullName "skills"
+                if (Test-Path $adSkillRoot) {
+                    $adSkills = Get-ChildItem -Path $adSkillRoot -Directory -Recurse | Where-Object { Test-Path (Join-Path $_.FullName "SKILL.md") }
+                    foreach ($sk in $adSkills) {
+                        $dest = Join-Path $SkillTargetRoot $sk.Name
+                        $marker = Join-Path $dest ".adk-managed"
+                        if (-not (Test-Path $dest) -or (Test-Path $marker)) {
+                            New-Item -ItemType Directory -Path $dest -Force | Out-Null
+                            Get-ChildItem -Path $sk.FullName -Force | ForEach-Object { Copy-Item -Path $_.FullName -Destination $dest -Recurse -Force }
+                            New-Item -ItemType File -Path $marker -Force | Out-Null
+                            $totalAddonSkills++
+                        }
+                    }
+                }
+            }
+            Write-Host "✅ [Addon Skills] Đã kích hoạt $totalAddonSkills kỹ năng addon vào .agents/skills/" -ForegroundColor Green
         }
     }
 

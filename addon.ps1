@@ -20,8 +20,16 @@ if (-not (Test-Path $LocalKitPath)) {
     $LocalKitPath = Join-Path (Get-Location) ".agents"
 }
 
-# Danh mục 6 Addons chính thức
+# Danh mục 7 Addons chính thức
 $AddonsData = @{
+    "ui-design" = @{
+        Title       = "UI Design (Craftsmanship and Anti-Slop MCP)"
+        Description = "Kho Design Tokens, 8 Archetypes, Emil Kowalski Motion Physics, 20-Rule Quality Gate va scaffold DESIGN.md qua MCP."
+        DocsUrl     = "https://github.com/Sonleeee/Agent-Dev-Kit/tree/main/addons/ui-design"
+        RepoUrl     = ""
+        InstallCmd  = "powershell -File .agents/addons/ui-design/setup.ps1"
+        Type        = "MCP Server / CLI"
+    }
     "system-design" = @{
         Title       = "System Design (Knowledge Base & Scaffolding MCP)"
         Description = "Kho kiến trúc tham khảo (Outbox, Idempotency, Circuit Breaker...) và skill scaffold source base theo yêu cầu qua MCP."
@@ -131,6 +139,52 @@ function Show-Addon-Details([string]$key) {
 
     # Menu tương tác cho từng loại addon
     switch ($key) {
+        "ui-design" {
+            Write-Host "LỰA CHỌN CỦA BẠN:" -ForegroundColor Cyan
+            Write-Host "  [1] Tự động cài đặt và cấu hình UI Design MCP Server (Antigravity & Claude)" -ForegroundColor White
+            Write-Host "  [2] Thử nghiệm lệnh tra cứu Archetype (node addons/ui-design/mcp-server/index.js search)" -ForegroundColor White
+            Write-Host "  [0] Quay lại / Hủy" -ForegroundColor DarkGray
+            $opt = Read-Host "👉 Nhập lựa chọn của bạn [0-2] (Mặc định: 1)"
+            if ([string]::IsNullOrWhiteSpace($opt)) { $opt = "1" }
+
+            switch ($opt) {
+                "1" {
+                    $setupScript = Join-Path $LocalKitPath "addons\ui-design\setup.ps1"
+                    if (Test-Path $setupScript) {
+                        & $setupScript
+                    } else {
+                        node (Join-Path $LocalKitPath "addons\ui-design\setup.js")
+                    }
+                }
+                "2" {
+                    node (Join-Path $LocalKitPath "addons\ui-design\mcp-server\index.js") search
+                }
+                default { Write-Host "Đã hủy thao tác." -ForegroundColor DarkGray }
+            }
+        }
+        "system-design" {
+            Write-Host "LỰA CHỌN CỦA BẠN:" -ForegroundColor Cyan
+            Write-Host "  [1] Tự động cài đặt và cấu hình System Design MCP Server (Antigravity & Claude)" -ForegroundColor White
+            Write-Host "  [2] Xem danh sách kiến trúc mẫu (blueprints)" -ForegroundColor White
+            Write-Host "  [0] Quay lại / Hủy" -ForegroundColor DarkGray
+            $opt = Read-Host "👉 Nhập lựa chọn của bạn [0-2] (Mặc định: 1)"
+            if ([string]::IsNullOrWhiteSpace($opt)) { $opt = "1" }
+
+            switch ($opt) {
+                "1" {
+                    $setupScript = Join-Path $LocalKitPath "addons\system-design\setup.ps1"
+                    if (Test-Path $setupScript) {
+                        & $setupScript
+                    } else {
+                        node (Join-Path $LocalKitPath "addons\system-design\setup.js")
+                    }
+                }
+                "2" {
+                    node (Join-Path $LocalKitPath "addons\system-design\mcp-server\index.js") blueprints
+                }
+                default { Write-Host "Đã hủy thao tác." -ForegroundColor DarkGray }
+            }
+        }
         "codegraph" {
             Write-Host "LUA CHON CUA BAN:" -ForegroundColor Cyan
             Write-Host "  [1] Tu dong cai dat CodeGraph MCP Server (Antigravity & Codex)" -ForegroundColor White
@@ -288,11 +342,11 @@ $target = if ($NameStr) { $NameStr.ToLower() } else { $Action.ToLower() }
 if ($target -in "list", "ls", "all", "") {
     Write-Host ""
     Write-Host "========================================================================" -ForegroundColor Cyan
-    Write-Host "   📦 AGENT-DEV-KIT ADDONS (5 Addons khả dụng)                          " -ForegroundColor Cyan
+    Write-Host "   📦 AGENT-DEV-KIT ADDONS (6 Addons khả dụng)                          " -ForegroundColor Cyan
     Write-Host "========================================================================" -ForegroundColor Cyan
     Write-Host ""
     $i = 1
-    $keys = @("codegraph", "system-design", "database", "obsidian", "notebooklm")
+    $keys = @("ui-design", "system-design", "codegraph", "database", "obsidian", "notebooklm")
     foreach ($k in $keys) {
         $item = $AddonsData[$k]
         Write-Host "  $i. $($k.PadRight(12)) : $($item.Title)" -ForegroundColor White
@@ -307,8 +361,8 @@ if ($target -in "list", "ls", "all", "") {
     Write-Host "👉 Cú pháp: adk addon add <tên-addon> để xem tùy chọn và cài đặt." -ForegroundColor Yellow
     Write-Host "   Ví dụ  : adk addon add codegraph" -ForegroundColor DarkGray
     Write-Host ""
-    $choice = Read-Host "Nhập tên hoặc số thứ tự addon bạn muốn xem/cài đặt [1-5 / Enter để thoát]"
-    if ($choice -match '^[1-5]$') {
+    $choice = Read-Host "Nhập tên hoặc số thứ tự addon bạn muốn xem/cài đặt [1-6 / Enter để thoát]"
+    if ($choice -match '^[1-6]$') {
         $selectedKey = $keys[[int]$choice - 1]
         Show-Addon-Details $selectedKey
     } elseif ($AddonsData.ContainsKey($choice.ToLower())) {

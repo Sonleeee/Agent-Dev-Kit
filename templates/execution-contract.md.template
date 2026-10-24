@@ -8,7 +8,7 @@
 
 - **Objective:** [một câu đo được]
 - **User request:** [tóm tắt ngắn]
-- **Workflow:** [/wf-delivery | /wf-fix | /wf-modernize | ...]
+- **Intent / Skill:** [implement | fix | refactor | adk-solution-planning | ...]
 - **Mode:** [standard | fast | deep | auto]
 - **In scope:**
   - [file/module/behavior]
@@ -25,7 +25,7 @@
 - **Rules:** `.agents/rules/global.md`
 - **Architecture sections:** [section/tag]
 - **Templates:** [paths hoặc `none`]
-- **Architecture evidence:** [Archify HTML/JSON snapshot hoặc `none`]
+- **Architecture evidence:** [CodeGraph call chain / Visual Blueprint HTML hoặc `none`]
 
 ## 3. Plan and decisions
 

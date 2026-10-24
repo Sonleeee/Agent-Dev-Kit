@@ -19,7 +19,7 @@ Write-Host "==========================================" -ForegroundColor Cyan
 
 $CurrentDir = (Get-Location).Path
 $TargetAgentsDir = Join-Path $CurrentDir ".agents"
-$LocalKitPath = "C:\Sonlee\AI\Agent-Dev-Kit"
+$LocalKitPath = if ($env:ADK_HOME -and (Test-Path $env:ADK_HOME)) { $env:ADK_HOME } elseif (Test-Path (Join-Path $PSScriptRoot "templates\AGENTS.md.template")) { $PSScriptRoot } else { "" }
 $RepoUrl = "https://github.com/Sonleeee/Agent-Dev-Kit.git"
 
 # Kiểm tra an toàn: Không chạy trong chính thư mục Agent-Dev-Kit gốc
@@ -106,7 +106,7 @@ try {
     if (Test-Path $SkillSourceRoot) {
         New-Item -ItemType Directory -Path $SkillTargetRoot -Force | Out-Null
         $SkillDirs = Get-ChildItem -Path $SkillSourceRoot -Directory |
-            Where-Object { $_.Name -notlike "sk-*" } |
+            Where-Object { $_.Name -notlike "adk-*" -and $_.Name -notlike "sk-*" } |
             ForEach-Object { Get-ChildItem -Path $_.FullName -Directory -Recurse } |
             Where-Object { Test-Path (Join-Path $_.FullName "SKILL.md") } |
             Sort-Object FullName
@@ -212,7 +212,7 @@ function global:adk {
         [switch]$Force,
         [switch]$Full
     )
-    $localKit = "C:\Sonlee\AI\Agent-Dev-Kit"
+    $localKit = if ($env:ADK_HOME) { $env:ADK_HOME } else { "" }
     $remoteRepo = "https://raw.githubusercontent.com/Sonleeee/Agent-Dev-Kit/main"
     $runLocal = Test-Path $localKit
 
@@ -266,22 +266,21 @@ function global:adk {
             Write-Host "  adk full, adk setup       : Full Setup 1-chạm (.agents/ + AGENTS.md + CodeGraph & System Design MCP)" -ForegroundColor White
             Write-Host "  adk u, adk update         : Cập nhật core kit lên bản mới nhất" -ForegroundColor White
             Write-Host "  adk profile               : Thiết lập gu code cá nhân (~/.agents/developer.md)" -ForegroundColor White
-            Write-Host "  adk addon [tên]           : Quản lý và cài đặt addons (codegraph, archify...)" -ForegroundColor White
+            Write-Host "  adk addon [tên]           : Quản lý và cài đặt addons (codegraph, system-design...)" -ForegroundColor White
             Write-Host "  adk version, adk -v       : Xem phiên bản hiện tại" -ForegroundColor White
             Write-Host ""
-            Write-Host "💬 2. QUY TRÌNH CHUẨN TRONG CHAT (WORKFLOWS):" -ForegroundColor Yellow
-            Write-Host "  /wf-scaffold <tính năng>  : Tự động khảo sát kiến trúc & sinh source base chuẩn" -ForegroundColor White
-            Write-Host "  /wf-clarify <yêu cầu>    : Làm rõ yêu cầu & chốt Invariants" -ForegroundColor White
-            Write-Host "  /wf-plan <tính năng>     : Lập kế hoạch & sinh Execution Contract" -ForegroundColor White
-            Write-Host "  /wf-impl                  : Triển khai code bám sát Contract" -ForegroundColor White
-            Write-Host "  /wf-review                : Rà soát 4 tầng & kiểm tra Executable Gates" -ForegroundColor White
-            Write-Host "  /wf-fix <lỗi>             : Chẩn đoán nguyên nhân gốc & sửa lỗi" -ForegroundColor White
-            Write-Host "  /wf-evolve                : Tự động phân tích logs & tối ưu hóa rules" -ForegroundColor White
+            Write-Host "💬 2. LUỒNG LÀM VIỆC THEO INTENT & SKILLS (SKILL-FIRST):" -ForegroundColor Yellow
+            Write-Host "  • Tác vụ code đã rõ     : Chat tự nhiên, Agent code trực tiếp & TDD trong cùng phiên" -ForegroundColor White
+            Write-Host "  • Lập kế hoạch         : 'lập plan cho...', 'so sánh cách làm...' (adk-solution-planning)" -ForegroundColor White
+            Write-Host "  • Sửa lỗi có hệ thống   : 'tìm nguyên nhân lỗi...', 'debug...' (adk-systematic-debugging)" -ForegroundColor White
+            Write-Host "  • Review độc lập       : 'review code...', 'kiểm tra bảo mật...' (adk-code-review, adk-owasp-scan)" -ForegroundColor White
+            Write-Host "  • Viết & bổ sung test   : 'viết test cho...', 'tìm coverage gap...' (adk-test-authoring, adk-scenario-generator)" -ForegroundColor White
+            Write-Host "  • Tác vụ phức tạp / lớn : Kích hoạt Execution Contract tự động (adk-execution-contract)" -ForegroundColor White
+            Write-Host "  • Specialist Subagents  : scout, worker, verifier, critic" -ForegroundColor White
             Write-Host ""
             Write-Host "📦 3. DANH SÁCH 5 ADDONS (Gõ 'adk addon' để chọn và cài đặt):" -ForegroundColor Yellow
             Write-Host "  • system-design: Kho kiến trúc chuẩn & tự động scaffold source base (MCP)" -ForegroundColor Gray
             Write-Host "  • codegraph  : Lập chỉ mục AST, call graph & symbols (giảm 35% token)" -ForegroundColor Gray
-            Write-Host "  • archify    : Vẽ sơ đồ HTML tương tác (https://vividkit.dev/vi/guides/archify)" -ForegroundColor Gray
             Write-Host "  • database   : Tra cứu schema & query an toàn qua Gridex MCP" -ForegroundColor Gray
             Write-Host "  • obsidian   : Đồng bộ tri thức hai chiều với Second Brain (https://obsidian.md)" -ForegroundColor Gray
             Write-Host "  • notebooklm : Nghiên cứu tài liệu sâu qua Google NotebookLM" -ForegroundColor Gray

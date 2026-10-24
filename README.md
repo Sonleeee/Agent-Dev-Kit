@@ -54,21 +54,22 @@ lập plan, review độc lập hoặc deploy, hãy nói rõ intent đó hoặc 
 ├── SYSTEM.md                     ← Agent behavior specification
 ├── rules/
 │   └── global.md                 ← Quality gates & guardrails toàn cục
-├── workflows/                    ← Lệnh tương thích; không phải pipeline mặc định
-├── agents/                       ← 6 system agent personas
+
+├── agents/                       ← 4 specialist subagents (scout, worker, verifier, critic)
 ├── skills/                       ← Skills được agent chọn theo intent
 │   ├── core/                     ← Discovery, planning, execution contract, regression
 │   ├── meta/                     ← Tạo/cải thiện agent system
 │   ├── devops/                   ← CI/CD pipeline, Docker review
 │   ├── security/                 ← OWASP scan, secret detection
 │   ├── testing/                  ← Test strategy, scenario generator
-│   └── research/                 ← Docs seeker, pattern researcher
+│   └── research/                 ← Docs seeker, pattern researcher, deep research, deep research
 ├── templates/                    ← Output + execution contract + AGENTS.md templates
 ├── docs/                         ← Research/rationale và decisions của kit
 ├── tools/                        ← validate-kit.ps1, evolution_db.py, init-profile.ps1
 └── addons/                       ← Addons mở rộng tùy chọn
     ├── codegraph/                ← AST index, call graph, symbols (MCP)
-    ├── archify/                  ← Interactive HTML visual diagrams
+    ├── system-design/            ← Kho kiến trúc chuẩn & scaffold MCP
+    ├── obsidian/                 ← Đồng bộ tri thức & web/doc ingestion
     ├── database/                 ← Schema lookup & safe query qua Gridex MCP
     ├── notebooklm/               ← Deep research & synthesis qua NotebookLM
     └── maintainer/               ← Health check & maintenance scripts
@@ -84,16 +85,16 @@ chỉ bật khi intent, độ phức tạp hoặc rủi ro thực sự cần.
 
 | Ý định | Skill / hành vi |
 |---|---|
-| Brainstorm và cân nhắc nhiều hướng | `sk-brainstorm`; dừng ở các lựa chọn, không tự chuyển sang plan/code |
-| Chốt mục tiêu nghiệp vụ còn mơ hồ | `sk-business-discovery` |
-| Lập plan riêng hoặc task có nhiều phụ thuộc | `sk-solution-planning` |
-| Technical spec cho thay đổi thiết kế lớn | `sk-sdd` khi user yêu cầu hoặc còn quyết định rủi ro cần chốt |
+| Brainstorm và cân nhắc nhiều hướng | `adk-brainstorm`; dừng ở các lựa chọn, không tự chuyển sang plan/code |
+| Chốt mục tiêu nghiệp vụ còn mơ hồ | `adk-business-discovery` |
+| Lập plan riêng hoặc task có nhiều phụ thuộc | `adk-solution-planning` |
+| Technical spec cho thay đổi thiết kế lớn | `adk-sdd` khi user yêu cầu hoặc còn quyết định rủi ro cần chốt |
 | Implement task rõ | Làm trực tiếp; TDD khi thay đổi behavior và test phù hợp |
-| Debug lỗi chưa rõ nguyên nhân | `sk-systematic-debugging`; bug nhỏ, rõ thì sửa trực tiếp |
-| Review độc lập hoặc test riêng | `sk-code-review`, `sk-test-strategy`, `sk-scenario-generator`, `sk-test-authoring` theo yêu cầu |
-| Cập nhật docs hoặc soạn nội dung Git | `sk-docs-maintenance`, `sk-git-content` theo intent rõ |
+| Debug lỗi chưa rõ nguyên nhân | `adk-systematic-debugging`; bug nhỏ, rõ thì sửa trực tiếp |
+| Review độc lập hoặc test riêng | `adk-code-review`, `adk-test-strategy`, `adk-scenario-generator`, `adk-test-authoring` theo yêu cầu |
+| Cập nhật docs hoặc soạn nội dung Git | `adk-docs-maintenance`, `adk-git-content` theo intent rõ |
 
-`sk-execution-contract` chỉ dùng cho task nhiều bước, dài qua nhiều lượt, cần resume
+`adk-execution-contract` chỉ dùng cho task nhiều bước, dài qua nhiều lượt, cần resume
 hoặc có rủi ro cao. Delegate, worktree và reviewer độc lập là lựa chọn theo lợi ích,
 không phải bước bắt buộc.
 
@@ -102,37 +103,35 @@ từng skill thành thư mục trực tiếp dưới `.agents/skills/<skill-name
 `adk addon add <name>`, skill của addon cũng được export theo layout này. Skill trùng
 tên với skill riêng của user được giữ nguyên, không bị installer ghi đè.
 
-## 📋 Lệnh `/wf-*` còn lại
+## 📋 Ánh xạ Lệnh Legacy `/wf-*` sang Skill-First
 
-Các file lệnh được giữ làm adapter trong giai đoạn chuyển đổi. Chỉ host còn hỗ trợ
-workflow mới gọi được chúng; với task tự nhiên, agent chọn intent/skill phù hợp.
-Chúng không bắt buộc tạo chuỗi stage.
+Từ v0.8.0, kit đã chuyển đổi 100% sang Skill-First & Intent-Driven; thư mục `workflows/` tại root đã được gỡ bỏ. Nếu người dùng quen tay dùng lệnh slash cũ hoặc host IDE có alias, hệ thống sẽ tự động ánh xạ sang Skill/Intent tương ứng:
 
-| Lệnh | Dùng khi |
+
+
+| Lệnh legacy | Intent / Skill chuẩn thay thế |
 |---|---|
-| `/wf-clarify`, `/wf-plan` | Muốn discovery hoặc plan-only |
-| `/wf-impl`, `/wf-fix`, `/wf-enhance` | Muốn gọi rõ entrypoint implement/debug/refactor |
-| `/wf-review`, `/wf-test`, `/wf-docs`, `/wf-research` | Muốn review, viết test, sửa docs hoặc research riêng |
-| `/wf-security`, `/wf-xia`, `/wf-retro`, `/wf-status` | Audit/port/retrospective/resume được yêu cầu riêng |
-| `/wf-git`, `/wf-deploy`, `/wf-scaffold`, `/wf-evolve` | Side effect hoặc maintainer task có intent tường minh |
+| `/wf-clarify`, `/wf-plan` | Khảo sát & lập kế hoạch (`adk-business-discovery`, `adk-solution-planning`) |
+| `/wf-impl`, `/wf-fix`, `/wf-enhance` | Triển khai code trực tiếp + TDD; debug có hệ thống (`adk-systematic-debugging`) |
+| `/wf-review`, `/wf-test`, `/wf-docs`, `/wf-research` | Review độc lập (`adk-code-review`), test authoring (`adk-test-authoring`), bảo trì docs, tra cứu pattern |
+| `/wf-security`, `/wf-xia`, `/wf-retro`, `/wf-status` | Quét bảo mật (`adk-owasp-scan`), audit/port, retrospective, ledger (`adk-execution-contract`) |
+| `/wf-git`, `/wf-deploy`, `/wf-scaffold`, `/wf-evolve` | Soạn git content (`adk-git-content`), deploy, scaffold MCP (`adk-system-design-scaffold`), GEPA-Lite |
 
 Modifiers như `--red-team`, `--compare` hay `--churn` thuộc command cụ thể; skills
 không phụ thuộc vào cú pháp modifier riêng của một host.
 
 ---
 
-## 🤖 System Agents (6)
+## 🤖 System Agents (4 Specialist Subagents)
 
-| Agent | Role | Khi nào dùng |
+| Subagent | Tool Authority (Inner Harness) | Vai trò & Hợp đồng Đầu ra (Outer Harness) |
 |-------|------|--------------|
-| `planner` | Discovery và lập plan riêng | User yêu cầu hoặc còn quyết định quan trọng |
-| `implementer` | Thực thi task code liền mạch | Task create/fix/refactor đã rõ |
-| `reviewer` | Review độc lập theo risk | User yêu cầu hoặc rủi ro đáng kể |
-| `debugger` | Điều tra root cause | Symptom chưa rõ hoặc lỗi nhiều lớp |
-| `tester` | Test strategy, test authoring, coverage | User yêu cầu test riêng hoặc QA độc lập |
-| `red-team` | Phản biện đối kháng | User yêu cầu hoặc risk cao |
+| `scout` | **Read-Only** (CodeGraph, Grep, Read, Docs) | Khảo sát codebase, trace call graph, khoanh vùng root cause (`path:line`) |
+| `worker` | **Scoped Read/Write + Test Runner** | Thực thi thay đổi code/test theo TDD trong phạm vi được giao + `verified_cmd` |
+| `verifier` | **Read-Only + Test/Lint/Audit Runner** | Cổng kiểm định độc lập (Fail-Closed Gate: `ADMIT` / `REJECT`), tách biệt khỏi lịch sử chat của Worker |
+| `critic` | **Read-Only** (4-Persona Adversarial) | Phản biện đối kháng (Security, Data/State, API, Perf), bẻ gãy giả định ngầm |
 
-> Delegate khi lợi ích vượt chi phí handoff; nếu host không hỗ trợ subagent, xử lý inline.
+> Delegate khi lợi ích vượt chi phí handoff; nếu host không hỗ trợ subagent, xử lý inline theo đúng checklist kiểm định của từng specialist.
 
 ---
 
@@ -159,7 +158,7 @@ Chỉ bật khi cần mở rộng tính năng. Xem `addons/README.md` để bi�
 |---|---|---|
 | [system-design/](./addons/system-design/) | Kho tham khảo kiến trúc và scaffold source base theo yêu cầu | MCP Server / Skill |
 | `codegraph/` | Semantic Code Intelligence: lập chỉ mục AST, call graph & symbols (19+ ngôn ngữ) | MCP Server / CLI |
-| `archify/` | Biên dịch dữ liệu kiến trúc thành sơ đồ HTML vector tương tác | CLI / Skill |
+| `obsidian/` | Đồng bộ tri thức hai chiều, web cleaner & document parser cho Obsidian Vault | Vault / Skills |
 | `database/` | Tra cứu schema bảng, quan hệ khóa ngoại và query SQL an toàn | Gridex MCP Server |
 | `notebooklm/` | Nghiên cứu tài liệu chuyên sâu, đọc tài liệu dày và tổng hợp tri thức | NotebookLM MCP Server |
 | `maintainer/` | Bộ công cụ kiểm tra sức khỏe kit (`validate-kit.ps1`) và sinh skill chuẩn | Kit Scripts |

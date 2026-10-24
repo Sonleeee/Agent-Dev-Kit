@@ -13,6 +13,8 @@ import os
 from pathlib import Path
 import sqlite3
 import sys
+
+sys.dont_write_bytecode = True
 from typing import Any
 
 
@@ -77,7 +79,7 @@ def cmd_log_session(args: Any) -> dict[str, Any]:
     """Insert or update session in sessions table."""
     if not isinstance(args, dict):
         raise ValueError("log_session expects a JSON object payload.")
-    session_id = args.get("id") or f"sess_{hashlib.md5(os.urandom(16)).hexdigest()[:12]}"
+    session_id = args.get("id") or f"sess_{hashlib.sha256(os.urandom(16)).hexdigest()[:12]}"
     params = {
         "id": session_id,
         "project": args.get("project"),

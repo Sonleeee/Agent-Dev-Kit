@@ -4,7 +4,7 @@
 
 ## Skills
 
-- `sk-kit-doctor`: health check cấu trúc kit, git và tool connectivity.
-- `sk-skill-creator`: tạo hoặc cập nhật skill mới.
+- `adk-kit-doctor`: health check cấu trúc kit, git và tool connectivity.
+- `adk-skill-creator`: tạo hoặc cập nhật skill mới.
 
 Chỉ bật khi phát triển chính Agent-Dev-Kit hoặc cần chẩn đoán kit.

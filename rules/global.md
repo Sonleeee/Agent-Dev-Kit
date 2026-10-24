@@ -1,4 +1,4 @@
-﻿# Global Rules
+# Global Rules
 
 Tất cả rules trong file này áp dụng cho mọi project và mọi platform. Những quy tắc này là "tòa tối cao" của hệ thống.
 
@@ -18,11 +18,9 @@ Mỗi rule được đánh dấu:
 - Full code review và ship decision chỉ chạy khi user yêu cầu hoặc risk cần góc nhìn độc lập; rà diff ngắn vẫn thuộc bước hoàn tất bình thường.
 
 ### Frontend & UI Craft Gate [PROTECTED]
-Đối với mọi task có thay đổi hoặc xây mới mã nguồn Frontend/UI (HTML, CSS, Tailwind, JSX/TSX, Vue, Svelte, Mobile):
-- **Zero Horizontal Overflow:** Giao diện co giãn liên tục, không xuất hiện thanh cuộn ngang ngoài ý muốn ở mọi kích thước từ 320px đến 1920px.
-- **Interactive State Completeness:** Mọi element tương tác (button, input, select, link) bắt buộc phải có đầy đủ 4 trạng thái trực quan: default, `:hover`, `:focus-visible` (viền focus rõ ràng cho bàn phím), và `:active` / `:disabled`.
-- **Anti-Slop Compliance:** Tuyệt đối cấm các anti-patterns mặc định của AI: dải màu tím-xanh rập khuôn (`from-purple-600 to-blue-600`), icon emoji trang trí trong nút/badge thay vì SVG stroke, bo góc pill dài bất thường (`rounded-full px-12+`), font không chủ đích. Phải bám sát `DESIGN.md` của dự án.
-- **Touch Target:** Kích thước diện tích chạm cho các nút bấm/liên kết trên màn hình cảm ứng tối thiểu đạt 44x44px.
+Chỉ kích hoạt khi task có thay đổi/xây mới mã nguồn Frontend/UI (`.html`, `.css`, `.tsx`, `.jsx`, `.vue`, `.svelte`):
+- **Bắt buộc nạp `adk-ui-craft` và bám sát `DESIGN.md`:** Cấm tuyệt đối AI UI Slop (dải màu `from-purple-600 to-blue-600`, raw emoji trong nút/badge, `outline: none` không có `focus-visible`).
+- **Objective Gate Verification:** Bắt buộc đảm bảo Zero Horizontal Overflow (320px–1920px), đủ 4 trạng thái tương tác (`default`, `:hover`, `:focus-visible`, `:active`/`:disabled`), touch target $\ge 44\times44$px, và chạy script kiểm định `adk-ui-craft/scripts/ui_slop_auditor.py` trên các file UI đã sửa.
 
 ### Minimum Acceptance Criteria [PROTECTED]
 - Xác định happy path, edge case và lỗi có ý nghĩa với phạm vi cụ thể; không áp dụng quota cố định cho mọi feature.

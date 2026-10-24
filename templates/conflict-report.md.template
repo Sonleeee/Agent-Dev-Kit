@@ -32,7 +32,7 @@
 | User chọn | Hành động tự động |
 |-----------|-------------------|
 | A: Fix theo Context | Agent fix code, re-review Layer 1 |
-| B: Update Context | Agent cập nhật context files (chạy sk-context-update) |
+| B: Update Context | Agent cập nhật context files (chạy adk-context-update) |
 | C: Keep Both | Agent thêm tag [Legacy] vào context entry |
 
 ---

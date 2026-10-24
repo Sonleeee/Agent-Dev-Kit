@@ -16,6 +16,8 @@ import subprocess
 import sys
 from typing import Any
 
+sys.dont_write_bytecode = True
+
 # Ensure ADK root is in sys.path to import evolution_db if available
 ADK_ROOT = Path(__file__).resolve().parent.parent
 if str(ADK_ROOT) not in sys.path:

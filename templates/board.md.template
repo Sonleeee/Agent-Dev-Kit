@@ -1,15 +1,15 @@
 # 📋 Project Status & Visual Control Board
 
 > **Bảng điều phối trực quan cho Developer & AI Agent.**  
-> Cập nhật tự động sau mỗi phase: `/wf-clarify`, `/wf-plan`, `/wf-impl`, `/wf-review`.
+> Cập nhật theo tiến độ thực thi: Plan -> Implementation -> Verification/Review.
 
 ---
 
 ## 🎯 1. Nhiệm vụ Hiện tại (Active Tasks & Execution Contracts)
 
-| Task ID | Tên tính năng / Nhiệm vụ | Workflow | Trạng thái Gate | Trạng thái Task | Execution Contract Link |
+| Task ID | Tên tính năng / Nhiệm vụ | Intent / Skill | Trạng thái Gate | Trạng thái Task | Execution Contract Link |
 |---|---|---|---|---|---|
-| `TASK-001` | [Mô tả tính năng] | `/wf-impl` | `Gate 2: Dev Done` | 🟢 `IN_PROGRESS` | [`contract.md`](file:///.agents/runtime/TASK-001/execution-contract.md) |
+| `TASK-001` | [Mô tả tính năng] | `implement` | `Gate 2: Dev Done` | 🟢 `IN_PROGRESS` | [`contract.md`](file:///.agents/runtime/TASK-001/execution-contract.md) |
 
 *Ghi chú trạng thái Task:*
 - 🟢 `IN_PROGRESS` : Đang triển khai code hoặc chạy tests

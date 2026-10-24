@@ -15,7 +15,7 @@ param(
 
 $NameStr = ($Name -join " ").Trim()
 
-$LocalKitPath = "C:\Sonlee\AI\Agent-Dev-Kit"
+$LocalKitPath = if ($env:ADK_HOME -and (Test-Path $env:ADK_HOME)) { $env:ADK_HOME } elseif (Test-Path (Join-Path $PSScriptRoot "addons")) { $PSScriptRoot } else { Join-Path (Get-Location) ".agents" }
 if (-not (Test-Path $LocalKitPath)) {
     $LocalKitPath = Join-Path (Get-Location) ".agents"
 }
@@ -37,14 +37,6 @@ $AddonsData = @{
         RepoUrl     = "https://github.com/colbymchenry/codegraph"
         InstallCmd  = "npx -y @colbymchenry/codegraph install -y --target=antigravity,codex"
         Type        = "MCP Server / CLI"
-    }
-    "archify" = @{
-        Title       = "Archify (HTML Architecture Diagram)"
-        Description = "Biên dịch dữ liệu JSON kiến trúc thành file HTML tương tác (vector SVG, hover, trace luồng)."
-        DocsUrl     = "https://vividkit.dev/vi/guides/archify"
-        RepoUrl     = "https://github.com/tt-a1i/archify"
-        InstallCmd  = "npx -y skills add tt-a1i/archify -g"
-        Type        = "CLI / Skill"
     }
     "database" = @{
         Title       = "Database Inspector (Gridex MCP)"
@@ -87,7 +79,7 @@ function Export-AddonSkills([string]$AddonKey) {
     $targetRoot = Join-Path (Get-Location) ".agents\skills"
     New-Item -ItemType Directory -Path $targetRoot -Force | Out-Null
     $skillDirs = Get-ChildItem -Path $sourceRoot -Directory -Recurse |
-        Where-Object { $_.Name -like "sk-*" -and (Test-Path (Join-Path $_.FullName "SKILL.md")) } |
+        Where-Object { ($_.Name -like "adk-*" -or $_.Name -like "sk-*") -and (Test-Path (Join-Path $_.FullName "SKILL.md")) } |
         Sort-Object FullName
     $seen = @{}
     $exported = 0
@@ -166,30 +158,10 @@ function Show-Addon-Details([string]$key) {
                 default { Write-Host "Da huy thao tac." -ForegroundColor DarkGray }
             }
         }
-        "archify" {
-            Write-Host "LỰA CHỌN CỦA BẠN:" -ForegroundColor Cyan
-            Write-Host "  [1] Tự động cài đặt Archify CLI toàn cục (npx skills add tt-a1i/archify -g)" -ForegroundColor White
-            Write-Host "  [2] Mở link tài liệu hướng dẫn trên trình duyệt" -ForegroundColor White
-            Write-Host "  [3] Mở trang GitHub repo của Archify" -ForegroundColor White
-            Write-Host "  [0] Quay lại / Hủy" -ForegroundColor DarkGray
-            $opt = Read-Host "👉 Nhập lựa chọn của bạn [0-3] (Mặc định: 1)"
-            if ([string]::IsNullOrWhiteSpace($opt)) { $opt = "1" }
-
-            switch ($opt) {
-                "1" {
-                    Write-Host "🚀 Đang thực thi: $($addon.InstallCmd)..." -ForegroundColor Cyan
-                    npx -y skills add tt-a1i/archify -g
-                    Write-Host "✅ Hoàn tất! Trong chat, bạn có thể yêu cầu AI: 'Dùng Archify vẽ sơ đồ kiến trúc'." -ForegroundColor Green
-                }
-                "2" { Start-Process $addon.DocsUrl }
-                "3" { Start-Process $addon.RepoUrl }
-                default { Write-Host "Đã hủy thao tác." -ForegroundColor DarkGray }
-            }
-        }
         "database" {
             Write-Host "LỰA CHỌN CỦA BẠN:" -ForegroundColor Cyan
             Write-Host "  [1] Kiểm tra xem hệ thống đã có Gridex MCP Server chưa" -ForegroundColor White
-            Write-Host "  [2] Xem hướng dẫn sử dụng Gridex trong skill sk-db-inspector" -ForegroundColor White
+            Write-Host "  [2] Xem hướng dẫn sử dụng Gridex trong skill adk-db-inspector" -ForegroundColor White
             Write-Host "  [0] Quay lại / Hủy" -ForegroundColor DarkGray
             $opt = Read-Host "👉 Nhập lựa chọn của bạn [0-2] (Mặc định: 1)"
             if ([string]::IsNullOrWhiteSpace($opt)) { $opt = "1" }
@@ -215,7 +187,7 @@ function Show-Addon-Details([string]$key) {
                     }
                 }
                 "2" {
-                    $skillFile = Join-Path $LocalKitPath "addons\database\skills\sk-db-inspector\SKILL.md"
+                    $skillFile = Join-Path $LocalKitPath "addons\database\skills\adk-db-inspector\SKILL.md"
                     if (Test-Path $skillFile) {
                         Get-Content $skillFile | Select-Object -First 35
                     } else {
@@ -299,7 +271,7 @@ function Show-Addon-Details([string]$key) {
                     }
                 }
                 "2" {
-                    $creatorSkill = Join-Path $LocalKitPath "addons\maintainer\skills\sk-skill-creator\SKILL.md"
+                    $creatorSkill = Join-Path $LocalKitPath "addons\maintainer\skills\adk-skill-creator\SKILL.md"
                     if (Test-Path $creatorSkill) {
                         Get-Content $creatorSkill | Select-Object -First 30
                     }
@@ -320,7 +292,7 @@ if ($target -in "list", "ls", "all", "") {
     Write-Host "========================================================================" -ForegroundColor Cyan
     Write-Host ""
     $i = 1
-    $keys = @("codegraph", "archify", "database", "obsidian", "notebooklm")
+    $keys = @("codegraph", "system-design", "database", "obsidian", "notebooklm")
     foreach ($k in $keys) {
         $item = $AddonsData[$k]
         Write-Host "  $i. $($k.PadRight(12)) : $($item.Title)" -ForegroundColor White
@@ -333,7 +305,7 @@ if ($target -in "list", "ls", "all", "") {
     }
     Write-Host "------------------------------------------------------------------------" -ForegroundColor DarkGray
     Write-Host "👉 Cú pháp: adk addon add <tên-addon> để xem tùy chọn và cài đặt." -ForegroundColor Yellow
-    Write-Host "   Ví dụ  : adk addon add archify" -ForegroundColor DarkGray
+    Write-Host "   Ví dụ  : adk addon add codegraph" -ForegroundColor DarkGray
     Write-Host ""
     $choice = Read-Host "Nhập tên hoặc số thứ tự addon bạn muốn xem/cài đặt [1-5 / Enter để thoát]"
     if ($choice -match '^[1-5]$') {
@@ -348,7 +320,7 @@ elseif ($Action.ToLower() -in "add", "install", "i") {
         Export-AddonSkills $NameStr.ToLower()
         Show-Addon-Details $NameStr.ToLower()
     } else {
-        $inputName = Read-Host "👉 Nhập tên addon bạn muốn thêm (codegraph, archify, database, obsidian, notebooklm)"
+        $inputName = Read-Host "👉 Nhập tên addon bạn muốn thêm (codegraph, system-design, database, obsidian, notebooklm)"
         if ($AddonsData.ContainsKey($inputName.ToLower())) {
             Export-AddonSkills $inputName.ToLower()
             Show-Addon-Details $inputName.ToLower()

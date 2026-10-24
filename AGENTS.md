@@ -9,7 +9,7 @@
 - **project-type:** agent-dev-kit (meta — không phải ứng dụng nghiệp vụ)
 - **display-name:** Agent-Dev-Kit
 - **description:** Bộ công cụ và quy ước giúp AI agent code đúng pattern, giữ quality gates, tích lũy tri thức — nhân bản vào dự án qua thư mục kit (thường mount dưới tên `.agents/`).
-- **agent-system-version:** 0.8.0
+- **agent-system-version:** 0.9.0
 
 ## Phạm vi repo này (tránh nhầm với dự án app)
 
@@ -25,7 +25,7 @@
 - **hành vi agent:** `SYSTEM.md`
 - **tổng quan & cách dùng:** `README.md`
 - **quality gates:** `rules/global.md`
-- **execution contract:** `skills/core/sk-execution-contract/SKILL.md` + `templates/execution-contract.md.template`
+- **execution contract:** `skills/core/adk-execution-contract/SKILL.md` + `templates/execution-contract.md.template`
 - **mẫu passport cho app (Tầng 2):** `templates/AGENTS.md.template` — copy ra root repo dự án rồi điền theo app
 - **mẫu hợp đồng UI & design token:** `templates/DESIGN.md.template` — đặc tả thẩm mỹ, token và anti-slop rules cho frontend
 
@@ -41,7 +41,7 @@
 | `rules/` | Guardrails và invariants luôn kích hoạt (`global.md`) |
 | `agents/` | Persona hệ thống (inline hoặc delegate theo host) |
 | `templates/` | Template output (design tokens, contracts, checklists) |
-| `addons/` | Mở rộng tùy chọn (codegraph, archify, database, system-design...) |
+| `addons/` | Mở rộng tùy chọn (codegraph, database, system-design, obsidian, notebooklm...) |
 
 ## Team Context (repo kit)
 

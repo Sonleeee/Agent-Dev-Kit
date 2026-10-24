@@ -12,7 +12,6 @@ Core Kit (rules, skills và lệnh tương thích) hoạt động **độc lập
 |---|---|---|
 | [system-design/](./system-design/) | Kho kiến trúc tham khảo và skill scaffold source base theo yêu cầu (MCP) | Đã tích hợp sẵn (hoặc `adk full`) |
 | `codegraph/` | Semantic Code Intelligence: lập chỉ mục AST, call graph & symbols (19+ ngôn ngữ) | `npx -y @colbymchenry/codegraph install -y -i --target=antigravity,codex` (hoặc `adk full`) |
-| [archify/](./archify/) | Architecture/workflow HTML tự chứa (self-contained) | Cần cài Archify skill (`npx skills add tt-a1i/archify -g`) |
 | [database/](./database/) | Tra cứu schema, quan hệ bảng và query SQL an toàn | Cần kết nối Gridex MCP Server |
 | [notebooklm/](./notebooklm/) | Research & Synthesis, đọc tài liệu dày, sync ghi chú | Cần NotebookLM MCP Server |
 | [obsidian/](./obsidian/) | Skill đọc/lưu tri thức và ADR vào Obsidian Vault theo yêu cầu | Cài đặt qua `adk addon add obsidian` |
@@ -24,7 +23,7 @@ Core Kit (rules, skills và lệnh tương thích) hoạt động **độc lập
 
 Addon `obsidian` giúp kết nối Agent với Obsidian Vault của bạn:
 - Tự động chưng cất tri thức, ADR, bug pattern từ quá trình code vào vault.
-- Các skill: `sk-vault-steward`, `sk-context-cache`, `sk-memory-consolidator`; `/wf-vault-sync` chỉ còn là adapter thủ công cho host hỗ trợ workflow.
+- Các skill: `adk-vault-steward`, `adk-context-cache`, `adk-memory-consolidator`; `/wf-vault-sync` chỉ còn là adapter thủ công cho host hỗ trợ workflow.
 - Chi tiết xem tại [addons/obsidian/README.md](./obsidian/README.md).
 
 ---

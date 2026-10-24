@@ -18,7 +18,7 @@ Write-Host "==========================================" -ForegroundColor Cyan
 
 $CurrentDir = (Get-Location).Path
 $TargetAgentsDir = Join-Path $CurrentDir ".agents"
-$LocalKitPath = "C:\Sonlee\AI\Agent-Dev-Kit"
+$LocalKitPath = if ($env:ADK_HOME -and (Test-Path $env:ADK_HOME)) { $env:ADK_HOME } elseif (Test-Path (Join-Path $PSScriptRoot "templates\AGENTS.md.template")) { $PSScriptRoot } else { "" }
 $RepoUrl = "https://github.com/Sonleeee/Agent-Dev-Kit.git"
 
 # Kiểm tra thư mục .agents
@@ -107,7 +107,7 @@ try {
     if (Test-Path $SkillSourceRoot) {
         New-Item -ItemType Directory -Path $SkillTargetRoot -Force | Out-Null
         $SkillDirs = Get-ChildItem -Path $SkillSourceRoot -Directory |
-            Where-Object { $_.Name -notlike "sk-*" } |
+            Where-Object { $_.Name -notlike "adk-*" -and $_.Name -notlike "sk-*" } |
             ForEach-Object { Get-ChildItem -Path $_.FullName -Directory -Recurse } |
             Where-Object { Test-Path (Join-Path $_.FullName "SKILL.md") } |
             Sort-Object FullName

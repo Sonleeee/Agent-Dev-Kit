@@ -6,7 +6,7 @@
 
 ### 1. Lưu review vào vault theo yêu cầu
 Khi user yêu cầu lưu kết quả review, agent có thể tạo note trong vault:
-- File: `brain/projects/[project]/wf-review-YYYY-MM-DD.md`
+- File: `brain/projects/[project]/review-YYYY-MM-DD.md`
 - Nội dung: summary findings, pass/fail status
 
 ### 2. Lưu ADR theo yêu cầu

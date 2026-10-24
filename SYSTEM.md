@@ -7,14 +7,13 @@ Bộ agent dùng chung cho mọi project và mọi platform/IDE.
 ```text
 .agents/ (KIT — clone từ repo)
     ├── rules/          ← Global rules & Executable gates
-    ├── skills/         ← Skills tái sử dụng
-    ├── workflows/      ← Các workflow chuẩn (/wf-clarify, /wf-plan, /wf-impl, /wf-review...)
+    ├── skills/         ← Kho Agent Skills tái sử dụng (chuẩn SKILL.md)
     ├── agents/         ← System agent personas
     ├── templates/      ← Output & Contract templates
     ├── schemas/        ← Database schemas (evolution.db)
     ├── tools/          ← CLI tools (evolution_db.py, validate-kit.ps1)
     ├── config/         ← Config templates
-    └── addons/         ← Mở rộng tùy chọn (codegraph, archify, database...)
+    └── addons/         ← Mở rộng tùy chọn (codegraph, system-design, database...)
 
 [project-root]/
     ├── AGENTS.md       ← "Passport" của project (tech stack, conventions, reference modules)
@@ -46,20 +45,36 @@ Không cần thông báo tên skill/workflow trước mỗi hành động; chỉ
 - Đọc `AGENTS.md` cùng `rules/global.md` để hiểu ranh giới và quy ước áp dụng; chỉ nạp thêm context liên quan đến task.
 - Đọc `.agents/developer.local.md` hoặc `~/.agents/developer.md` khi chúng có sẵn và ảnh hưởng đến cách thực hiện/giao tiếp.
 - Chọn skill theo intent thực tế từ `name` và `description`. Nếu không có skill phù hợp, xử lý trực tiếp; không tìm skill như một bước hình thức.
-- Áp dụng communication preset phù hợp (`standard`, `concise`, `adhd-flow`, `caveman`/`ultracave`). Với prompt ngắn, ưu tiên câu trả lời gọn và đưa hành động lên trước.
 - Với tác vụ source code, dùng CodeGraph trước khi đọc/tìm source nếu repo có index và CodeGraph khả dụng. Dùng công cụ đọc/tìm thông thường cho docs, config, literal text, git diff/status hoặc file chưa index.
+
+### Giao thức giao tiếp thích ứng (Default Adaptive Action-First)
+
+Mặc định mọi phản hồi áp dụng **Action-First & Concise** mà không cần người dùng kích hoạt skill thủ công:
+
+1. **Dòng 1 là Hành động hoặc Kết quả trực tiếp:** Nêu ngay việc đã/đang làm hoặc câu trả lời chốt ở dòng đầu tiên. Bỏ hoàn toàn lời chào, khen câu hỏi, xin phép và phần tóm tắt lặp lại cuối bài.
+2. **Đánh số bước tuần tự & giới hạn tải nhận thức:** Mỗi nhóm tối đa `≤ 5` mục; mỗi mục bắt đầu bằng động từ hành động hoặc `path:line` cụ thể.
+3. **Bằng chứng kiểm chứng bắt buộc (`verified_cmd`):** Khi báo hoàn thành sửa đổi, nêu lệnh kiểm chứng thực tế đã chạy và kết quả thật.
+
+**Cơ chế tự động mở khóa chi tiết (Adaptive Escape Hatch → Deep-Explanation Mode):**
+Tự động chuyển sang trình bày phân tích sâu, bảng so sánh đa chiều và sơ đồ Mermaid (không bị bó buộc giới hạn 5 mục) khi rơi vào **1 trong 4 trường hợp**:
+- **Yêu cầu tường minh từ User:** Có từ khóa hoặc ý định cần độ sâu (*"chi tiết"*, *"giải thích tại sao"*, *"phân tích sâu"*, *"đánh giá gắt gao"*, *"so sánh"*, *"deep research"*, *"brainstorm"*).
+- **Quyết định Kiến trúc / Nghiệp vụ rủi ro cao:** Lập ADR, Technical Spec (`adk-sdd`), PRD (`adk-agile-ba`) hoặc đánh giá trade-off có blast radius lớn.
+- **Điều tra lỗi đa tầng hoặc Audit bảo mật:** Báo cáo Root-Cause Analysis (`adk-systematic-debugging`) hoặc báo cáo lỗ hổng (`adk-owasp-scan`).
+- **Báo cáo xung đột (Conflict Report):** Khi code thực tế mâu thuẫn với yêu cầu hoặc spec cần người dùng chốt hướng đi.
+
+> **Override cường độ (Mutually Exclusive):** Chỉ nạp `adk-adhd-flow` hoặc `adk-caveman` khi người dùng yêu cầu rõ chế độ cực đoan tương ứng (ví dụ: *"bật caveman"*, *"ultracave"*, *"adhd mode"*), hoặc cấu hình cứng trong `developer.local.md`. Không bao giờ nạp đồng thời hai skill này.
 
 ### Execution contract và ledger
 
-`sk-execution-contract` là lựa chọn cho task nhiều bước, dài qua nhiều lượt, cần resume,
+`adk-execution-contract` là lựa chọn cho task nhiều bước, dài qua nhiều lượt, cần resume,
 có rủi ro cao hoặc có nhiều người/agent cùng làm. Không tạo contract/ledger cho task ngắn,
 một bước, phạm vi rõ và kết quả dễ kiểm chứng. Khi đã tạo ledger, cập nhật nó đủ để resume
 đúng vị trí; trace capture là best-effort và không được chặn delivery.
 
 ### Planning và delegation
 
-- Dùng `sk-solution-planning` khi người dùng yêu cầu plan riêng, task có nhiều nhánh phụ thuộc,
-  hoặc approach chưa hiển nhiên. Dùng `sk-sdd` khi cần spec/ADR hoặc thay đổi kiến trúc,
+- Dùng `adk-solution-planning` khi người dùng yêu cầu plan riêng, task có nhiều nhánh phụ thuộc,
+  hoặc approach chưa hiển nhiên. Dùng `adk-sdd` khi cần spec/ADR hoặc thay đổi kiến trúc,
   API hay dữ liệu có ảnh hưởng đáng kể.
 - Delegate khi phần việc thực sự độc lập và lợi ích dự kiến lớn hơn chi phí handoff, hợp nhất
   và review. Số file/subtask riêng lẻ không tự tạo nghĩa vụ delegate.
@@ -103,27 +118,20 @@ thay đổi phạm vi yêu cầu của user.
 | Ý định | Hành vi mặc định |
 |---|---|
 | Task code đã rõ: thêm, sửa bug, refactor | Thực hiện trực tiếp; TDD khi đổi behavior và test phù hợp; verify theo phạm vi |
-| Brainstorm, cần nhiều hướng để cân nhắc | `sk-brainstorm`; kết thúc ở các lựa chọn, không tự sang plan/code |
-| Bug chưa rõ nguyên nhân hoặc nhiều layer | `sk-systematic-debugging`; bug hiển nhiên, phạm vi hẹp thì sửa trực tiếp |
-| Mục tiêu nghiệp vụ chưa rõ và user muốn chốt yêu cầu | `sk-business-discovery` |
-| PRD, Epic, Stories hoặc AC | `sk-agile-ba` |
-| User muốn plan riêng hoặc task nhiều nhánh/rủi ro | `sk-solution-planning`; `sk-sdd` cho thiết kế rủi ro cao |
-| User yêu cầu review độc lập | `sk-code-review` |
-| User yêu cầu test strategy/scenario/test authoring | `sk-test-strategy`, `sk-scenario-generator`, `sk-test-authoring`; TDD vẫn diễn ra trong task sửa code |
-| Cập nhật docs theo thay đổi source | `sk-docs-maintenance`; docs/library research dùng `sk-docs-seeker` |
-| Pattern hoặc NotebookLM research | `sk-pattern-researcher` hoặc `sk-notebooklm-research` theo nguồn |
-| Soạn commit/PR/changelog | `sk-git-content`; commit/push vẫn chỉ khi user yêu cầu rõ |
+| Brainstorm, cần nhiều hướng để cân nhắc | `adk-brainstorm`; kết thúc ở các lựa chọn, không tự sang plan/code |
+| Bug chưa rõ nguyên nhân hoặc nhiều layer | `adk-systematic-debugging`; bug hiển nhiên, phạm vi hẹp thì sửa trực tiếp |
+| Mục tiêu nghiệp vụ chưa rõ và user muốn chốt yêu cầu | `adk-business-discovery` |
+| PRD, Epic, Stories hoặc AC | `adk-agile-ba` |
+| User muốn plan riêng hoặc task nhiều nhánh/rủi ro | `adk-solution-planning`; `adk-sdd` cho thiết kế rủi ro cao |
+| User yêu cầu review độc lập | `adk-code-review` |
+| User yêu cầu test strategy/scenario/test authoring | `adk-test-strategy`, `adk-scenario-generator`, `adk-test-authoring`; TDD vẫn diễn ra trong task sửa code |
+| Cập nhật docs theo thay đổi source | `adk-docs-maintenance`; tra cứu nhanh API/docs library dùng `adk-docs-seeker` |
+| So sánh pattern nhanh hoặc Deep Research đa nguồn | `adk-pattern-researcher` (chọn pattern khi code) hoặc `adk-deep-research` (khảo sát chuyên sâu đa nguồn); NotebookLM dùng `adk-notebooklm-research` (thuộc addon `notebooklm`) |
+| Soạn commit/PR/changelog | `adk-git-content`; commit/push vẫn chỉ khi user yêu cầu rõ |
 | Deploy, scaffold, retro, kit evolution, ghi vault | Chỉ khi user yêu cầu intent đó; dùng skill/adapter tương ứng và giữ side-effect guard |
 
 Chỉ hỏi user khi câu trả lời có thể đổi lựa chọn hoặc ranh giới an toàn; nếu không, nêu giả định
 và tiếp tục với phạm vi có thể xác định.
-
-## Modifiers theo host
-
-Các file `/wf-*` còn được giữ làm adapter tài liệu trong giai đoạn chuyển đổi. Chỉ host
-còn hỗ trợ workflow mới gọi được chúng; dùng intent/skill làm đường portable mặc định.
-Workflow stage cũ được thu gọn thành adapter tới skill phù hợp hoặc thao tác trực tiếp.
-Modifiers chỉ áp dụng cho workflow nhận chúng; không giả định skill host khác hiểu cú pháp này.
 
 ## Nhóm skill
 
@@ -137,25 +145,26 @@ maintainer sắp xếp source. Không dùng số lượng skill hay category là
 | `devops/` | CI/CD và Docker review |
 | `security/` | OWASP, secrets, API contract |
 | `testing/` | test strategy và test scenarios |
-| `research/` | docs/library lookup, pattern research, NotebookLM research |
+| `research/` | docs/library lookup (`adk-docs-seeker`), pattern comparison (`adk-pattern-researcher`), multi-source deep research (`adk-deep-research`) |
 
 Context cache, vault writeback, database inspection, scaffold và kit evolution nằm
 trong addons; các side effect chỉ chạy theo intent rõ ràng. Domain skills riêng của
 project thuộc project `.agents/skills/` hoặc vị trí mà host hỗ trợ.
 
-## Workflow command còn lại
+## Ánh xạ lệnh Slash Legacy (`/wf-*`)
 
-Các file lệnh dưới đây được giữ làm adapter trong giai đoạn chuyển đổi. Chỉ host còn
-hỗ trợ workflow mới gọi được chúng; chúng không định nghĩa đường chạy mặc định. Chỉ
-dùng command có side effect khi user yêu cầu rõ.
+Từ bản 0.8.0, kit đã loại bỏ hoàn toàn các file workflow cứng tại root (`workflows/`) để chuyển sang 100% **Skill-First & Intent-Driven**. Người dùng và Agent không cần dùng các lệnh `/wf-*` như các bước thủ tục bắt buộc. 
 
-| Nhóm | Command | Vai trò sau migration |
+Nếu người dùng vẫn gõ lệnh slash legacy theo thói quen hoặc host IDE còn giữ alias, hệ thống sẽ tự động ánh xạ sang Intent / Skill tương ứng:
+
+| Lệnh Legacy | Vai trò / Intent chuẩn thay thế | Skill / Cơ chế xử lý |
 |---|---|---|
-| Alias theo host | `/wf-clarify`, `/wf-plan`, `/wf-impl`, `/wf-delivery` | Lệnh cũ cho host còn hỗ trợ workflow; intent/skill là đường dùng chung |
-| Alias theo host | `/wf-review`, `/wf-fix`, `/wf-test`, `/wf-docs` | Gọi procedure chuyên biệt theo intent; không tự chạy sau mỗi lần code |
-| Research/security | `/wf-research`, `/wf-security` | Adapter tới skill theo nguồn/phạm vi |
-| Side effect | `/wf-git`, `/wf-deploy`, `/wf-scaffold` | Chỉ theo yêu cầu rõ; giữ xác nhận cần thiết trước thao tác |
-| Maintainer/analysis | `/wf-status`, `/wf-retro`, `/wf-xia`, `/wf-evolve`, `/wf-enhance` | Lệnh tường minh; không tự kích hoạt sau commit hay delivery |
+| `/wf-clarify`, `/wf-plan` | Khảo sát & lập kế hoạch khi có yêu cầu | `adk-business-discovery`, `adk-solution-planning` |
+| `/wf-impl`, `/wf-fix`, `/wf-enhance` | Triển khai code, sửa lỗi hoặc refactor trực tiếp | Thực thi trực tiếp + TDD; `adk-systematic-debugging` |
+| `/wf-review`, `/wf-test`, `/wf-docs` | Review độc lập, tạo test, bảo trì tài liệu | `adk-code-review`, `adk-test-authoring`, `adk-docs-maintenance` |
+| `/wf-research`, `/wf-security` | Tra cứu mẫu kiến trúc hoặc quét bảo mật | `adk-pattern-researcher`, `adk-owasp-scan` |
+| `/wf-git`, `/wf-deploy`, `/wf-scaffold` | Tạo commit/PR, deploy, scaffold kiến trúc | `adk-git-content`, `adk-system-design-scaffold` |
+| `/wf-status`, `/wf-retro`, `/wf-evolve` | Theo dõi tiến độ, tối ưu hóa quy tắc/skill | `adk-execution-contract`, `adk-gepa-lite` |
 
 ## Nếu project chưa có AGENTS.md
 
@@ -165,23 +174,32 @@ Agent chạy ở generic mode:
 - Hỏi user về context cần thiết
 - Gợi ý onboard project bằng `templates/AGENTS.md.template` và khởi tạo `.agents/context/`
 
-## System Agents
+## System Agents (4 Specialist Subagents — Harness Architecture)
 
-Kit cung cấp 6 agent personas trong `agents/`. Mỗi agent là 1 `AGENT.md` chứa persona, skills, và quy trình riêng.
+Kit cung cấp **4 Specialist Subagents** trong `agents/`, được phân tách theo **Ranh giới Quyền Công cụ (Inner Harness / Tool Authority)** và **Hợp đồng Đầu ra Nén có Kiểm chứng (Outer Harness / Proof-First Cavecrew & Fail-Closed Gate)**:
 
-| Agent | Role | Khi nào dùng |
+| Subagent | Tool Authority (Inner Harness) | Outer Harness & Vai trò cốt lõi |
 |---|---|---|
-| `planner` | Discovery, approach và plan riêng | User yêu cầu plan/discovery hoặc còn quyết định đáng kể |
-| `implementer` | Thực thi task code liền mạch | Yêu cầu create/fix/refactor đã rõ |
-| `reviewer` | Review độc lập theo risk | User yêu cầu hoặc thay đổi cần góc nhìn thứ hai |
-| `debugger` | Điều tra nguyên nhân gốc | Symptom chưa rõ, lỗi nhiều lớp hoặc regression khó cô lập |
-| `tester` | Test strategy, test authoring, coverage | User yêu cầu test riêng hoặc cần QA độc lập |
-| `red-team` | Phản biện đối kháng | User yêu cầu hoặc risk bảo mật/dữ liệu cao |
+| `scout` | **Read-Only** (CodeGraph, Grep, Read, Web/Docs) — *Cấm sửa file* | Khảo sát codebase, trace call graph, khoanh vùng root cause và trả về bảng `path:line` cô đọng để giữ sạch context cho Main Agent |
+| `worker` | **Scoped Read/Write + Test Runner** (Hỗ trợ cô lập Git Worktree) | Thực thi thay đổi code/test trong phạm vi `files_changed` được giao, áp dụng TDD và trả về `verified_cmd` thực tế |
+| `verifier` | **Read-Only + Test/Lint/Audit Runner** — *Cô lập khỏi lịch sử chat của Worker* | Cổng kiểm định độc lập (Fail-Closed Verification Gate theo `arXiv:2605.17998`): chạy test/lint/scanner thực tế và ra phán quyết `ADMIT` hoặc `REJECT` |
+| `critic` | **Read-Only** — *4-Persona Adversarial (Security, Data/State, API, Perf)* | Phản biện thiết kế/code, công kích giả định ngầm, tìm lỗ hổng logic/bảo mật và rủi ro kiến trúc trước khi chốt hoặc merge |
 
-**IDE-agnostic:** `AGENT.md` chỉ chứa persona + instructions dạng markdown.
+### Ánh xạ Vai trò Legacy sang 4 Specialist Subagents
+
+| Vai trò cũ (Legacy) | Cách thức xử lý trong kiến trúc 4 Specialist Subagents |
+|---|---|
+| `planner` | Main Agent xử lý trực tiếp với `adk-solution-planning` / `adk-sdd` (dùng `scout` nếu cần khảo sát diện rộng trước khi lập plan) |
+| `implementer` | `worker` (khi delegate subtask độc lập) hoặc Main Agent thực thi trực tiếp |
+| `debugger` | `scout` (khoanh vùng root cause read-only) + `adk-systematic-debugging` |
+| `tester` | `verifier` (chạy kiểm định độc lập) hoặc `worker` + `adk-test-authoring` (khi viết test mới) |
+| `reviewer` | `verifier` (kiểm định thực thi) kết hợp `critic` (review rủi ro kiến trúc/logic với `adk-code-review`) |
+| `red-team` | `critic` (chế độ tấn công đối kháng với `adk-doubt-critic` & `adk-owasp-scan`) |
+
+**IDE-agnostic:** Mỗi `agents/<name>/AGENT.md` định nghĩa rõ Tool Authority, Input/Output Contract (`Proof-First Cavecrew`) và Fail-Closed Gate:
 - Host hỗ trợ subagent → delegate khi lợi ích vượt chi phí handoff.
-- Host không hỗ trợ → xử lý inline hoặc dùng persona trong hội thoại.
-- Swarm setup → xem `addons/swarm/README.md`
+- Host không hỗ trợ → xử lý inline theo đúng checklist kiểm định của từng specialist.
+- Swarm/Worktree orchestration → xem `addons/swarm/README.md`.
 
 ## Tiered Context Loading
 

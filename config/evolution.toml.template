@@ -36,7 +36,7 @@ max_summary_length = 250
 ignore_readonly_queries = true
 
 [evolution.triggers]
-# Ngưỡng tự động kích hoạt /wf-evolve (Phase G)
+# Ngưỡng tự động kích hoạt adk-gepa-lite (Phase G)
 
 # Chạy evolution sau mỗi N traces mới tích lũy
 trace_threshold = 20

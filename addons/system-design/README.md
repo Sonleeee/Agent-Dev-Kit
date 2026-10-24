@@ -4,8 +4,8 @@ Addon cung cấp kho pattern kiến trúc nội bộ và MCP tool để tra cứ
 
 ## Phạm vi
 
-- **Tra cứu/tư vấn kiến trúc:** dùng `sk-system-architect` ở core khi người dùng hỏi về pattern hoặc lựa chọn kiến trúc. Cần bật addon để có các MCP tool `system-design`.
-- **Tạo source base:** dùng `sk-system-design-scaffold` chỉ khi người dùng yêu cầu tạo project/source base. Skill kiểm tra thư mục đích trước khi gọi tool.
+- **Tra cứu/tư vấn kiến trúc:** dùng `adk-system-architect` ở core khi người dùng hỏi về pattern hoặc lựa chọn kiến trúc. Cần bật addon để có các MCP tool `system-design`.
+- **Tạo source base:** dùng `adk-system-design-scaffold` chỉ khi người dùng yêu cầu tạo project/source base. Skill kiểm tra thư mục đích trước khi gọi tool.
 - **Không tự sinh code:** chỉ nhắc đến một kiến trúc hoặc pattern không có nghĩa là được phép scaffold hoặc inject code.
 
 ## Cài đặt
@@ -46,4 +46,4 @@ Lệnh cuối ghi file vào thư mục đích; hãy dùng thư mục mới/rỗn
 
 ## Alias tương thích
 
-`/wf-scaffold` được giữ như adapter deprecated, chỉ dùng khi gọi tường minh. Nó chuyển sang `sk-system-design-scaffold`; procedure chuẩn nằm ở skill, không còn trong workflow.
+`/wf-scaffold` được giữ như adapter deprecated, chỉ dùng khi gọi tường minh. Nó chuyển sang `adk-system-design-scaffold`; procedure chuẩn nằm ở skill, không còn trong workflow.

@@ -13,7 +13,7 @@
 
 **Task-Features Detected:** [data-table, form-submit, api-change, ...]
 **Mapping Rules Applied:** [#7, #8, #10, ...]
-**Accelerators:** None | GitNexus | Archify snapshot | Both
+**Accelerators:** None | CodeGraph | Visual Blueprint | Both
 
 ---
 
@@ -23,7 +23,7 @@ Verify code đã implement đúng và đủ theo plan.
 
 | # | Checklist Item | Status | Evidence |
 |---|----------------|--------|----------|
-| 1 | [item from /wf-impl] | ✅ PASS / ❌ FAIL / ⚠️ PARTIAL | [file:line + code snippet] |
+| 1 | [item from task / contract] | ✅ PASS / ❌ FAIL / ⚠️ PARTIAL | [file:line + code snippet] |
 
 ---
 

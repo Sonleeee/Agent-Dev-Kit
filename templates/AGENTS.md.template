@@ -26,5 +26,5 @@
 - **Ask First:** [Ví dụ: Hỏi trước khi cài thêm package mới]
 
 ## Agent-Dev-Kit
-- **Kit:** `.agents/` — workflows, rules, quality gates
+- **Kit:** `.agents/` — skills, rules, quality gates
 - **CodeGraph:** `.codegraph/` — chỉ mục AST & call graph, AI dùng để hiểu quan hệ code tự động

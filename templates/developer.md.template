@@ -12,8 +12,8 @@
 - **Preset:** `concise` <!-- Tùy chọn nhanh: standard | concise | adhd-flow | caveman | adhd-caveman -->
   - `standard`: Đầy đủ bối cảnh, giải thích cân bằng, văn phong chuẩn mực.
   - `concise` (Mặc định): Đi thẳng vào vấn đề, ngắn gọn, súc tích, lược bỏ bối cảnh thừa.
-  - `adhd-flow`: Cấu trúc hành động trước (Action-First), chia nhỏ bước đánh số, max 5 mục, 1-line progress badge (xem `skills/core/sk-adhd-flow`).
-  - `caveman`: Cô đọng cao độ, triệt tiêu nghi thức, giữ nguyên 100% code/command (xem `skills/core/sk-caveman`).
+  - `adhd-flow`: Cấu trúc hành động trước (Action-First), chia nhỏ bước đánh số, max 5 mục, 1-line progress badge (xem `skills/core/adk-adhd-flow`).
+  - `caveman`: Cô đọng cao độ, triệt tiêu nghi thức, giữ nguyên 100% code/command (xem `skills/core/adk-caveman`).
   - `adhd-caveman` (Khuyên dùng khi debug/terminal): **Hybrid tối thượng** — Vừa định hình theo cấu trúc hành động của ADHD, vừa nén từ ngữ ở mức cực hạn (Ultracave).
 
 ### Tùy chỉnh 2 trục độc lập (Fine-grained Tuning)

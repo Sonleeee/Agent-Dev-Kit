@@ -1,4 +1,4 @@
-# Agent Kit — .gitignore
+# Agent-Dev-Kit .gitignore
 
 # OS
 .DS_Store
@@ -12,54 +12,54 @@ Desktop.ini
 *.swo
 *~
 
-# Antigravity-specific (không share qua repo)
+# Antigravity-specific
 .antigravityignore
 
-# Archive (nội dung cũ, không cần thiết trong kit mới)
+# Archive
 _archive/
 
-# Internal docs (research, roadmap — chỉ giữ local, không push)
+# Internal docs (research, roadmap - local only)
 docs/
 
-# Project-specific context (thuộc về project, không thuộc core kit)
-# Thể hiện dữ liệu riêng của dự án, KHÔNG push lên repo Agent-Dev-Kit
+# Project-specific context
 context/
 AGENTS.md
 AGENT.md
 rule-overrides.approved.md
 
-# Kết quả phân tích (Từ các addon như Graphify)
+# Analysis reports
 GRAPH_REPORT*.md
+.codegraph/
 
-# AI Generated Artifacts (Tránh push nhầm file sinh ra lúc làm việc)
+# AI Generated Artifacts
 task*.md
 walkthrough*.md
 implementation_plan*.md
 clarify-record*.md
 delivery-report*.md
-# Agent runtime & local artifacts (ch? d�ng local khi dev kit, kh�ng push l�n repo kit)
+
+# Agent runtime & local artifacts
 .agents/
 .agent/
 
-# Môi trường / IDE ẩn
+# Environment / IDE hidden
 .env
 .env.*
 .gemini/
 .cursor/
 
-# Node modules (nếu có scripts)
+# Node modules
 node_modules/
 
 # Logs
 *.log
 CHANGELOG.md
 
-
-
-# Python
+# Python bytecode & caches
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # Local developer overrides
 *.local.md

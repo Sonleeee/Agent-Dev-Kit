@@ -1,5 +1,5 @@
 ---
-name: sk-notebooklm-mcp
+name: adk-notebooklm-mcp
 description: Tham chiếu danh mục tool và cách quản trị NotebookLM MCP khi người dùng hỏi về khả năng server, auth hoặc cách chọn tool. Với triage Inbox, Daily Ops và sync, dùng các skill chuyên biệt thay vì nạp toàn bộ tài liệu này.
 ---
 
@@ -54,13 +54,14 @@ Bộ skills này biến NotebookLM từ công cụ hỏi đáp thành hệ thố
 
 | # | Skill | Thư mục | Mô tả |
 |---|-------|---------|-------|
-| 1 | Knowledge Ingestion | `sk-knowledge-ingestion/SKILL.md` | Đưa tài liệu thô vào notebook |
-| 2 | Mobile Capture | `sk-mobile-capture/SKILL.md` | Đọc và phân loại capture trong Inbox; mặc định chỉ preview |
-| 3 | Daily Task Sync | `sk-daily-task-sync/SKILL.md` | Đọc Daily Ops; ghi task list chỉ khi user yêu cầu sync |
-| 4 | NotebookLM Phone Sync | `sk-notebooklm-phone-sync/SKILL.md` | Điều phối sync Inbox + Daily Ops sang Obsidian theo yêu cầu tường minh |
+| 1 | Knowledge Ingestion | `adk-knowledge-ingestion/SKILL.md` | Đưa tài liệu thô vào notebook |
+| 2 | Mobile Capture | `adk-mobile-capture/SKILL.md` | Đọc và phân loại capture trong Inbox; mặc định chỉ preview |
+| 3 | Daily Task Sync | `adk-daily-task-sync/SKILL.md` | Đọc Daily Ops; ghi task list chỉ khi user yêu cầu sync |
+| 4 | NotebookLM Phone Sync | `adk-notebooklm-phone-sync/SKILL.md` | Điều phối sync Inbox + Daily Ops sang Obsidian theo yêu cầu tường minh |
+| 5 | NotebookLM Research | `adk-notebooklm-research/SKILL.md` | Truy vấn và tổng hợp tri thức chuyên sâu từ notebook đã chọn |
 
 ## Alias tương thích
 
-`/wf-phone-sync` được giữ trong `workflows/wf-phone-sync.md` như adapter deprecated, chỉ chạy khi người dùng gọi trực tiếp. Procedure chuẩn nằm trong `sk-notebooklm-phone-sync`. Câu "check đầu ngày" hoặc yêu cầu xem trạng thái chỉ tạo preview, không ghi Obsidian hay sửa NotebookLM.
+`/wf-phone-sync` được giữ trong `workflows/wf-phone-sync.md` như adapter deprecated, chỉ chạy khi người dùng gọi trực tiếp. Procedure chuẩn nằm trong `adk-notebooklm-phone-sync`. Câu "check đầu ngày" hoặc yêu cầu xem trạng thái chỉ tạo preview, không ghi Obsidian hay sửa NotebookLM.
 
 Các skill chuyên biệt có thể được gọi trực tiếp theo cơ chế của host. Không giả định slash command của Antigravity và cách gọi skill của Codex là một cú pháp chung.

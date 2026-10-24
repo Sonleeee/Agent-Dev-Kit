@@ -21,7 +21,7 @@ updated: YYYY-MM-DD
 ### TIER-0 — luôn đọc
 
 - `AGENTS.md` — passport, stack, phạm vi.
-- `.agents/SYSTEM.md` — execution contract và workflow routing.
+- `.agents/SYSTEM.md` — execution contract và intent/skill routing.
 - `.agents/rules/global.md` — protected gates.
 - `.agents/context/manifest.md` — file này.
 

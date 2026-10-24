@@ -11,15 +11,17 @@ Addon này cung cấp các skill để đọc, chưng cất và lưu tri thức 
 
 ## Skills
 
-- `sk-vault-steward`: lưu tri thức hoặc đồng bộ vào vault theo yêu cầu tường minh.
-- `sk-context-cache`: cache kết quả phân tích có thể tái sử dụng.
-- `sk-memory-consolidator`: chưng cất kiến thức theo yêu cầu; không tự ghi log hội thoại.
+- `adk-vault-steward`: lưu tri thức hoặc đồng bộ vào vault theo yêu cầu tường minh.
+- `adk-context-cache`: cache kết quả phân tích có thể tái sử dụng.
+- `adk-memory-consolidator`: chưng cất kiến thức theo yêu cầu; không tự ghi log hội thoại.
+- `adk-web-cleaner`: làm sạch trang web (Web Clippings tại `00_Raw/`) sang Markdown thuần bằng script Python zero-dependency.
+- `adk-document-parser`: chuyển đổi tài liệu nghiệp vụ (Word, Excel, PowerPoint, PDF, HTML) sang Markdown chuẩn.
 
 Các skill chỉ dùng được khi addon được cài vào đường dẫn được agent host discover.
 
 ## Alias tương thích
 
-`/wf-vault-sync` được giữ như adapter deprecated chỉ khi được gọi trực tiếp. Nó route sang `sk-vault-steward`; không còn một procedure sync riêng trong workflow. Ghi vault luôn cần yêu cầu tường minh hoặc chính sách AUTO đã được người dùng thiết lập rõ.
+`/wf-vault-sync` được giữ như adapter deprecated chỉ khi được gọi trực tiếp. Nó route sang `adk-vault-steward`; không còn một procedure sync riêng trong workflow. Ghi vault luôn cần yêu cầu tường minh hoặc chính sách AUTO đã được người dùng thiết lập rõ.
 
 ## Cấu trúc vault gợi ý
 

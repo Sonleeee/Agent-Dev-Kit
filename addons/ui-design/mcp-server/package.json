@@ -1,0 +1,25 @@
+{
+  "name": "@agent-dev-kit/ui-design-mcp",
+  "version": "1.0.0",
+  "description": "Agent-Dev-Kit UI Design Craft, Token Compiler, WCAG Contrast Verifier & Anti-Slop Auditor MCP Server",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "ui-design-mcp": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node index.js --help"
+  },
+  "keywords": [
+    "mcp",
+    "ui-design",
+    "design-tokens",
+    "wcag",
+    "anti-slop",
+    "motion-physics",
+    "agent-dev-kit"
+  ],
+  "author": "Sonlee",
+  "license": "MIT"
+}

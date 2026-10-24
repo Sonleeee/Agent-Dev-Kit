@@ -238,10 +238,14 @@ def install_hook(repo_dir: Path | None = None) -> bool:
 
     hook_content = (
         "#!/bin/sh\n"
-        "# ADK Post-Commit Trace Hook\n"
-        "# Automatically records git commits into evolution.db\n"
-        "# Silent fail-safe: never interrupts git commit or GUI tools (GitHub Desktop)\n"
-        f"py -3 {script_rel} 2>/dev/null || python3 {script_rel} 2>/dev/null || python {script_rel} 2>/dev/null || true\n"
+        "# ADK Post-Commit Trace Hook (Asynchronous & Non-blocking)\n"
+        "# Automatically records git commits into evolution.db in background\n"
+        "# Silent fail-safe: never interrupts git commit or GUI tools\n"
+        "if command -v cmd.exe >/dev/null 2>&1; then\n"
+        f"    cmd.exe /c start /b \"\" py -3 {script_rel} >/dev/null 2>&1 || true\n"
+        "else\n"
+        f"    (nohup python3 {script_rel} </dev/null >/dev/null 2>&1 &) || true\n"
+        "fi\n"
         "exit 0\n"
     )
 

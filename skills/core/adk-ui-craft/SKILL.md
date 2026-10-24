@@ -1,13 +1,13 @@
 ---
 name: adk-ui-craft
-description: Định hướng và kiểm soát chất lượng UI/Frontend (Anti-Slop, Emil Kowalski micro-interactions, dữ liệu enterprise tabular-nums, responsive 320px và WCAG 2.2).
+description: Định hướng và kiểm soát chất lượng UI/Frontend (3-Dial Tuning, Impeccable 20-Rule Anti-Slop, Emil Kowalski motion physics, enterprise tabular-nums, mobile-native 100dvh/16px và WCAG 2.2).
 ---
 
 # UI Craftsmanship & Anti-Slop Discipline — adk-ui-craft
 
 ## 🎯 Mục tiêu
 
-Đảm bảo mọi dòng mã nguồn giao diện do AI sinh ra đều đạt chuẩn thiết kế phần mềm thương mại cao cấp (Studio-Grade), xóa bỏ hoàn toàn cảm giác "hàng AI sinh ra giá rẻ" (AI Slop). Agent đóng vai trò như một **Senior Design Engineer**, kết hợp chặt chẽ giữa tính thẩm mỹ, hiệu năng chuyển động mượt mà và kỷ luật kỹ thuật tiếp cận (Accessibility).
+Đảm bảo mọi mã nguồn giao diện đạt chuẩn **Studio-Grade (Impeccable 20/20)**, triệt tiêu hoàn toàn cảm giác "AI Slop". Agent đóng vai trò **Senior Design Engineer**, kết hợp chặt chẽ thẩm mỹ thương mại, vật lý chuyển động Emil Kowalski, kỷ luật Mobile-Native và Accessibility (WCAG 2.2).
 
 ---
 
@@ -15,76 +15,69 @@ description: Định hướng và kiểm soát chất lượng UI/Frontend (Anti
 
 ```mermaid
 flowchart LR
-    A["1. Nạp Hợp đồng<br/>(DESIGN.md)"] --> B["2. Lọc Anti-Slop<br/>(Negative Constraints)"]
-    B --> C["3. Xây dựng Layout & Data<br/>(Data-Dense & Responsive)"]
-    C --> D["4. Tinh chỉnh Vi tương tác<br/>(Micro-interactions & Focus)"]
-    D --> E["5. Tự kiểm định<br/>(Frontend Gate Checklist)"]
+    A["1. DESIGN.md &<br/>3-Dial Tuning"] --> B["2. Chặn Anti-Slop<br/>(20 Rules / 5 Trục)"]
+    B --> C["3. Data-Dense &<br/>Enterprise UI"]
+    C --> D["4. Emil Kowalski<br/>Motion Physics"]
+    D --> E["5. Mobile Hygiene &<br/>break-ui Gate"]
 ```
 
-### Bước 1: Nạp Hợp đồng Thiết kế (`DESIGN.md`)
-Trước khi viết mã UI:
-1. Tìm file `DESIGN.md` tại root dự án hoặc `.agents/context/DESIGN.md`.
-2. Nếu dự án chưa có `DESIGN.md`, tham vấn Developer hoặc khởi tạo nhanh từ `templates/DESIGN.md.template`.
-3. Trích xuất các token: Bảng màu (Primary, Surface, Accent, Status), Typography scale, và Radius để dùng nhất quán trong toàn bộ task.
+### Bước 1: Nạp `DESIGN.md` & Cơ chế 3-Dial Parametric Tuning (`taste-skill`)
+1. Đọc `DESIGN.md` tại root dự án hoặc `.agents/context/DESIGN.md` (khởi tạo từ `templates/DESIGN.md.template` nếu chưa có).
+2. Trích xuất Design Tokens (Colors, Typography, Radius) và **3 thông số điều hướng thẩm mỹ (thang 1–10)**:
+   - **`DESIGN_VARIANCE` (1–10):** `1–3` chuẩn mực/đối xứng (Enterprise/Admin); `4–6` cân bằng hiện đại (SaaS); `7–10` bất đối xứng/editorial (Landing/Creative).
+   - **`MOTION_INTENSITY` (1–10):** `1–3` tĩnh/tức thời; `4–6` vi tương tác tinh tế (`150ms–200ms`); `7–10` choreographed spring physics.
+   - **`VISUAL_DENSITY` (1–10):** `1–3` thoáng đãng nhiều whitespace; `4–6` chuẩn ứng dụng; `7–10` mật độ cao (Cockpit/Financial/Data Table).
 
-### Bước 2: Kiểm soát & Chặn đứng "AI UI Slop"
-Tuyệt đối **KHÔNG** vi phạm các lỗi giao diện rập khuôn phổ biến sau:
-- ❌ **Cấm dải màu tím-xanh mặc định:** Không dùng `from-purple-600 to-blue-600` hoặc các dải gradient neon ngẫu hứng khi không được yêu cầu trong `DESIGN.md`.
-- ❌ **Cấm Icon dạng Emoji:** Tuyệt đối không dùng emoji thô (`🚀`, `✨`, `🔥`, `💡`, `✅`) làm icon trên nút bấm, tiêu đề hoặc badge. Sử dụng icon SVG stroke mảnh (1.5px stroke width) như Lucide, Heroicons, Radix Icons.
-- ❌ **Cấm Logo chữ lồng hộp đồ chơi (Toy-box logo):** Không tạo icon logo bằng 2 chữ cái viết hoa nhét vào hình vuông bo góc tô màu chuyển sắc.
-- ❌ **Cấm Nút dạng "Viên thuốc dài ngoằng" (Elongated Pill CTA):** Tránh dùng `rounded-full px-12 py-4` trên các form thông thường; ưu tiên bo góc cân xứng (`rounded-md` hoặc `rounded-lg`).
-- ❌ **Cấm Typography AI Slop:** Không dùng các font như `Space Grotesk`, `Syne`, `Outfit` cho giao diện ứng dụng nghiệp vụ; ưu tiên `Inter`, `Geist`, `Roboto`, hoặc hệ font Native System.
+### Bước 2: Kiểm soát & Chặn đứng "AI UI Slop" (Aesthetics & Copywriting)
+- ❌ **Cấm dải màu tím-xanh mặc định (`BAN-01`):** Không dùng `from-purple-600 to-blue-600` hoặc neon gradient ngẫu hứng.
+- ❌ **Cấm Raw Emoji trong UI control (`BAN-02`):** Không nhét `🚀`, `✨`, `🔥`, `💡` vào `<button>`, `<a>`, `<Badge>`, `<h1-h3>`. Dùng SVG icon `1.5px` stroke (Lucide, Heroicons, Radix).
+- ❌ **Cấm Nút "Viên thuốc dài" (`BAN-04`):** Tránh `rounded-full px-12`; ưu tiên `rounded-md` hoặc `rounded-lg` cân xứng (`px-4 py-2`).
+- ❌ **Cấm Font AI Slop (`BAN-05`):** Không dùng `Space Grotesk`, `Syne`, `Outfit`, `Sora` cho UI nghiệp vụ; ưu tiên `Inter`, `Geist`, `Plus Jakarta Sans`.
+- ❌ **Cấm Viền xám đặc trên nền tối (`BAN-07`):** Không dùng `dark:border-gray-700`/`slate-800` đặc; phải dùng viền bán trong suốt `border-white/10` hoặc `dark:border-slate-700/50`.
+- ❌ **Cấm Lazy Comment & AI Cliché (`BAN-08`):** Cấm để lại `// ... rest of` hoặc văn mẫu sáo rỗng (`Unleash the power`, `Supercharge your workflow`).
 
-### Bước 3: Chuẩn hóa Giao diện Dữ liệu Nghiệp vụ (Enterprise Data-Dense)
-- **Căn chỉnh số liệu (Numeric Alignment):** Mọi trường số liệu tài chính, số lượng, mã đơn, và ngày tháng phải dùng class số đơn cách (`tabular-nums` hoặc `font-mono`) và căn lề phải (right-aligned).
-- **Phân cấp trạng thái rõ ràng:** Thẻ trạng thái dữ liệu (Status Tag) phải theo chuẩn:
-  - `Draft`: Màu trung tính (Slate/Gray).
-  - `Pending`: Màu hổ phách/vàng ấm (Amber).
-  - `Active / Approved`: Màu xanh ngọc (Emerald).
-  - `Error / Rejected`: Màu đỏ thẩm mỹ (Red/Rose).
-- **Trạng thái bảng và danh sách:** Luôn chuẩn bị trước:
-  - Skeleton loading (hoặc Spinner tinh tế) khi đang nạp dữ liệu.
-  - Empty state có hướng dẫn hành động (Actionable) khi danh sách rỗng.
-  - Xử lý tràn chữ bằng `truncate` kèm `title` hiển thị full text khi hover.
+### Bước 3: Giao diện Dữ liệu Nghiệp vụ (Enterprise Data-Dense)
+- **Căn chỉnh số liệu (`DAT-01`):** Mọi cột tiền tệ (`$`, `₫`, `VND`), phần trăm (`%`), số lượng, ngày tháng trong `<td>` phải có `tabular-nums` hoặc `font-mono` và căn phải (`text-right`).
+- **Bảo vệ tràn bảng (`DAT-02`):** Mọi thẻ `<table>` bắt buộc bọc trong container có `overflow-x-auto`.
+- **Đủ 4 trạng thái dữ liệu:** Skeleton loading, Empty state có CTA rõ ràng, Error state có nút thử lại, và xử lý tràn chữ bằng `truncate` kèm `title`.
 
-### Bước 4: Vi tương tác & Chuyển động Mượt mà (Emil Kowalski Principles)
-1. **Phản hồi xúc giác (Tactile Press):** Nút bấm khi nhấn chuột phải có cảm giác lún thật:
-   ```css
-   /* Tailwind class */
-   transition-all duration-150 active:scale-[0.98]
-   ```
-2. **Không bao giờ phóng to từ hư không (`scale(0)`):**
-   - Hộp thoại (Modal, Dialog) hoặc Menu xuất hiện: Bắt đầu từ `scale(0.95)` và mờ nhẹ (`opacity-0`) đến `scale(1)` và `opacity-100`.
-   - Sử dụng đường cong tự nhiên: `ease-out` cho trạng thái vào (enter) và `ease-in` cho trạng thái thoát (exit).
-3. **Bàn phím & Focus Ring:**
-   - Tuyệt đối không xóa outline mà không thay thế (`outline: none` là cấm kỵ).
-   - Sử dụng vòng sáng rõ rệt: `focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent`.
+### Bước 4: Vật lý Chuyển động & Vi tương tác (Emil Kowalski Motion Physics)
+- **Phân biệt đường cong Enter vs Exit (`MOT-01`):** Khi phần tử xuất hiện (`enter`/`animate-in`/modal/popover) bắt buộc dùng `ease-out` (`cubic-bezier(0.16, 1, 0.3, 1)`), khi đóng/thoát (`exit`) dùng `ease-in`. Cấm dùng `ease-in` khi mở modal/popover.
+- **Cấm phóng từ hư không (`BAN-06`):** Modal/Popover mở từ `scale(0.95)` (`scale-95 opacity-0`) lên `scale(1)`, tuyệt đối cấm `scale-0` / `scale(0)`.
+- **Bảo toàn 60fps (`MOT-02`, `MOT-03`):** Cấm `transition-all` hoặc animate `width/height/top/left` gây layout thrashing; chỉ animate `transform` và `opacity`. Thời lượng micro-interaction trên nút/input giữ ở `150ms–200ms` (cấm `duration-500`/`700`/`1000`), thông số Spring chuẩn: `stiffness: 400, damping: 30`.
+- **Tactile & Reduced Motion (`MOT-04`):** Nút bấm có `active:scale-[0.98]`. Mọi animation lặp (`animate-spin/ping/bounce`, `@keyframes`) phải đi kèm `motion-reduce:` hoặc `@media (prefers-reduced-motion: reduce)`.
+- **Focus & Semantics (`BAN-03`, `A11Y-01..03`):** Cấm `outline-none` thiếu `focus-visible:ring-2`; cấm `<div onClick>` thiếu `role`/`tabIndex`; nút chỉ có icon phải có `aria-label`; `<img>` phải có `alt`.
 
-### Bước 5: Kỷ luật Responsive & Touch Target (Mobile Hygiene)
-- **Zero Horizontal Overflow:** Kiểm tra giao diện co giãn liên tục từ **320px** đến **1920px**. Bất kỳ phần tử nào gây thanh cuộn ngang ngoài ý muốn đều bị coi là lỗi nghiêm trọng.
-- **Kích thước chạm tối thiểu:** Nút bấm, checkbox, radio, tab switch trên màn hình cảm ứng phải đạt diện tích bấm tối thiểu **$44 \times 44$px** (có thể dùng padding để tăng diện tích chạm thực tế).
+### Bước 5: Kỷ luật Mobile-Native Hygiene & `break-ui` Stress Test
+- **Chống iOS Safari Auto-Zoom (`MOB-01`):** Mọi `<input>`, `<textarea>`, `<select>` phải có font-size $\ge 16\text{px}$ trên mobile (`text-base sm:text-sm`), cấm dùng `text-xs`/`text-sm` đơn độc.
+- **Dynamic Viewport (`MOB-02`):** Dùng `100dvh`, `h-dvh`, `min-h-dvh` thay vì `100vh` hoặc `h-screen` để không bị thanh địa chỉ mobile che khuất.
+- **Zero Overflow & Touch Target (`MOB-03`):** Cấm gán cứng `w-[400px..999px]` không có prefix responsive (`sm:`/`md:`/`max-w-full`). Diện tích chạm tối thiểu đạt **$44 \times 44\text{px}$**.
+- **Thử thách `break-ui`:** Tự kiểm tra giao diện với tên dài 100 ký tự không khoảng trắng, con số hàng tỷ (`999,999,999,999 ₫`), mảng 0 phần tử và màn hình hẹp **320px**.
 
 ---
 
-## 🛡️ Frontend Quality Gate Checklist (Tự kiểm trước khi báo hoàn tất)
+## 🔌 Các Công Cụ MCP (`ui-design` Addon — Khi Bật)
 
-Trước khi cập nhật trạng thái `READY` trong Execution Contract, Agent phải tự xác thực:
-
-- [ ] Đã kiểm tra tính nhất quán với màu sắc và typography trong `DESIGN.md`.
-- [ ] Không chứa bất kỳ mã cấm Anti-Slop nào (`BAN-01` đến `BAN-06`).
-- [ ] Mọi element tương tác đều có đủ 4 trạng thái: Default, `:hover`, `:focus-visible`, `:active` / `:disabled`.
-- [ ] Đã kiểm tra hiển thị không tràn ngang ở kích thước màn hình 320px.
-- [ ] Đã hỗ trợ `prefers-reduced-motion` cho các hiệu ứng chuyển động quan trọng.
-- [ ] Icon sử dụng định dạng SVG chuẩn, không dùng raw emoji trong các thành phần điều khiển.
+| Tool MCP | Công dụng chính |
+|---|---|
+| `search_design_archetypes` | Tra cứu bộ mẫu thiết kế ngành dọc, bảng màu và cấu hình 3-Dial gợi ý |
+| `get_design_tokens` | Xuất hệ thống biến CSS/Tailwind chuẩn từ Archetype hoặc `DESIGN.md` |
+| `get_component_blueprint` | Lấy khung mã chuẩn chống Slop cho Table, Modal, Form, Bento, Navigation |
+| `verify_color_contrast` | Tính toán tỷ lệ tương phản WCAG 2.2 AA/AAA và gợi ý mã màu thay thế |
+| `audit_ui_code` | Quét mã nguồn theo 20 Rules (5 trục) và chấm điểm Impeccable 20/20 |
+| `fix_ui_slop` | Tự động sửa nhanh các lỗi UI Slop & Mobile Hygiene phổ biến |
+| `scaffold_design_contract` | Khởi tạo file `DESIGN.md` hoàn chỉnh cho dự án mới |
 
 ---
 
 ## ⚙️ Deterministic Auditor CLI (`scripts/ui_slop_auditor.py`)
 
-Khi sửa đổi các file giao diện (`.tsx`, `.jsx`, `.vue`, `.svelte`, `.html`, `.css`), bắt buộc chạy trình kiểm tra tĩnh độc lập (0 dependency) trước khi báo hoàn tất:
+Trước khi báo hoàn tất (`READY`), bắt buộc chạy trình kiểm định tĩnh độc lập (stdlib-only, chấm điểm **Impeccable 20/20** trên 5 trục `AESTHETICS`, `MOTION`, `A11Y`, `MOBILE`, `DATA_DENSE`):
 
 ```powershell
-py -B .agents/skills/adk-ui-craft/scripts/ui_slop_auditor.py <đường-dẫn-thư-mục-hoặc-file-UI> --strict
+# Quét kiểm định nghiêm ngặt, xuất JSON hoặc tự động sửa lỗi cơ bản (--fix)
+py -B .agents/skills/adk-ui-craft/scripts/ui_slop_auditor.py <paths> --strict
+py -B .agents/skills/adk-ui-craft/scripts/ui_slop_auditor.py <paths> --fix --json
+# Hoặc chạy qua CLI của ui-design addon (nếu đã cài đặt)
+node addons/ui-design/mcp-server/index.js audit <paths> --strict
 ```
-
-- Tự động phát hiện `BAN-01` (Purple-Blue AI Gradient), `BAN-02` (Raw Emoji trong `<button>`/`<a>`/`<Badge>`), `BAN-03` (`outline-none` thiếu `focus-visible:`), `BAN-04` (Elongated Pill CTA), `BAN-05` (AI Slop Display Fonts), `BAN-06` (`scale-0` modal).

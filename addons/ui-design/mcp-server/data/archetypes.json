@@ -1,0 +1,397 @@
+{
+  "archetypes": [
+    {
+      "id": "linear-precision-dark",
+      "name": "Linear Precision Dark",
+      "domains": ["saas", "developer-tools", "productivity", "ai-workspace", "issue-tracker"],
+      "aesthetic_persona": "High-craft dark UI with whisper-quiet 1px hairline borders, crisp zinc/slate hierarchy, zero neon glow, and ultra-responsive keyboard-first ergonomics.",
+      "dials": {
+        "variance": 4,
+        "motion": 6,
+        "density": 8
+      },
+      "colors": {
+        "primary": "#F4F4F5",
+        "primary_fg": "#09090B",
+        "secondary": "#27272A",
+        "secondary_fg": "#F4F4F5",
+        "accent": "#5E6AD2",
+        "accent_fg": "#FFFFFF",
+        "background": "#09090B",
+        "surface": "#121215",
+        "surface_border": "#27272A",
+        "text_primary": "#F4F4F5",
+        "text_muted": "#A1A1AA",
+        "status": {
+          "draft": { "bg": "#18181B", "fg": "#D4D4D8", "border": "#3F3F46" },
+          "pending": { "bg": "#2E1F05", "fg": "#FCD34D", "border": "#78350F" },
+          "success": { "bg": "#052E16", "fg": "#86EFAC", "border": "#14532D" },
+          "error": { "bg": "#3B0712", "fg": "#FDA4AF", "border": "#881337" },
+          "info": { "bg": "#082F49", "fg": "#7DD3FC", "border": "#0C4A6E" }
+        }
+      },
+      "typography": {
+        "font_sans": "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+        "font_mono": "'JetBrains Mono', 'Geist Mono', monospace",
+        "heading_weight": "500",
+        "tracking": "-0.02em",
+        "line_height": "1.45"
+      },
+      "radius": {
+        "sm": "4px",
+        "md": "6px",
+        "lg": "8px"
+      },
+      "borders_and_shadows": "1px solid #27272A hairline borders; subtle top inner highlight inset 0 1px 0 rgba(255,255,255,0.06); elevation shadow 0 8px 24px -4px rgba(0,0,0,0.5).",
+      "anti_patterns": [
+        "No neon cyan/purple outer box-shadows",
+        "No pure #000000 void background with #FFFFFF text glare",
+        "No heavy glassmorphism backdrop-blur-xl on dense list rows",
+        "No bouncy spring overshoot on command menus"
+      ]
+    },
+    {
+      "id": "swiss-editorial-grid",
+      "name": "Swiss Editorial Grid",
+      "domains": ["publishing", "media", "documentation", "architecture", "portfolio", "knowledge-base"],
+      "aesthetic_persona": "International Typographic Style with exposed structural grid lines, high-contrast warm paper canvas, authoritative serif/grotesk pairing, and mathematical proportions.",
+      "dials": {
+        "variance": 7,
+        "motion": 3,
+        "density": 6
+      },
+      "colors": {
+        "primary": "#111111",
+        "primary_fg": "#FAF9F5",
+        "secondary": "#EAE8E1",
+        "secondary_fg": "#111111",
+        "accent": "#C83E2B",
+        "accent_fg": "#FFFFFF",
+        "background": "#FAF9F5",
+        "surface": "#F3F1EA",
+        "surface_border": "#D6D3C9",
+        "text_primary": "#111111",
+        "text_muted": "#57554E",
+        "status": {
+          "draft": { "bg": "#EAE8E1", "fg": "#3F3D37", "border": "#C5C2B7" },
+          "pending": { "bg": "#FEF3C7", "fg": "#78350F", "border": "#F59E0B" },
+          "success": { "bg": "#DCFCE7", "fg": "#14532D", "border": "#22C55E" },
+          "error": { "bg": "#FEE2E2", "fg": "#7F1D1D", "border": "#EF4444" },
+          "info": { "bg": "#E0F2FE", "fg": "#0C4A6E", "border": "#0284C7" }
+        }
+      },
+      "typography": {
+        "font_sans": "'Plus Jakarta Sans', 'Helvetica Neue', Arial, sans-serif",
+        "font_mono": "'IBM Plex Mono', monospace",
+        "heading_weight": "600",
+        "tracking": "-0.03em",
+        "line_height": "1.55"
+      },
+      "radius": {
+        "sm": "0px",
+        "md": "2px",
+        "lg": "4px"
+      },
+      "borders_and_shadows": "Zero drop shadows; structural 1px solid #D6D3C9 exposed cell borders and 2px solid #111111 section dividers.",
+      "anti_patterns": [
+        "No floating cards with soft blurred drop-shadows",
+        "No rounded-full pill buttons or playful bubble badges",
+        "No center-aligned body copy longer than 2 lines"
+      ]
+    },
+    {
+      "id": "stripe-fintech-clarity",
+      "name": "Stripe Fintech Clarity",
+      "domains": ["fintech", "payments", "banking", "billing", "analytics", "e-commerce-checkout"],
+      "aesthetic_persona": "Trust-first financial precision with crisp cool-alabaster surfaces, tabular numeric discipline, layered hairline borders, and unmistakable semantic status states.",
+      "dials": {
+        "variance": 4,
+        "motion": 5,
+        "density": 7
+      },
+      "colors": {
+        "primary": "#0A2540",
+        "primary_fg": "#FFFFFF",
+        "secondary": "#F1F5F9",
+        "secondary_fg": "#0A2540",
+        "accent": "#4F46E5",
+        "accent_fg": "#FFFFFF",
+        "background": "#F8FAFC",
+        "surface": "#FFFFFF",
+        "surface_border": "#E2E8F0",
+        "text_primary": "#0A2540",
+        "text_muted": "#475569",
+        "status": {
+          "draft": { "bg": "#F1F5F9", "fg": "#334155", "border": "#CBD5E1" },
+          "pending": { "bg": "#FEF3C7", "fg": "#92400E", "border": "#FCD34D" },
+          "success": { "bg": "#DCFCE7", "fg": "#166534", "border": "#86EFAC" },
+          "error": { "bg": "#FFE4E6", "fg": "#9F1239", "border": "#FDA4AF" },
+          "info": { "bg": "#E0E7FF", "fg": "#1E40AF", "border": "#A5B4FC" }
+        }
+      },
+      "typography": {
+        "font_sans": "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+        "font_mono": "'JetBrains Mono', monospace",
+        "heading_weight": "600",
+        "tracking": "-0.015em",
+        "line_height": "1.5"
+      },
+      "radius": {
+        "sm": "4px",
+        "md": "6px",
+        "lg": "8px"
+      },
+      "borders_and_shadows": "1px solid #E2E8F0 border paired with subtle multi-layer ambient shadow 0 1px 2px rgba(10,37,64,0.04), 0 4px 12px rgba(10,37,64,0.03).",
+      "anti_patterns": [
+        "Never render currency, percentages, or timestamps without tabular-nums",
+        "No ambiguous icon-only destructive actions on billing rows",
+        "No decorative rainbow gradients behind financial charts"
+      ]
+    },
+    {
+      "id": "vercel-geist-monochrome",
+      "name": "Vercel Geist Monochrome",
+      "domains": ["cloud-infra", "devops", "cli-dashboard", "api-platform", "edge-network"],
+      "aesthetic_persona": "Architectural monochrome minimalism with high-contrast black/white tokens, geometric mono-spaced telemetry, and zero decorative ornament.",
+      "dials": {
+        "variance": 3,
+        "motion": 5,
+        "density": 8
+      },
+      "colors": {
+        "primary": "#171717",
+        "primary_fg": "#FAFAFA",
+        "secondary": "#F4F4F5",
+        "secondary_fg": "#171717",
+        "accent": "#0068D6",
+        "accent_fg": "#FFFFFF",
+        "background": "#FAFAFA",
+        "surface": "#FFFFFF",
+        "surface_border": "#E4E4E7",
+        "text_primary": "#171717",
+        "text_muted": "#52525B",
+        "status": {
+          "draft": { "bg": "#F4F4F5", "fg": "#27272A", "border": "#D4D4D8" },
+          "pending": { "bg": "#FEF3C7", "fg": "#78350F", "border": "#F59E0B" },
+          "success": { "bg": "#DCFCE7", "fg": "#14532D", "border": "#22C55E" },
+          "error": { "bg": "#FEE2E2", "fg": "#7F1D1D", "border": "#EF4444" },
+          "info": { "bg": "#DBEAFE", "fg": "#1E3A8A", "border": "#3B82F6" }
+        }
+      },
+      "typography": {
+        "font_sans": "'Geist', 'Inter', -apple-system, sans-serif",
+        "font_mono": "'Geist Mono', 'JetBrains Mono', monospace",
+        "heading_weight": "600",
+        "tracking": "-0.025em",
+        "line_height": "1.45"
+      },
+      "radius": {
+        "sm": "4px",
+        "md": "6px",
+        "lg": "8px"
+      },
+      "borders_and_shadows": "Strict 1px solid #E4E4E7 borders; elevation via border contrast darkening (#A1A1AA on hover) rather than heavy drop shadows.",
+      "anti_patterns": [
+        "No multi-colored brand illustrations or 3D mascots",
+        "No soft pastel backgrounds or blurred color blobs",
+        "No rounded-2xl cards inside dense deployment tables"
+      ]
+    },
+    {
+      "id": "enterprise-data-dense",
+      "name": "Enterprise Data-Dense Workbench",
+      "domains": ["erp", "crm", "supply-chain", "healthcare-ops", "backoffice", "admin-console"],
+      "aesthetic_persona": "High-throughput operational cockpit optimized for 8-hour daily workflows, keyboard scanning, compact 32px–36px row heights, and zero visual fatigue.",
+      "dials": {
+        "variance": 2,
+        "motion": 2,
+        "density": 9
+      },
+      "colors": {
+        "primary": "#1E293B",
+        "primary_fg": "#FFFFFF",
+        "secondary": "#E2E8F0",
+        "secondary_fg": "#0F172A",
+        "accent": "#0369A1",
+        "accent_fg": "#FFFFFF",
+        "background": "#F1F5F9",
+        "surface": "#FFFFFF",
+        "surface_border": "#CBD5E1",
+        "text_primary": "#0F172A",
+        "text_muted": "#475569",
+        "status": {
+          "draft": { "bg": "#F1F5F9", "fg": "#334155", "border": "#94A3B8" },
+          "pending": { "bg": "#FEF3C7", "fg": "#78350F", "border": "#D97706" },
+          "success": { "bg": "#DCFCE7", "fg": "#14532D", "border": "#16A34A" },
+          "error": { "bg": "#FEE2E2", "fg": "#7F1D1D", "border": "#DC2626" },
+          "info": { "bg": "#E0F2FE", "fg": "#0C4A6E", "border": "#0284C7" }
+        }
+      },
+      "typography": {
+        "font_sans": "'Inter', system-ui, -apple-system, sans-serif",
+        "font_mono": "'JetBrains Mono', monospace",
+        "heading_weight": "600",
+        "tracking": "-0.01em",
+        "line_height": "1.35"
+      },
+      "radius": {
+        "sm": "2px",
+        "md": "4px",
+        "lg": "6px"
+      },
+      "borders_and_shadows": "Crisp 1px solid #CBD5E1 table and panel borders; sticky headers with 0 1px 2px rgba(15,23,42,0.06).",
+      "anti_patterns": [
+        "No oversized hero banners or wasted padding above operational tables",
+        "No slow >200ms transitions on filter drawers or bulk selection bars",
+        "No hiding critical primary actions inside nested three-dot menus when space permits"
+      ]
+    },
+    {
+      "id": "quiet-luxury-warm",
+      "name": "Quiet Luxury & Warm Craft",
+      "domains": ["hospitality", "real-estate", "wealth-management", "wellness", "bespoke-commerce", "editorial-brand"],
+      "aesthetic_persona": "Tactile limestone and espresso palette with generous negative space, refined editorial pacing, organic stone borders, and understated confidence.",
+      "dials": {
+        "variance": 6,
+        "motion": 4,
+        "density": 3
+      },
+      "colors": {
+        "primary": "#1C1917",
+        "primary_fg": "#FAF8F5",
+        "secondary": "#E7E2DA",
+        "secondary_fg": "#1C1917",
+        "accent": "#7C2D12",
+        "accent_fg": "#FFFFFF",
+        "background": "#FAF8F5",
+        "surface": "#F3EFEA",
+        "surface_border": "#D6CFC4",
+        "text_primary": "#1C1917",
+        "text_muted": "#57534E",
+        "status": {
+          "draft": { "bg": "#E7E2DA", "fg": "#44403C", "border": "#BFB8AD" },
+          "pending": { "bg": "#FEF3C7", "fg": "#78350F", "border": "#D97706" },
+          "success": { "bg": "#DCFCE7", "fg": "#14532D", "border": "#15803D" },
+          "error": { "bg": "#FEE2E2", "fg": "#7F1D1D", "border": "#B91C1C" },
+          "info": { "bg": "#E0F2FE", "fg": "#0C4A6E", "border": "#0369A1" }
+        }
+      },
+      "typography": {
+        "font_sans": "'Plus Jakarta Sans', -apple-system, sans-serif",
+        "font_mono": "'IBM Plex Mono', monospace",
+        "heading_weight": "500",
+        "tracking": "-0.02em",
+        "line_height": "1.6"
+      },
+      "radius": {
+        "sm": "2px",
+        "md": "4px",
+        "lg": "8px"
+      },
+      "borders_and_shadows": "1px solid #D6CFC4 warm stone borders; warm ambient shadow 0 12px 32px -8px rgba(28,25,23,0.06).",
+      "anti_patterns": [
+        "No cold blue-gray slate (#64748B) mixed onto warm stone surfaces",
+        "No aggressive saturated red/green sales badges or countdown timers",
+        "No cramped <16px gaps between content blocks"
+      ]
+    },
+    {
+      "id": "industrial-brutalist",
+      "name": "Industrial Technical Brutalist",
+      "domains": ["hardware", "robotics", "defense-tech", "audio-engineering", "creative-studio", "web3-protocol"],
+      "aesthetic_persona": "Teenage Engineering & Braun inspired technical apparatus: exposed 1.5px high-contrast borders, monospace coordinate labels, tactile mechanical controls, and international orange accents.",
+      "dials": {
+        "variance": 8,
+        "motion": 4,
+        "density": 7
+      },
+      "colors": {
+        "primary": "#141413",
+        "primary_fg": "#F0EFEA",
+        "secondary": "#E2E0D8",
+        "secondary_fg": "#141413",
+        "accent": "#C2410C",
+        "accent_fg": "#FFFFFF",
+        "background": "#F0EFEA",
+        "surface": "#E6E4DC",
+        "surface_border": "#141413",
+        "text_primary": "#141413",
+        "text_muted": "#4A4945",
+        "status": {
+          "draft": { "bg": "#E2E0D8", "fg": "#141413", "border": "#141413" },
+          "pending": { "bg": "#FDE68A", "fg": "#78350F", "border": "#141413" },
+          "success": { "bg": "#BBF7D0", "fg": "#14532D", "border": "#141413" },
+          "error": { "bg": "#FECACA", "fg": "#7F1D1D", "border": "#141413" },
+          "info": { "bg": "#BAE6FD", "fg": "#0C4A6E", "border": "#141413" }
+        }
+      },
+      "typography": {
+        "font_sans": "'Space Grotesk', 'Inter', sans-serif",
+        "font_mono": "'JetBrains Mono', 'Space Mono', monospace",
+        "heading_weight": "700",
+        "tracking": "-0.03em",
+        "line_height": "1.4"
+      },
+      "radius": {
+        "sm": "0px",
+        "md": "2px",
+        "lg": "4px"
+      },
+      "borders_and_shadows": "1px to 2px solid #141413 crisp mechanical borders; hard offset shadow 2px 2px 0px #141413 on interactive triggers.",
+      "anti_patterns": [
+        "No blurry ambient drop shadows or soft gradients",
+        "No unlabeled mystery meat icons without technical mono captions",
+        "No mushy slow fade transitions"
+      ]
+    },
+    {
+      "id": "consumer-fluid-mobile",
+      "name": "Consumer Fluid Touch-First",
+      "domains": ["consumer-app", "social", "fitness", "delivery", "booking", "mobile-web"],
+      "aesthetic_persona": "Thumb-zone native ergonomics with 44px+ tactile hit targets, physics-driven bottom sheets, crisp high-legibility cards, and zero accidental zoom traps.",
+      "dials": {
+        "variance": 5,
+        "motion": 7,
+        "density": 5
+      },
+      "colors": {
+        "primary": "#0F172A",
+        "primary_fg": "#FFFFFF",
+        "secondary": "#F1F5F9",
+        "secondary_fg": "#0F172A",
+        "accent": "#0284C7",
+        "accent_fg": "#FFFFFF",
+        "background": "#F8FAFC",
+        "surface": "#FFFFFF",
+        "surface_border": "#E2E8F0",
+        "text_primary": "#0F172A",
+        "text_muted": "#475569",
+        "status": {
+          "draft": { "bg": "#F1F5F9", "fg": "#334155", "border": "#CBD5E1" },
+          "pending": { "bg": "#FEF3C7", "fg": "#92400E", "border": "#F59E0B" },
+          "success": { "bg": "#DCFCE7", "fg": "#166534", "border": "#22C55E" },
+          "error": { "bg": "#FFE4E6", "fg": "#9F1239", "border": "#F43F5E" },
+          "info": { "bg": "#E0F2FE", "fg": "#075985", "border": "#0EA5E9" }
+        }
+      },
+      "typography": {
+        "font_sans": "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+        "font_mono": "'JetBrains Mono', monospace",
+        "heading_weight": "600",
+        "tracking": "-0.015em",
+        "line_height": "1.5"
+      },
+      "radius": {
+        "sm": "8px",
+        "md": "12px",
+        "lg": "16px"
+      },
+      "borders_and_shadows": "1px solid #E2E8F0 card border with soft touch elevation 0 2px 8px -2px rgba(15,23,42,0.06); safe-area bottom padding.",
+      "anti_patterns": [
+        "Never use font-size < 16px on mobile <input> or <textarea> (causes iOS Safari forced auto-zoom)",
+        "Never use 100vh on full-screen mobile layouts (use 100dvh to respect dynamic browser bars)",
+        "No hover-only actions that become unreachable on touch screens"
+      ]
+    }
+  ]
+}

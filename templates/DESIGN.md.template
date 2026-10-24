@@ -1,10 +1,16 @@
 ---
 # ==============================================================================
 # DESIGN.md — Hợp đồng Thiết kế & Thẩm mỹ Giao diện (UI/UX Contract)
-# Kế thừa chuẩn Google Labs DESIGN.md + Bổ sung Anti-Slop & Enterprise Data Rules
+# Kế thừa chuẩn Google Labs DESIGN.md + Taste-Skill 3-Dial + Impeccable 20/20
 # ==============================================================================
 name: "Project Design Identity"
-version: "1.0.0"
+version: "2.0.0"
+
+# --- 3-Dial Parametric Aesthetic Tuning (Thang 1 - 10) ---
+dials:
+  design_variance: 4          # 1-3: Đối xứng nghiêm ngặt | 4-6: SaaS hiện đại | 7-10: Editorial/Bất đối xứng
+  motion_intensity: 5         # 1-3: Tĩnh/Tức thời | 4-6: Micro-interactions tinh tế | 7-10: Choreographed Spring
+  visual_density: 7           # 1-3: Thoáng đãng | 4-6: Chuẩn ứng dụng | 7-10: Data-Dense / Enterprise Cockpit
 
 # --- Machine-Readable Design Tokens ---
 colors:
@@ -15,12 +21,12 @@ colors:
   secondary-foreground: "#F8FAFC"
   accent: "#2563EB"           # Blue 600 - Điểm chạm tương tác (CTA, links, focus)
   accent-foreground: "#FFFFFF"
-  
+
   # Neutral Backgrounds & Layers
   background: "#FFFFFF"       # Light mode background (hoặc #0B0F19 cho dark mode)
   surface: "#F8FAFC"          # Slate 50 - Card background, containers
-  surface-border: "#E2E8F0"   # Slate 200 - Viền thẻ, divider mảnh
-  
+  surface-border: "#E2E8F0"   # Slate 200 - Viền thẻ sáng (Dark mode dùng border-white/10)
+
   # Business Status & Semantic Colors (Data State)
   status:
     draft: "#94A3B8"          # Slate 400 - Bản nháp
@@ -33,74 +39,97 @@ typography:
   font-sans: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
   font-mono: "'JetBrains Mono', 'Fira Code', ui-monospace, monospace"
   scales:
-    h1: { fontSize: "2rem", lineHeight: "2.5rem", fontWeight: "700" }       # 32px
-    h2: { fontSize: "1.5rem", lineHeight: "2rem", fontWeight: "600" }       # 24px
-    h3: { fontSize: "1.25rem", lineHeight: "1.75rem", fontWeight: "600" }   # 20px
-    body: { fontSize: "0.9375rem", lineHeight: "1.5rem", fontWeight: "400" } # 15px
+    h1: { fontSize: "2rem", lineHeight: "2.5rem", fontWeight: "700" }         # 32px
+    h2: { fontSize: "1.5rem", lineHeight: "2rem", fontWeight: "600" }         # 24px
+    h3: { fontSize: "1.25rem", lineHeight: "1.75rem", fontWeight: "600" }     # 20px
+    body: { fontSize: "0.9375rem", lineHeight: "1.5rem", fontWeight: "400" }  # 15px
     body-sm: { fontSize: "0.8125rem", lineHeight: "1.25rem", fontWeight: "400" } # 13px
-    caption: { fontSize: "0.75rem", lineHeight: "1rem", fontWeight: "500" }  # 12px
+    caption: { fontSize: "0.75rem", lineHeight: "1rem", fontWeight: "500" }   # 12px
 
 radius:
   sm: "4px"                   # Input, tag, badge
   md: "8px"                   # Nút bấm, dropdown menu
   lg: "12px"                  # Card, modal, container
-  full: "9999px"              # Chỉ dùng cho avatar hoặc tròn tuyệt đối
+  full: "9999px"              # Chỉ dùng cho avatar hoặc chấm trạng thái
 
 spacing:
   touch-target-min: "44px"    # Kích thước bấm tối thiểu trên mobile
   card-padding: "1.25rem"     # 20px
   table-cell-y: "0.75rem"     # 12px - Chiều cao dòng chuẩn data-dense
+
+# --- Emil Kowalski Motion Physics Budget ---
+motion:
+  enter_curve: "cubic-bezier(0.16, 1, 0.3, 1)"  # ease-out tự nhiên khi xuất hiện
+  exit_curve: "cubic-bezier(0.4, 0, 1, 1)"      # ease-in dứt khoát khi đóng
+  spring: { stiffness: 400, damping: 30 }       # Thông số lò xo chuẩn không văng lố
+  micro_duration: "150ms-200ms"                 # Ngân sách thời gian cho hover/press
+  modal_initial_scale: 0.95                     # Luôn khởi đầu từ 0.95, cấm dùng 0
+
+# --- Mobile-Native Hygiene Contract ---
+mobile_hygiene:
+  input_min_font: "16px"      # Chống iOS Safari tự động phóng to khi focus input
+  viewport_unit: "100dvh"     # Dùng dvh/min-h-dvh thay cho vh/h-screen cổ điển
+  touch_target_min: "44px"    # Diện tích chạm tối thiểu theo chuẩn HIG
+  min_screen_width: "320px"   # Cam kết Zero Horizontal Overflow từ 320px
 ---
 
-# 🎨 Triết lý Thiết kế & Nguyên tắc Ứng dụng
+# 🎨 Triết lý Thiết kế & Hệ thống Kiểm định Impeccable 20/20
 
-## 1. Phong cách Thẩm mỹ (Aesthetic Persona)
+## 1. Phong cách Thẩm mỹ & Điều phối 3-Dial (Aesthetic Persona)
 - **Định hình:** *Modern Clean meets Industrial Precision*.
-- Giao diện hướng đến sự rõ ràng, mạch lạc, ưu tiên dữ liệu nghiệp vụ và giảm thiểu nhiễu thị giác.
-- Mỗi pixel, khoảng cách và màu sắc xuất hiện đều phải phục vụ một mục đích thông tin cụ thể.
+- Giao diện ưu tiên mật độ thông tin hợp lý (`visual_density: 7`), bố cục chuẩn xác (`design_variance: 4`) và chuyển động phản hồi tức thì (`motion_intensity: 5`).
+- Mỗi pixel, khoảng cách và màu sắc đều phục vụ mục đích nghiệp vụ rõ ràng, không trang trí thừa.
 
 ---
 
-## 🚫 2. Danh mục Mẫu Bị Cấm Tuyệt Đối (Anti-Slop Banned Patterns)
+## 🚫 2. Ma trận 20 Quy tắc Kiểm định & Chống AI Slop (5 Trục Impeccable 20/20)
 
-Khi Agent sinh mã nguồn Frontend (HTML, CSS, Tailwind, JSX/TSX), **CẤM** các mẫu sau:
+Trình kiểm định `ui_slop_auditor.py` chấm điểm tự động trên 5 trục (mỗi trục 4.0 điểm, tổng **20.0/20.0**, đạt **STUDIO_GRADE** khi $\ge 18.0$):
 
-| Mã cấm | Tên lỗi | Mô tả chi tiết & Cách sửa chuẩn |
+### Trục 1: `AESTHETICS` (4.0đ) — Thẩm mỹ & Chống rập khuôn
+| Mã Rule | Mức độ | Quy tắc & Cách khắc phục chuẩn |
 |---|---|---|
-| **`BAN-01`** | `generic-purple-ai` | **Cấm** lạm dụng dải màu tím-xanh rập khuôn (`from-purple-600 to-blue-600` hoặc gradient neon lòe loẹt). Dùng màu brand vững chắc, contrast cao. |
-| **`BAN-02`** | `toy-box-logo` | **Cấm** logo tạo kiểu "hộp đồ chơi": 2 ký tự viết hoa đặt trong một ô vuông bo tròn tô gradient. Hãy dùng icon SVG ngữ cảnh hoặc text logo tinh gọn. |
-| **`BAN-03`** | `emoji-in-badge` | **Cấm** nhét raw emoji (🚀, ✨, 🔥, 💡) vào trong nút bấm hoặc status badge. Phải dùng SVG stroke icons mảnh (1.5px stroke). |
-| **`BAN-04`** | `elongated-pill-cta` | **Cấm** các nút bấm bo tròn quả lê dài bất thường (`rounded-full px-12`). Ưu tiên bo góc tinh tế (`rounded-md` hoặc `rounded-lg`). |
-| **`BAN-05`** | `ai-slop-fonts` | **Cấm** tự ý chọn các font rập khuôn (`Space Grotesk`, `Syne`, `Outfit`). Bám sát `font-sans` chuẩn công nghiệp đã định nghĩa ở trên. |
-| **`BAN-06`** | `hero-giant-headline`| **Cấm** phóng to headline vượt quá $3\times$ body text trừ khi có yêu cầu đặc thù. Tránh lãng phí không gian hiển thị (screen economy). |
+| **`BAN-01`** | HIGH | Cấm dải màu tím-xanh mặc định của AI; dùng bảng màu ngữ nghĩa trong `colors`. |
+| **`BAN-02`** | MEDIUM | Cấm nhét raw emoji vào nút bấm, link, badge, tiêu đề; dùng SVG icon stroke `1.5px`. |
+| **`BAN-04`** | LOW | Cấm nút bấm hình viên thuốc kéo dài quá mức; dùng `rounded-md` hoặc `rounded-lg` cân đối. |
+| **`BAN-05`** | MEDIUM | Cấm lạm dụng các font trưng bày rập khuôn cho giao diện nghiệp vụ; bám sát `font-sans`. |
+| **`BAN-07`** | LOW | Cấm dùng viền xám đặc cứng nhắc trên nền tối; ưu tiên viền bán trong suốt `border-white/10`. |
+| **`BAN-08`** | HIGH | Cấm để sót comment viết dở của AI hoặc các câu khẩu hiệu quảng cáo sáo rỗng. |
+
+### Trục 2: `MOTION` (4.0đ) — Vật lý Chuyển động Emil Kowalski
+| Mã Rule | Mức độ | Quy tắc & Cách khắc phục chuẩn |
+|---|---|---|
+| **`BAN-06`** | LOW | Cấm phóng to hộp thoại từ kích thước không; phải bắt đầu từ `scale-95 opacity-0`. |
+| **`MOT-01`** | MEDIUM | Cấm dùng đường cong tăng tốc (`ease-in`) khi mở hộp thoại; phải dùng `ease-out`. |
+| **`MOT-02`** | MEDIUM | Cấm chuyển động toàn bộ thuộc tính hoặc kích thước gây giật khung hình; chỉ chuyển động `transform` và `opacity`. |
+| **`MOT-03`** | LOW | Cấm kéo dài thời gian phản hồi trên nút bấm/ô nhập quá 300ms; giữ trong khoảng `150ms-200ms`. |
+| **`MOT-04`** | MEDIUM | Mọi hiệu ứng chuyển động lặp vô hạn phải hỗ trợ chế độ giảm chuyển động (`motion-reduce:`). |
+
+### Trục 3: `A11Y` (4.0đ) — Khả năng Tiếp cận (WCAG 2.2)
+| Mã Rule | Mức độ | Quy tắc & Cách khắc phục chuẩn |
+|---|---|---|
+| **`BAN-03`** | HIGH | Cấm xóa viền focus bàn phím mà không bổ sung vòng sáng `focus-visible:ring-2`. |
+| **`A11Y-01`** | HIGH | Cấm gắn sự kiện nhấn chuột trực tiếp lên thẻ khối/văn bản tĩnh mà thiếu vai trò ngữ nghĩa. |
+| **`A11Y-02`** | HIGH | Nút bấm chỉ chứa biểu tượng đồ họa bắt buộc phải có nhãn đọc màn hình (`aria-label`). |
+| **`A11Y-03`** | HIGH | Mọi thẻ hình ảnh bắt buộc phải khai báo thuộc tính mô tả `alt`. |
+
+### Trục 4: `MOBILE` (4.0đ) — Kỷ luật Thiết bị Di động
+| Mã Rule | Mức độ | Quy tắc & Cách khắc phục chuẩn |
+|---|---|---|
+| **`MOB-01`** | MEDIUM | Ô nhập liệu trên di động phải có cỡ chữ tối thiểu `16px` (`text-base sm:text-sm`) để chống tự động phóng to trên iOS. |
+| **`MOB-02`** | LOW | Thay thế đơn vị chiều cao màn hình tĩnh bằng đơn vị chiều cao động (`min-h-dvh`, `100dvh`). |
+| **`MOB-03`** | MEDIUM | Cấm gán cứng chiều rộng lớn hơn màn hình điện thoại mà không có tiền tố co giãn linh hoạt. |
+
+### Trục 5: `DATA_DENSE` (4.0đ) — Giao diện Dữ liệu Nghiệp vụ
+| Mã Rule | Mức độ | Quy tắc & Cách khắc phục chuẩn |
+|---|---|---|
+| **`DAT-01`** | MEDIUM | Các ô bảng chứa tiền tệ, phần trăm, số liệu phải bật chế độ chữ số thẳng cột (`tabular-nums` hoặc `font-mono`). |
+| **`DAT-02`** | LOW | Mọi bảng dữ liệu phải đặt trong khung cuộn ngang an toàn (`overflow-x-auto`). |
 
 ---
 
-## 📊 3. Quy chuẩn Giao diện Dữ liệu & Nghiệp vụ (Enterprise Data-Dense UI)
-
-1. **Hiển thị số liệu & tiền tệ:**
-   - Mọi nhãn số liệu, giá trị tiền tệ, chỉ số đếm, hoặc ngày giờ phải dùng lớp font số đơn cách (`font-mono` hoặc `tabular-nums`) để các con số thẳng hàng khi xếp theo cột.
-2. **Bảng dữ liệu (Data Table):**
-   - Header bảng phải in hoa nhẹ hoặc có font-weight rõ (`font-semibold text-xs text-secondary tracking-wider`).
-   - Khoảng đệm dòng (cell padding) vừa phải (`py-2.5 px-4`), tránh các bảng rỗng tuếch làm người dùng phải cuộn chuột vô tận.
-   - Luôn có trạng thái rỗng (`EmptyState`), trạng thái đang tải (`Skeleton/Spinner`), và thông báo lỗi rõ ràng.
-3. **Thẻ trạng thái (Status Badges):**
-   - Sử dụng màu nền nhạt kết hợp chữ đậm tương ứng (`bg-amber-50 text-amber-700 border-amber-200` cho `pending`).
-   - Kèm chấm tròn màu (status dot) hoặc icon ngữ cảnh để người mù màu dễ nhận diện.
-
----
-
-## ⚡ 4. Nguyên lý Vi tương tác & Chuyển động (Micro-interactions & Motion)
-
-Kế thừa nguyên tắc thủ công tinh tế (Emil Kowalski Craftsmanship):
-- **Tactile Feedback:** Mọi nút bấm phải có phản hồi nhấn chuột rõ rệt (`active:scale-[0.98]` hoặc đổi tone màu nhẹ).
-- **Không bao giờ animate từ `scale(0)`:** Đối với modal/dialog/popover, chuyển động xuất hiện nên bắt đầu từ `scale(0.95)` lên `scale(1)` với đường cong tự nhiên (Spring/Ease-out), tránh cảm giác bật nảy từ hư không.
-- **Origin-Aware Popover:** Dropdown hoặc tooltip phải mở ra từ đúng hướng của điểm chạm kích hoạt nó.
-- **Tôn trọng `prefers-reduced-motion`:** Tự động tắt hoặc giảm thiểu hiệu ứng chuyển động nếu người dùng bật chế độ chống chóng mặt trên hệ điều hành.
-
----
-
-## 📱 5. Quy chuẩn Tương thích Màn hình & Tiếp cận (Responsive & Accessibility)
-- **Độ rộng tối thiểu 320px:** Giao diện bắt buộc không được xuất hiện thanh cuộn ngang (Zero Horizontal Overflow) từ màn hình điện thoại 320px đến màn hình 4K.
-- **Touch Target $\ge 44 \times 44$px:** Mọi diện tích bấm trên màn hình cảm ứng phải đạt chuẩn tối thiểu của Apple/Android HIG.
-- **Keyboard Navigation:** Mọi element tương tác phải có viền focus nổi bật khi duyệt bằng phím Tab (`focus-visible:ring-2 focus-visible:ring-offset-2`).
+## 🧪 3. Kỷ luật Thử thách Giao diện (`break-ui` Stress Test)
+Trước khi bàn giao, giao diện phải vượt qua bài kiểm tra dữ liệu biên:
+1. **Chuỗi văn bản cực đại:** Tên người dùng hoặc tiêu đề dài 100 ký tự liên tục không làm vỡ khung (nhờ `truncate` hoặc `break-words`).
+2. **Số liệu cực đại:** Giá trị tài chính hàng tỷ (`999,999,999,999 ₫`) không bị xuống dòng lệch cột.
+3. **Trạng thái biên:** Hiển thị đầy đủ trạng thái Đang tải (`Skeleton`), Rỗng (`EmptyState`), và Lỗi (`ErrorBanner`).

@@ -1,0 +1,176 @@
+{
+  "blueprints": [
+    {
+      "id": "data-table",
+      "name": "High-Density Operational Data Table",
+      "invariants": [
+        "Must implement all 4 states: Initial Skeleton (matching exact row height), Empty State (with clear CTA or filter reset), Error Banner (with retry trigger), and Populated Data.",
+        "All numeric, currency, percentage, latency, and timestamp columns MUST enforce `tabular-nums` (`font-variant-numeric: tabular-nums`) and right-alignment (`text-right`).",
+        "Long text cells (emails, titles, UUIDs) MUST have `min-w-0` + `truncate` (`text-overflow: ellipsis`) so a single 200-char string never blows out table width.",
+        "Interactive action cells (Edit/Delete icon buttons) MUST have explicit `aria-label` and >= 36px–44px hit targets."
+      ],
+      "motion_recipe_id": "skeleton-reduced-motion",
+      "mobile_native_rules": [
+        "Wrap table in `overflow-x-auto overscroll-x-contain` with subtle horizontal scroll indicators so mobile viewports never break page width.",
+        "Filter search `<input>` must use `text-base sm:text-sm` (>= 16px on mobile) to prevent iOS Safari forced zoom.",
+        "Row action triggers must meet 44x44px touch target on coarse pointers (`pointer: coarse`)."
+      ],
+      "break_ui_payloads": [
+        {
+          "case": "Zero-space 180-char token string",
+          "payload": { "id": "usr_9999999999999999999999999999", "name": "super_long_unbroken_organization_identifier_without_any_spaces_or_hyphens_that_usually_destroys_flex_and_table_columns_in_production_environments_2026_v99", "amount": "$128,492,104.99", "status": "success" }
+        },
+        {
+          "case": "Extreme multilingual & RTL + Emoji combination",
+          "payload": { "id": "usr_rtl_01", "name": "Nguyễn Thị Huyền Trang — شركة التقنية المتقدمة 🚀 (Admin)", "amount": "$0.00", "status": "pending" }
+        },
+        {
+          "case": "Null / Missing optional fields & zero metrics",
+          "payload": { "id": "usr_null_02", "name": "—", "amount": "-$9,999,999.50", "status": "error" }
+        }
+      ],
+      "tailwind_react_snippet": "export function OperationalDataTable({ rows = [], isLoading = false, error = null, onRetry, onResetFilter }) {\n  if (error) {\n    return (\n      <div role=\"alert\" className=\"rounded-md border border-rose-300 bg-rose-50 p-4 text-rose-900 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-200\">\n        <div className=\"flex items-center justify-between gap-4\">\n          <p className=\"text-sm font-medium\">Failed to load records: {error}</p>\n          <button type=\"button\" onClick={onRetry} className=\"min-h-[44px] sm:min-h-[36px] rounded px-3 py-1.5 text-xs font-semibold bg-rose-900 text-white active:scale-[0.97] transition-transform duration-150\">\n            Retry\n          </button>\n        </div>\n      </div>\n    );\n  }\n\n  return (\n    <div className=\"w-full overflow-x-auto rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950\">\n      <table className=\"w-full border-collapse text-left text-sm\">\n        <thead>\n          <tr className=\"border-b border-zinc-200 bg-zinc-50/80 text-xs font-medium text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400\">\n            <th scope=\"col\" className=\"py-2.5 pl-4 pr-3\">Customer / Entity</th>\n            <th scope=\"col\" className=\"px-3 py-2.5\">Status</th>\n            <th scope=\"col\" className=\"px-3 py-2.5 text-right tabular-nums\">Net Volume</th>\n            <th scope=\"col\" className=\"py-2.5 pl-3 pr-4 text-right\"><span className=\"sr-only\">Actions</span></th>\n          </tr>\n        </thead>\n        <tbody className=\"divide-y divide-zinc-200 dark:divide-zinc-800\">\n          {isLoading ? (\n            Array.from({ length: 4 }).map((_, idx) => (\n              <tr key={idx} className=\"h-11\">\n                <td className=\"py-2.5 pl-4 pr-3\"><div className=\"h-4 w-48 animate-pulse motion-reduce:animate-none rounded bg-zinc-200 dark:bg-zinc-800\" /></td>\n                <td className=\"px-3 py-2.5\"><div className=\"h-5 w-16 animate-pulse motion-reduce:animate-none rounded bg-zinc-200 dark:bg-zinc-800\" /></td>\n                <td className=\"px-3 py-2.5 text-right\"><div className=\"ml-auto h-4 w-20 animate-pulse motion-reduce:animate-none rounded bg-zinc-200 dark:bg-zinc-800\" /></td>\n                <td className=\"py-2.5 pl-3 pr-4\" />\n              </tr>\n            ))\n          ) : rows.length === 0 ? (\n            <tr>\n              <td colSpan={4} className=\"py-12 text-center\">\n                <p className=\"text-sm font-medium text-zinc-900 dark:text-zinc-100\">No matching records found</p>\n                <p className=\"mt-1 text-xs text-zinc-500 dark:text-zinc-400\">Try adjusting your query or clearing active filters.</p>\n                {onResetFilter && (\n                  <button type=\"button\" onClick={onResetFilter} className=\"mt-3 min-h-[44px] sm:min-h-[36px] rounded border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50 active:scale-[0.97] transition-transform duration-150 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900\">\n                    Reset filters\n                  </button>\n                )}\n              </td>\n            </tr>\n          ) : (\n            rows.map((row) => (\n              <tr key={row.id} className=\"group hover:bg-zinc-50/80 dark:hover:bg-zinc-900/40\">\n                <td className=\"max-w-[260px] py-2.5 pl-4 pr-3 font-medium text-zinc-900 dark:text-zinc-100\">\n                  <div className=\"truncate\" title={row.name}>{row.name}</div>\n                </td>\n                <td className=\"px-3 py-2.5 whitespace-nowrap\">\n                  <span className=\"inline-flex items-center rounded border border-emerald-700/20 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-950/60 dark:text-emerald-300\">\n                    {row.status}\n                  </span>\n                </td>\n                <td className=\"px-3 py-2.5 text-right font-mono text-sm tabular-nums text-zinc-900 dark:text-zinc-100 whitespace-nowrap\">\n                  {row.amount}\n                </td>\n                <td className=\"py-1.5 pl-3 pr-4 text-right whitespace-nowrap\">\n                  <button type=\"button\" aria-label={`Inspect ${row.name}`} className=\"inline-flex min-h-[44px] min-w-[44px] sm:min-h-[32px] sm:min-w-[32px] items-center justify-center rounded text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.97] transition-transform duration-150 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100\">\n                    <span aria-hidden=\"true\">•••</span>\n                  </button>\n                </td>\n              </tr>\n            ))\n          )}\n        </tbody>\n      </table>\n    </div>\n  );\n}"
+    },
+    {
+      "id": "modal-dialog",
+      "name": "Accessible Scale-95 Dialog Modal",
+      "invariants": [
+        "Never animate modal from `scale(0)` — always enter from `scale(0.95)` + `opacity: 0` over 150ms–180ms with `cubic-bezier(0.16, 1, 0.3, 1)`.",
+        "Must trap keyboard focus inside dialog (`role=\"dialog\" aria-modal=\"true\" aria-labelledby=...`), support `Escape` key dismissal, and restore focus to trigger on close.",
+        "Destructive confirmation modals must clearly separate Cancel and Confirm buttons and disable/show spinner during async mutation (`isSubmitting`) to prevent double-submit.",
+        "Modal body must have `max-h-[85dvh] overflow-y-auto` so tall content scrolls internally without clipping off-screen."
+      ],
+      "motion_recipe_id": "modal-scale-95",
+      "mobile_native_rules": [
+        "Use `max-h-[85dvh]` (Dynamic Viewport Height), never `100vh`.",
+        "Stack action buttons full-width (`flex-col-reverse sm:flex-row`) with 44px minimum height on mobile so thumb reach is effortless."
+      ],
+      "break_ui_payloads": [
+        {
+          "case": "5,000-word legal terms or stack trace inside modal body",
+          "payload": { "title": "Confirm Permanent Production Database Wipe", "description": "WARNING: Irreversible cascade deletion across 48 regional shards (us-east-1, eu-central-1, ap-southeast-1). All snapshots, point-in-time recovery logs, and tenant encryption keys will be permanently purged without recovery." }
+        },
+        {
+          "case": "Rapid double/triple click on destructive confirm button",
+          "payload": { "rapidClicks": 5, "networkLatencyMs": 2500 }
+        }
+      ],
+      "tailwind_react_snippet": "export function ConfirmModal({ open, title, description, isSubmitting = false, onConfirm, onCancel }) {\n  if (!open) return null;\n  return (\n    <div className=\"fixed inset-0 z-50 flex items-center justify-center p-4\">\n      <div className=\"fixed inset-0 bg-zinc-950/60 transition-opacity duration-150 motion-reduce:transition-none\" onClick={isSubmitting ? undefined : onCancel} aria-hidden=\"true\" />\n      <div\n        role=\"dialog\"\n        aria-modal=\"true\"\n        aria-labelledby=\"modal-title\"\n        aria-describedby=\"modal-desc\"\n        data-state=\"open\"\n        className=\"relative z-10 w-full max-w-md max-h-[85dvh] overflow-y-auto rounded-lg border border-zinc-200 bg-white p-6 shadow-xl transition-[transform,opacity] duration-180 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none dark:border-zinc-800 dark:bg-zinc-950\"\n      >\n        <h2 id=\"modal-title\" className=\"text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100\">\n          {title}\n        </h2>\n        <p id=\"modal-desc\" className=\"mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 break-words\">\n          {description}\n        </p>\n        <div className=\"mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end\">\n          <button\n            type=\"button\"\n            disabled={isSubmitting}\n            onClick={onCancel}\n            className=\"min-h-[44px] sm:min-h-[36px] rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50 active:scale-[0.97] transition-transform duration-150 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200\"\n          >\n            Cancel\n          </button>\n          <button\n            type=\"button\"\n            disabled={isSubmitting}\n            onClick={onConfirm}\n            className=\"min-h-[44px] sm:min-h-[36px] rounded-md bg-rose-700 px-4 py-2 text-sm font-medium text-white hover:bg-rose-800 active:scale-[0.97] transition-transform duration-150 disabled:opacity-50\"\n          >\n            {isSubmitting ? 'Processing…' : 'Confirm Delete'}\n          </button>\n        </div>\n      </div>\n    </div>\n  );\n}"
+    },
+    {
+      "id": "drawer-sheet",
+      "name": "Physics-Driven Slide-Over & Bottom Sheet",
+      "invariants": [
+        "Animate strictly via GPU `transform: translate3d(...)` with `cubic-bezier(0.32, 0.72, 0, 1)`; never animate `right`, `bottom`, or `width`.",
+        "Provide sticky header with explicit close button (`aria-label=\"Close panel\"`) and sticky footer for primary save/cancel actions.",
+        "Respect `100dvh` on side drawers and `max-h-[92dvh]` on mobile bottom sheets with `pb-[env(safe-area-inset-bottom)]`."
+      ],
+      "motion_recipe_id": "drawer-sheet-spring",
+      "mobile_native_rules": [
+        "Use `h-[100dvh]` for side drawers and `max-h-[90dvh]` for bottom sheets.",
+        "Include a visual drag handle pill on mobile bottom sheets and ensure close button hit area is >= 44x44px."
+      ],
+      "break_ui_payloads": [
+        {
+          "case": "Mobile virtual keyboard open while editing bottom-of-drawer input",
+          "payload": { "viewportHeight": 380, "inputFocused": true }
+        },
+        {
+          "case": "Deeply nested JSON inspector inside 380px drawer",
+          "payload": { "jsonKey": "very_long_environment_variable_key_name_production_us_east_1_cluster_endpoint" }
+        }
+      ],
+      "tailwind_react_snippet": "export function InspectorDrawer({ open, title, onClose, children, footer }) {\n  if (!open) return null;\n  return (\n    <div className=\"fixed inset-0 z-50 overflow-hidden\">\n      <div className=\"fixed inset-0 bg-zinc-950/50 transition-opacity duration-200 motion-reduce:transition-none\" onClick={onClose} aria-hidden=\"true\" />\n      <div className=\"fixed inset-y-0 right-0 flex max-w-full pl-10\">\n        <section\n          role=\"dialog\"\n          aria-modal=\"true\"\n          aria-labelledby=\"drawer-title\"\n          data-state=\"open\"\n          className=\"flex h-[100dvh] w-screen max-w-md flex-col border-l border-zinc-200 bg-white shadow-2xl transition-transform duration-280 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none dark:border-zinc-800 dark:bg-zinc-950\"\n        >\n          <header className=\"flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-800\">\n            <h2 id=\"drawer-title\" className=\" truncate text-base font-semibold text-zinc-900 dark:text-zinc-100\">{title}</h2>\n            <button\n              type=\"button\"\n              onClick={onClose}\n              aria-label=\"Close panel\"\n              className=\"inline-flex min-h-[44px] min-w-[44px] sm:min-h-[32px] sm:min-w-[32px] items-center justify-center rounded-md text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.97] transition-transform duration-150 dark:text-zinc-400 dark:hover:bg-zinc-800\"\n            >\n              <span aria-hidden=\"true\">✕</span>\n            </button>\n          </header>\n          <div className=\"flex-1 overflow-y-auto p-5\">\n            {children}\n          </div>\n          {footer && (\n            <footer className=\"border-t border-zinc-200 bg-zinc-50/80 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] dark:border-zinc-800 dark:bg-zinc-900/60\">\n              {footer}\n            </footer>\n          )}\n        </section>\n      </div>\n    </div>\n  );\n}"
+    },
+    {
+      "id": "command-palette",
+      "name": "Keyboard-First Command Palette (Cmd+K)",
+      "invariants": [
+        "Search input MUST use `text-base` (16px) so mobile devices never auto-zoom on focus, and include `role=\"combobox\" aria-expanded=\"true\" aria-controls=\"cmd-list\"`.",
+        "Must handle empty search results gracefully (`No commands found for \"...\"`) without collapsing container width.",
+        "Keyboard shortcut badges (`⌘K`, `↑↓`, `↵`) must use monospace font and `tabular-nums`."
+      ],
+      "motion_recipe_id": "modal-scale-95",
+      "mobile_native_rules": [
+        "Position palette near the top (`top-[12dvh]`) so the mobile on-screen keyboard never obscures the results list.",
+        "Search input must be `text-base` (>= 16px) with `autoCapitalize=\"none\" autoCorrect=\"off\"`."
+      ],
+      "break_ui_payloads": [
+        {
+          "case": "Regex special characters & 120-char search query",
+          "payload": { "query": ".*+?^${}()|[]\\\\_deploy_production_cluster_us_east_1_immediately" }
+        },
+        {
+          "case": "500 command items filtered simultaneously",
+          "payload": { "itemCount": 500 }
+        }
+      ],
+      "tailwind_react_snippet": "export function CommandPalette({ open, query, onQueryChange, items = [], onSelect, onClose }) {\n  if (!open) return null;\n  return (\n    <div className=\"fixed inset-0 z-50 flex items-start justify-center pt-[12dvh] px-4\">\n      <div className=\"fixed inset-0 bg-zinc-950/60\" onClick={onClose} aria-hidden=\"true\" />\n      <div\n        role=\"dialog\"\n        aria-modal=\"true\"\n        aria-label=\"Command Palette\"\n        className=\"relative z-10 w-full max-w-lg overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-2xl transition-[transform,opacity] duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none dark:border-zinc-800 dark:bg-zinc-950\"\n      >\n        <div className=\"flex items-center border-b border-zinc-200 px-3 dark:border-zinc-800\">\n          <input\n            type=\"text\"\n             role=\"combobox\"\n            aria-expanded=\"true\"\n            aria-controls=\"cmd-list\"\n            aria-label=\"Search commands\"\n            autoFocus\n            autoCapitalize=\"none\"\n            autoCorrect=\"off\"\n            value={query}\n            onChange={(e) => onQueryChange(e.target.value)}\n            placeholder=\"Type a command or search…\"\n            className=\"h-12 w-full bg-transparent text-base text-zinc-900 placeholder:text-zinc-400 focus:outline-none dark:text-zinc-100\"\n          />\n          <kbd className=\"hidden sm:inline-block rounded border border-zinc-200 bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400\">ESC</kbd>\n        </div>\n        <ul id=\"cmd-list\" role=\"listbox\" className=\"max-h-[55dvh] overflow-y-auto p-1.5\">\n          {items.length === 0 ? (\n            <li className=\"py-8 text-center text-sm text-zinc-500 dark:text-zinc-400\">\n              No commands found for <span className=\"font-medium text-zinc-800 dark:text-zinc-200\">\"{query}\"</span>\n            </li>\n          ) : (\n            items.map((item) => (\n              <li key={item.id} role=\"option\" aria-selected={false}>\n                <button\n                  type=\"button\"\n                  onClick={() => onSelect(item)}\n                  className=\"flex w-full min-h-[44px] sm:min-h-[38px] items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm text-zinc-800 hover:bg-zinc-100 focus:bg-zinc-100 focus:outline-none dark:text-zinc-200 dark:hover:bg-zinc-900 dark:focus:bg-zinc-900\"\n                >\n                  <span className=\"truncate font-medium\">{item.label}</span>\n                  {item.shortcut && (\n                    <kbd className=\"shrink-0 font-mono text-xs tabular-nums text-zinc-400\">{item.shortcut}</kbd>\n                  )}\n                </button>\n              </li>\n            ))\n          )}\n        </ul>\n      </div>\n    </div>\n  );\n}"
+    },
+    {
+      "id": "form-control",
+      "name": "Accessible Form Field with Inline Validation",
+      "invariants": [
+        "Every `<input>`, `<select>`, and `<textarea>` MUST have a persistent visible `<label htmlFor=...>` (placeholder is never a substitute for a label).",
+        "Error states must bind `aria-invalid={Boolean(error)}` and `aria-describedby` pointing to both helper text and error message IDs.",
+        "Input font size MUST be `text-base sm:text-sm` (16px on mobile, 14px on desktop) so mobile browsers never trigger forced viewport zoom."
+      ],
+      "motion_recipe_id": "tactile-press",
+      "mobile_native_rules": [
+        "Enforce `text-base sm:text-sm` on all form inputs (`16px` minimum on mobile).",
+        "Use accurate `inputMode` (`numeric`, `email`, `tel`, `url`) and `autoComplete` tokens to summon the right mobile keyboard."
+      ],
+      "break_ui_payloads": [
+        {
+          "case": "Long validation error message wrapping 3 lines",
+          "payload": { "value": "invalid@@domain", "error": "The email address provided belongs to an organization domain that requires SAML SSO authentication. Please sign in via your identity provider." }
+        },
+        {
+          "case": "Paste 500-char string into single-line input",
+          "payload": { "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" }
+        }
+      ],
+      "tailwind_react_snippet": "export function FormField({ id, label, type = 'text', value, onChange, hint, error, required = false, inputMode, autoComplete }) {\n  const hintId = hint ? `${id}-hint` : undefined;\n  const errorId = error ? `${id}-error` : undefined;\n  const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined;\n\n  return (\n    <div className=\"flex flex-col gap-1.5\">\n      <label htmlFor={id} className=\"text-sm font-medium text-zinc-900 dark:text-zinc-100\">\n        {label}\n        {required && <span className=\"ml-1 text-rose-600 dark:text-rose-400\" aria-hidden=\"true\">*</span>}\n      </label>\n      <input\n        id={id}\n        name={id}\n        type={type}\n        required={required}\n        inputMode={inputMode}\n        autoComplete={autoComplete}\n        value={value}\n        onChange={onChange}\n        aria-invalid={Boolean(error)}\n        aria-describedby={describedBy}\n        className={`min-h-[44px] sm:min-h-[38px] w-full rounded-md border bg-white px-3 py-2 text-base sm:text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 ${\n          error\n            ? 'border-rose-500 focus:border-rose-600 focus:ring-rose-500/20'\n            : 'border-zinc-300 focus:border-zinc-900 focus:ring-zinc-900/15 dark:border-zinc-700 dark:focus:border-zinc-300'\n        }`}\n      />\n      {hint && !error && (\n        <p id={hintId} className=\"text-xs text-zinc-500 dark:text-zinc-400\">{hint}</p>\n      )}\n      {error && (\n        <p id={errorId} role=\"alert\" className=\"text-xs font-medium text-rose-700 dark:text-rose-400\">\n          {error}\n        </p>\n      )}\n    </div>\n  );\n}"
+    },
+    {
+      "id": "status-badge",
+      "name": "WCAG AA Semantic Status Badge (5 States)",
+      "invariants": [
+        "Must cover all 5 operational states (`draft`, `pending`, `success`, `error`, `info`) with >= 4.5:1 text contrast ratio against the badge background.",
+        "Never rely on color alone — pair each status with a clear text label and optional semantic indicator dot.",
+        "Use `whitespace-nowrap` and subtle 1px border token (`border-current/20`) so badges remain crisp in both light and dark themes."
+      ],
+      "motion_recipe_id": "gpu-compositor-transform",
+      "mobile_native_rules": [
+        "Keep badges compact (`px-2 py-0.5 text-xs`) with `shrink-0` inside flex containers so they never wrap mid-word."
+      ],
+      "break_ui_payloads": [
+        {
+          "case": "Unknown status fallback & long custom status label",
+          "payload": { "status": "pending", "label": "Awaiting Multi-Sig Treasury Approval (3/5)" }
+        }
+      ],
+      "tailwind_react_snippet": "const STATUS_STYLES = {\n  draft: 'bg-zinc-100 text-zinc-800 border-zinc-300 dark:bg-zinc-800/80 dark:text-zinc-200 dark:border-zinc-700',\n  pending: 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-800',\n  success: 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-800',\n  error: 'bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950/70 dark:text-rose-300 dark:border-rose-800',\n  info: 'bg-sky-100 text-sky-900 border-sky-300 dark:bg-sky-950/70 dark:text-sky-300 dark:border-sky-800'\n};\n\nexport function StatusBadge({ status = 'draft', label }) {\n  const style = STATUS_STYLES[status] || STATUS_STYLES.draft;\n  return (\n    <span className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded border px-2 py-0.5 text-xs font-medium tabular-nums ${style}`}>\n      <span className=\"h-1.5 w-1.5 rounded-full bg-current\" aria-hidden=\"true\" />\n      <span>{label || status}</span>\n    </span>\n  );\n}"
+    },
+    {
+      "id": "bento-grid",
+      "name": "Asymmetric Telemetry Bento Grid (Anti-Slop)",
+      "invariants": [
+        "Avoid the generic AI-slop '3 equal cards in a row with centered icons' pattern; use purposeful asymmetric column spans (`md:col-span-2`, `md:col-span-1`) driven by information hierarchy.",
+        "Every card must have `min-w-0` and overflow protection so long titles or large numbers (`$999,999,999.00`) never break grid track widths.",
+        "All numeric KPIs and delta percentages must enforce `tabular-nums`."
+      ],
+      "motion_recipe_id": "tactile-press",
+      "mobile_native_rules": [
+        "Collapse cleanly to a single column (`grid-cols-1 md:grid-cols-3`) on mobile viewports with consistent `gap-4`."
+      ],
+      "break_ui_payloads": [
+        {
+          "case": "14-digit revenue number + 9,999.9% spike",
+          "payload": { "primaryMetric": "$948,291,049,120.88", "delta": "+9,420.85%", "subtitle": "Unbroken_Cluster_Node_Identifier_us_east_1_prod_replica_99" }
+        }
+      ],
+      "tailwind_react_snippet": "export function TelemetryBentoGrid({ primaryKpi, secondaryKpis = [] }) {\n  return (\n    <section aria-label=\"Key performance metrics\" className=\"grid grid-cols-1 gap-4 md:grid-cols-3\">\n      <article className=\"min-w-0 md:col-span-2 flex flex-col justify-between rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950\">\n        <div className=\"min-w-0\">\n          <p className=\"truncate text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400\">\n            {primaryKpi.label}\n          </p>\n          <div className=\"mt-2 flex flex-wrap items-baseline gap-3\">\n            <p className=\"truncate font-mono text-2xl sm:text-3xl font-semibold tracking-tight tabular-nums text-zinc-900 dark:text-zinc-100\">\n              {primaryKpi.value}\n            </p>\n            {primaryKpi.delta && (\n              <span className=\"inline-flex items-center rounded border border-emerald-300 bg-emerald-50 px-2 py-0.5 font-mono text-xs font-medium tabular-nums text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300\">\n                {primaryKpi.delta}\n              </span>\n            )}\n          </div>\n        </div>\n        <p className=\"mt-4 truncate text-xs text-zinc-500 dark:text-zinc-400\" title={primaryKpi.caption}>\n          {primaryKpi.caption}\n        </p>\n      </article>\n      <div className=\"flex flex-col gap-4 min-w-0\">\n        {secondaryKpis.map((item) => (\n          <article key={item.id} className=\"min-w-0 flex-1 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950\">\n            <p className=\"truncate text-xs font-medium text-zinc-500 dark:text-zinc-400\">{item.label}</p>\n            <p className=\"mt-1.5 truncate font-mono text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100\">\n              {item.value}\n            </p>\n          </article>\n        ))}\n      </div>\n    </section>\n  );\n}"
+    }
+  ]
+}

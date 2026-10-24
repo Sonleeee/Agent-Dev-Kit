@@ -1,0 +1,119 @@
+{
+  "recipes": [
+    {
+      "id": "tactile-press",
+      "name": "Tactile Button Press (Emil Kowalski Scale-97)",
+      "when_to_use": "Primary buttons, secondary action triggers, toolbar buttons, and interactive cards that respond to pointer down.",
+      "physics": {
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "duration_ms": 150,
+        "spring": { "stiffness": 500, "damping": 30, "mass": 1 }
+      },
+      "tailwind_classes": "transition-transform duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] active:scale-[0.97] motion-reduce:transition-none motion-reduce:active:scale-100",
+      "css_snippet": ".tactile-btn {\n  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease;\n  will-change: transform;\n}\n.tactile-btn:active {\n  transform: scale(0.97);\n}\n@media (prefers-reduced-motion: reduce) {\n  .tactile-btn {\n    transition: none;\n  }\n  .tactile-btn:active {\n    transform: none;\n  }\n}",
+      "forbidden_slop": [
+        "transition-all duration-300",
+        "active:scale-75 or active:scale-90 (exaggerated cartoonish shrink)",
+        "hover:scale-105 on standard UI buttons (causes layout jitter)"
+      ]
+    },
+    {
+      "id": "modal-scale-95",
+      "name": "Subtle Modal Enter/Exit (Never From Scale 0)",
+      "when_to_use": "Centered dialog modals, confirmation prompts, and command palettes (`cmdk`).",
+      "physics": {
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "duration_ms": 180,
+        "spring": { "stiffness": 420, "damping": 32, "mass": 0.9 }
+      },
+      "tailwind_classes": "transition-[transform,opacity] duration-180 ease-[cubic-bezier(0.16,1,0.3,1)] data-[state=closed]:scale-95 data-[state=closed]:opacity-0 data-[state=open]:scale-100 data-[state=open]:opacity-100 motion-reduce:transition-none",
+      "css_snippet": "@keyframes modal-in {\n  from { opacity: 0; transform: scale(0.95) translateY(4px); }\n  to { opacity: 1; transform: scale(1) translateY(0); }\n}\n@keyframes modal-out {\n  from { opacity: 1; transform: scale(1) translateY(0); }\n  to { opacity: 0; transform: scale(0.97) translateY(2px); }\n}\n.modal-surface[data-state='open'] {\n  animation: modal-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;\n}\n.modal-surface[data-state='closed'] {\n  animation: modal-out 130ms cubic-bezier(0.4, 0, 1, 1) forwards;\n}",
+      "forbidden_slop": [
+        "Animating from scale(0) or scale(0.5) (balloon pop effect)",
+        "Exit animation slower than enter animation (exit must be <= 150ms)",
+        "Bouncy elastic overshoot on enterprise dialogs"
+      ]
+    },
+    {
+      "id": "origin-aware-popover",
+      "name": "Origin-Aware Dropdown & Popover",
+      "when_to_use": "Select menus, context menus, tooltips, user profile popovers, and date pickers anchored to a trigger.",
+      "physics": {
+        "easing": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "duration_ms": 140,
+        "spring": { "stiffness": 480, "damping": 34, "mass": 0.8 }
+      },
+      "tailwind_classes": "origin-[var(--radix-popover-content-transform-origin)] transition-[transform,opacity] duration-140 ease-[cubic-bezier(0.16,1,0.3,1)] data-[state=closed]:scale-95 data-[state=closed]:opacity-0 data-[state=open]:scale-100 data-[state=open]:opacity-100 motion-reduce:transition-none",
+      "css_snippet": ".popover-content {\n  transform-origin: var(--radix-popover-content-transform-origin, top center);\n  transition: transform 140ms cubic-bezier(0.16, 1, 0.3, 1), opacity 140ms ease;\n}\n.popover-content[data-state='closed'] {\n  opacity: 0;\n  transform: scale(0.96);\n}\n.popover-content[data-state='open'] {\n  opacity: 1;\n  transform: scale(1);\n}",
+      "forbidden_slop": [
+        "Default transform-origin: center on anchored dropdowns (detaches menu from trigger)",
+        "Animating height or max-height instead of transform + opacity",
+        "Delaying tooltip appearance on subsequent hovers when already warmed up"
+      ]
+    },
+    {
+      "id": "drawer-sheet-spring",
+      "name": "iOS-Physics Sheet & Drawer Slide",
+      "when_to_use": "Side inspection panels, mobile bottom sheets (Vaul style), and filter drawers.",
+      "physics": {
+        "easing": "cubic-bezier(0.32, 0.72, 0, 1)",
+        "duration_ms": 280,
+        "spring": { "stiffness": 380, "damping": 36, "mass": 1 }
+      },
+      "tailwind_classes": "transition-transform duration-280 ease-[cubic-bezier(0.32,0.72,0,1)] data-[state=closed]:translate-y-full md:data-[state=closed]:translate-x-full md:data-[state=closed]:translate-y-0 data-[state=open]:translate-x-0 data-[state=open]:translate-y-0 motion-reduce:transition-none",
+      "css_snippet": ".sheet-panel {\n  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);\n  will-change: transform;\n}\n.sheet-panel[data-side='right'][data-state='closed'] {\n  transform: translate3d(100%, 0, 0);\n}\n.sheet-panel[data-side='bottom'][data-state='closed'] {\n  transform: translate3d(0, 100%, 0);\n}\n.sheet-panel[data-state='open'] {\n  transform: translate3d(0, 0, 0);\n}",
+      "forbidden_slop": [
+        "Animating right: -400px to right: 0px (triggers main-thread layout thrashing on every frame)",
+        "Linear or ease-in-out timing curves on sheets (feels robotic and sluggish)"
+      ]
+    },
+    {
+      "id": "toast-stack",
+      "name": "Sonner-Style Layered Toast Stack",
+      "when_to_use": "Non-blocking feedback notifications, undoable mutations, and background job completion alerts.",
+      "physics": {
+        "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "duration_ms": 220,
+        "spring": { "stiffness": 400, "damping": 30, "mass": 1 }
+      },
+      "tailwind_classes": "transition-[transform,opacity] duration-220 ease-[cubic-bezier(0.22,1,0.36,1)] translate-y-0 opacity-100 data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-full motion-reduce:transition-none",
+      "css_snippet": ".toast-item {\n  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 200ms ease;\n  transform: translate3d(0, calc(var(--toast-index, 0) * -12px), 0) scale(calc(1 - var(--toast-index, 0) * 0.04));\n}",
+      "forbidden_slop": [
+        "Stacking 10+ full-height toasts that cover half the viewport",
+        "Auto-dismissing error toasts in under 4 seconds before the user can read the recovery action"
+      ]
+    },
+    {
+      "id": "skeleton-reduced-motion",
+      "name": "Zero-CLS Structural Skeleton Shimmer",
+      "when_to_use": "Async data loading states for tables, metric cards, and detail panes where exact layout geometry is known.",
+      "physics": {
+        "easing": "cubic-bezier(0.4, 0, 0.6, 1)",
+        "duration_ms": 1800,
+        "spring": null
+      },
+      "tailwind_classes": "animate-pulse motion-reduce:animate-none bg-zinc-200/80 dark:bg-zinc-800/80 rounded",
+      "css_snippet": "@keyframes subtle-pulse {\n  0%, 100% { opacity: 1; }\n  50% { opacity: 0.45; }\n}\n.skeleton-box {\n  animation: subtle-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;\n}\n@media (prefers-reduced-motion: reduce) {\n  .skeleton-box {\n    animation: none;\n    opacity: 0.7;\n  }\n}",
+      "forbidden_slop": [
+        "Centered full-page spinning loader when the shell layout can be rendered immediately",
+        "Skeleton dimensions that do not match the loaded content height (causes Cumulative Layout Shift)"
+      ]
+    },
+    {
+      "id": "gpu-compositor-transform",
+      "name": "60fps GPU Compositor Micro-Transition",
+      "when_to_use": "Tab indicators, SegmentedControl active pill highlight, accordion chevrons, and row hover elevation.",
+      "physics": {
+        "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "duration_ms": 160,
+        "spring": { "stiffness": 450, "damping": 35, "mass": 0.8 }
+      },
+      "tailwind_classes": "transition-[transform,opacity] duration-160 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none",
+      "css_snippet": ".active-pill-indicator {\n  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), opacity 160ms ease;\n  will-change: transform;\n}",
+      "forbidden_slop": [
+        "transition: all 0.3s ease",
+        "Animating width, left, top, margin, or padding on tab indicators instead of translate3d/scaleX"
+      ]
+    }
+  ]
+}

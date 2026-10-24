@@ -1,18 +1,18 @@
 ---
 name: adk-adhd-flow
-description: Định dạng output tối ưu cho hành động nhanh (ADHD / Action-First): đưa hành động lên dòng đầu, đánh số bước tuần tự, giới hạn tối đa 5 mục/nhóm, bỏ hoàn toàn lời chào/recap thừa.
+description: Giao thức giao tiếp mặc định cho tầng Chat (Human Surface) của ADK: tối ưu nhận thức, đưa hành động lên dòng đầu, đánh số bước tuần tự, giới hạn ≤ 5 mục, triệt tiêu 100% lời chào/recap thừa.
 ---
 
 # ADHD Flow — Cognitive Ergonomics & Action-First Output
 
 > Được thích ứng từ nguyên lý cốt lõi của [`ayghri/i-have-adhd`](https://github.com/ayghri/i-have-adhd).
-> Giúp lập trình viên có xu hướng phân tâm hoặc quá tải nhận thức hành động ngay lập tức, không bị "chôn vùi" trong những đoạn văn dài dòng.
+> Giúp lập trình viên hành động ngay lập tức, duy trì flow làm việc mượt mà, không bị "chôn vùi" trong những đoạn văn dài dòng.
 
 ## Khi nào dùng
 
-- Kích hoạt khi Developer cấu hình `response_mode: adhd-flow` trong `developer.md` hoặc `.agents/developer.local.md`.
-- Kích hoạt nhanh trong hội thoại khi user nói: `/adhd`, `adhd mode`, `bật adhd mode`, hoặc yêu cầu "nói ngắn, cho việc cần làm trước".
-- Duy trì hiệu lực xuyên suốt phiên làm việc cho đến khi user nói: `stop adhd`, `normal mode`, hoặc `tắt adhd mode`.
+- **MẶC ĐỊNH TOÀN CỤC (Default Human-Facing Interface):** Đây là giao thức mặc định của Agent-Dev-Kit cho tầng hội thoại trực tiếp với lập trình viên (Human Chat Surface). Tự động kích hoạt trong mọi phiên làm việc mà không cần gọi lệnh.
+- **Tùy chỉnh hoặc tắt:** Khi Developer cấu hình phong cách khác trong `developer.md` / `.agents/developer.local.md` (ví dụ: `response_mode: standard` hoặc `caveman`), hoặc qua lệnh: `stop adhd`, `normal mode`, `về bình thường`.
+- **Kích hoạt lại nhanh:** Nói `/adhd`, `adhd mode`, `bật adhd mode`, hoặc "nói ngắn, cho việc cần làm trước".
 
 ---
 

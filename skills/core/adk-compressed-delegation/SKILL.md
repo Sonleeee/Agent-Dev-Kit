@@ -10,6 +10,8 @@ description: |
 # Compressed Subagent Delegation — Cavecrew Protocol & Proof-First Gates
 
 > Phóng tác và nâng cấp từ mô hình `cavecrew` trong [`JuliusBrussee/caveman`](https://github.com/JuliusBrussee/caveman).
+> **GIAO THỨC ỦY QUYỀN MẶC ĐỊNH (DEFAULT SUBAGENT PROTOCOL) CỦA AGENT-DEV-KIT.**
+> Áp dụng bắt buộc cho toàn bộ 4 Specialist Subagents (`scout`, `worker`, `verifier`, `critic`).
 > Giải quyết đồng thời 2 bài toán sống còn:
 > 1. **Chống cạn kiệt context:** Ngăn chặn subagent trả về văn xuôi rườm rà (tiết kiệm ~75% token).
 > 2. **Bảo toàn Quality Gates:** Ép buộc bằng chứng thực thi (`verified_cmd`) để tuân thủ tuyệt đối [`rules/global.md`](file:///c:/Sonlee/AI/Agent-Dev-Kit/rules/global.md).

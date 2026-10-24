@@ -47,22 +47,29 @@ Không cần thông báo tên skill/workflow trước mỗi hành động; chỉ
 - Chọn skill theo intent thực tế từ `name` và `description`. Nếu không có skill phù hợp, xử lý trực tiếp; không tìm skill như một bước hình thức.
 - Với tác vụ source code, dùng CodeGraph trước khi đọc/tìm source nếu repo có index và CodeGraph khả dụng. Dùng công cụ đọc/tìm thông thường cho docs, config, literal text, git diff/status hoặc file chưa index.
 
-### Giao thức giao tiếp thích ứng (Default Adaptive Action-First)
+### Kiến trúc giao tiếp mặc định 2 tầng (Default Dual-Surface Protocol)
 
-Mặc định mọi phản hồi áp dụng **Action-First & Concise** mà không cần người dùng kích hoạt skill thủ công:
+Mặc định toàn hệ thống ADK vận hành theo **Kiến trúc giao tiếp 2 tầng độc lập (Dual-Surface Communication Architecture)** mà không cần người dùng kích hoạt skill thủ công:
 
-1. **Dòng 1 là Hành động hoặc Kết quả trực tiếp:** Nêu ngay việc đã/đang làm hoặc câu trả lời chốt ở dòng đầu tiên. Bỏ hoàn toàn lời chào, khen câu hỏi, xin phép và phần tóm tắt lặp lại cuối bài.
-2. **Đánh số bước tuần tự & giới hạn tải nhận thức:** Mỗi nhóm tối đa `≤ 5` mục; mỗi mục bắt đầu bằng động từ hành động hoặc `path:line` cụ thể.
-3. **Bằng chứng kiểm chứng bắt buộc (`verified_cmd`):** Khi báo hoàn thành sửa đổi, nêu lệnh kiểm chứng thực tế đã chạy và kết quả thật.
+1. **Tầng Ngoài (Human Chat Surface — Mặc định `adk-adhd-flow`):**
+   - **Dòng 1 là Hành động hoặc Kết quả trực tiếp:** Nêu ngay việc đã/đang làm hoặc câu trả lời chốt ở dòng đầu tiên. Triệt tiêu 100% lời chào, khen câu hỏi, xin phép và phần tóm tắt lặp lại cuối bài.
+   - **Đánh số bước tuần tự & Giới hạn nhận thức:** Trình bày theo `1., 2., 3.`, mỗi nhóm tối đa `≤ 5` mục; mỗi mục bắt đầu bằng động từ hành động hoặc `path:line` cụ thể.
+   - **Kết thúc bằng 1 việc tiếp theo dưới 2 phút:** Giúp developer duy trì flow làm việc liên tục, không bị nghẽn nhận thức.
 
-**Cơ chế tự động mở khóa chi tiết (Adaptive Escape Hatch → Deep-Explanation Mode):**
-Tự động chuyển sang trình bày phân tích sâu, bảng so sánh đa chiều và sơ đồ Mermaid (không bị bó buộc giới hạn 5 mục) khi rơi vào **1 trong 4 trường hợp**:
-- **Yêu cầu tường minh từ User:** Có từ khóa hoặc ý định cần độ sâu (*"chi tiết"*, *"giải thích tại sao"*, *"phân tích sâu"*, *"đánh giá gắt gao"*, *"so sánh"*, *"deep research"*, *"brainstorm"*).
-- **Quyết định Kiến trúc / Nghiệp vụ rủi ro cao:** Lập ADR, Technical Spec (`adk-sdd`), PRD (`adk-agile-ba`) hoặc đánh giá trade-off có blast radius lớn.
-- **Điều tra lỗi đa tầng hoặc Audit bảo mật:** Báo cáo Root-Cause Analysis (`adk-systematic-debugging`) hoặc báo cáo lỗ hổng (`adk-owasp-scan`).
-- **Báo cáo xung đột (Conflict Report):** Khi code thực tế mâu thuẫn với yêu cầu hoặc spec cần người dùng chốt hướng đi.
+2. **Tầng Trong (Subagent Delegation Protocol — Mặc định `adk-caveman` / `adk-compressed-delegation`):**
+   - **Giao thức Cavecrew nén 60–75% token:** Khi Agent chính ủy quyền cho các subagent (`scout`, `worker`, `verifier`, `critic`), toàn bộ trao đổi máy-máy bắt buộc dùng văn phong Caveman/Ultracave (fragment, path:line, status tokens).
+   - **Bảo toàn Quality Gates:** Subagent tuyệt đối không viết văn giải thích dài dòng, nhưng **BẮT BUỘC** khóa cứng trường bằng chứng thực thi thật (`verified_cmd`), ngăn chặn nguy cơ tràn context của Agent chính.
 
-> **Override cường độ (Mutually Exclusive):** Chỉ nạp `adk-adhd-flow` hoặc `adk-caveman` khi người dùng yêu cầu rõ chế độ cực đoan tương ứng (ví dụ: *"bật caveman"*, *"ultracave"*, *"adhd mode"*), hoặc cấu hình cứng trong `developer.local.md`. Không bao giờ nạp đồng thời hai skill này.
+3. **Tầng Chi tiết & Bằng chứng (Artifact-First & Adaptive Escape Hatch):**
+   - **Báo cáo tóm tắt trên Chat:** Nêu lệnh kiểm chứng thực tế và kết quả tóm tắt (`verified_cmd`) ngay trong chat.
+   - **Đẩy chi tiết sâu ra Artifact/Contract:** Full stack trace, log kiểm thử dài, so sánh case study đa chiều hoặc benchmark được đẩy vào `.agents/runtime/<task-id>/execution-contract.md` hoặc markdown artifact kèm link bấm trực tiếp.
+   - **Tự động mở khóa chi tiết (Deep-Explanation Mode):** Tự động bung đầy đủ phân tích sâu, bảng so sánh và sơ đồ Mermaid (không bị giới hạn 5 mục) mà **không bắt người dùng phải tắt/bật mode thủ công** khi rơi vào:
+     - *Yêu cầu tường minh từ User:* Có từ khóa hoặc ý định cần độ sâu (*"chi tiết"*, *"evidence"*, *"giải thích tại sao"*, *"phân tích sâu"*, *"case study"*, *"so sánh"*, *"deep research"*, *"brainstorm"*).
+     - *Quyết định Kiến trúc / Nghiệp vụ rủi ro cao:* Lập ADR, Technical Spec (`adk-sdd`), PRD (`adk-agile-ba`) hoặc thay đổi có blast radius lớn.
+     - *Điều tra lỗi đa tầng hoặc Audit bảo mật:* Báo cáo Root-Cause Analysis (`adk-systematic-debugging`) hoặc báo cáo lỗ hổng (`adk-owasp-scan`), hoặc khi debug bị fail > 2 lần liên tiếp.
+     - *Báo cáo xung đột (Conflict Report):* Khi code thực tế mâu thuẫn với spec cần chốt hướng đi.
+
+> **Tùy chỉnh cá nhân (Overrides):** Người dùng có thể ghi đè phong cách giao tiếp cá nhân (ví dụ: `standard` văn phong đầy đủ, hoặc `ultracave` toàn diện) thông qua `developer.md` hoặc lệnh chat trực tiếp.
 
 ### Execution contract và ledger
 

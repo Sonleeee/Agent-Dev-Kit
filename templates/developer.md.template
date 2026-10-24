@@ -9,17 +9,18 @@
 ## 1. Interaction & Tone
 
 ### Communication Profile & Presets
-- **Preset:** `concise` <!-- Tùy chọn nhanh: standard | concise | adhd-flow | caveman | adhd-caveman -->
+- **Preset:** `adhd-flow` <!-- Mặc định ADK: adhd-flow (Tầng Chat Action-First) + cavecrew (Tầng Subagent nén token). Tùy chọn khác: standard | concise | caveman | adhd-caveman -->
+  - `adhd-flow` (Mặc định ADK): Tầng Chat hướng tới hành động ngay (Action-First), chia nhỏ bước đánh số ≤ 5 mục, dòng 1 là kết quả/hành động, kết thúc với 1 việc tiếp theo < 2 phút. Tầng Subagent ngầm tự động dùng Cavecrew nén token.
   - `standard`: Đầy đủ bối cảnh, giải thích cân bằng, văn phong chuẩn mực.
-  - `concise` (Mặc định): Đi thẳng vào vấn đề, ngắn gọn, súc tích, lược bỏ bối cảnh thừa.
-  - `adhd-flow`: Cấu trúc hành động trước (Action-First), chia nhỏ bước đánh số, max 5 mục, 1-line progress badge (xem `skills/core/adk-adhd-flow`).
+  - `concise`: Đi thẳng vào vấn đề, ngắn gọn, súc tích, lược bỏ bối cảnh thừa.
   - `caveman`: Cô đọng cao độ, triệt tiêu nghi thức, giữ nguyên 100% code/command (xem `skills/core/adk-caveman`).
   - `adhd-caveman` (Khuyên dùng khi debug/terminal): **Hybrid tối thượng** — Vừa định hình theo cấu trúc hành động của ADHD, vừa nén từ ngữ ở mức cực hạn (Ultracave).
 
-### Tùy chỉnh 2 trục độc lập (Fine-grained Tuning)
-- **Cognitive Structure:** `action-first` <!-- Tùy chọn: action-first | standard -->
-- **Token Density:** `concise` <!-- Tùy chọn: normal | concise | terse | ultracave -->
-- **Heuristic Auto-Sensing:** `enabled` <!-- Tự động kích hoạt Hybrid/Ultracave khi user nhắn ngắn, gấp gáp ("fix ngay", "cho lệnh", "lỗi gì nói nhanh", "lệnh?") -->
+### Kiến trúc 2 tầng (Dual-Surface Architecture)
+- **User Interface Mode (Tầng Ngoài):** `adhd-flow` <!-- Tùy chọn: adhd-flow | concise | standard | caveman | hybrid -->
+- **Subagent Delegation Mode (Tầng Trong):** `caveman` <!-- Giao thức Cavecrew nén 75% token, khóa cứng verified_cmd -->
+- **Evidence Storage Strategy:** `artifact-first` <!-- Báo tóm tắt verified_cmd trong chat, full logs/traces lưu vào execution-contract.md -->
+- **Heuristic Auto-Sensing:** `enabled` <!-- Tự động mở rộng phân tích khi có từ khóa "evidence", "chi tiết", "case study" hoặc debug fail > 2 lần -->
 
 ### Quy ước ngôn ngữ & Giải thích
 - **Explanations:** Không giải thích cú pháp hoặc những điều hiển nhiên trừ khi được hỏi cụ thể.

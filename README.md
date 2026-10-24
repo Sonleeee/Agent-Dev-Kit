@@ -83,6 +83,12 @@ Với task code đã rõ, coding agent khảo sát phần liên quan, implement,
 phù hợp và rà diff trong cùng phiên. Làm rõ, plan riêng, full review và execution ledger
 chỉ bật khi intent, độ phức tạp hoặc rủi ro thực sự cần.
 
+### ⚡ Giao thức giao tiếp mặc định 2 tầng (Dual-Surface Protocol)
+ADK mặc định tách bạch ranh giới giữa người và máy:
+- **Tầng Ngoài (Human Chat Surface):** Mặc định chạy `adk-adhd-flow` (Action-First, đánh số bước ≤ 5 mục, dòng 1 là hành động, kết thúc < 2 phút, không văn sáo rỗng).
+- **Tầng Trong (Subagent Delegation):** Mặc định chạy `adk-caveman` & `adk-compressed-delegation` (Giao thức Cavecrew: nén 60–75% token, giao tiếp máy-máy qua `path:line` và bắt buộc có `verified_cmd`).
+- **Tầng Chi tiết (Artifact-First & Adaptive Escape Hatch):** Đẩy full logs/reproduction/case studies vào file contract (`.agents/runtime/<task-id>/...`); tự động mở bung chi tiết khi user yêu cầu mà không cần tắt/bật mode thủ công.
+
 | Ý định | Skill / hành vi |
 |---|---|
 | Brainstorm và cân nhắc nhiều hướng | `adk-brainstorm`; dừng ở các lựa chọn, không tự chuyển sang plan/code |

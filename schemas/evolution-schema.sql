@@ -181,6 +181,35 @@ CREATE TRIGGER IF NOT EXISTS friction_ad AFTER DELETE ON friction_points BEGIN
     INSERT INTO friction_fts(friction_fts, rowid, description, suggested_fix) VALUES('delete', old.id, old.description, old.suggested_fix);
 END;
 
+-- Rolling Retention Policy: Tối đa 3 versions cho mỗi entity (FIFO - Isolated per entity)
+CREATE TRIGGER IF NOT EXISTS trg_skill_versions_rolling_retention
+AFTER INSERT ON skill_versions
+BEGIN
+    DELETE FROM skill_versions
+    WHERE skill_name = NEW.skill_name
+      AND id NOT IN (
+          SELECT id FROM skill_versions
+          WHERE skill_name = NEW.skill_name
+          ORDER BY id DESC
+          LIMIT 3
+      );
+END;
+
+CREATE TRIGGER IF NOT EXISTS trg_evolution_runs_rolling_retention
+AFTER INSERT ON evolution_runs
+BEGIN
+    DELETE FROM evolution_runs
+    WHERE target_type = NEW.target_type
+      AND target_name = NEW.target_name
+      AND id NOT IN (
+          SELECT id FROM evolution_runs
+          WHERE target_type = NEW.target_type
+            AND target_name = NEW.target_name
+          ORDER BY id DESC
+          LIMIT 3
+      );
+END;
+
 -- Useful views
 CREATE VIEW IF NOT EXISTS v_skill_health AS
 SELECT 

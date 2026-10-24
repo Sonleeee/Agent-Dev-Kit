@@ -1,21 +1,22 @@
 ---
 name: adk-caveman
-description: Chế độ giao tiếp siêu cô đọng (Caveman & Ultracave): cắt giảm 60-75% token, bỏ nghi thức xã giao, trả lời trước - lý do sau, giữ nguyên 100% payload kỹ thuật và bằng chứng kiểm thử.
+description: Giao thức nén token mặc định cho tầng ủy quyền Subagent (Cavecrew Protocol) và chế độ giao tiếp siêu cô đọng: cắt giảm 60-75% token, trả lời trước, giữ nguyên 100% payload kỹ thuật và verified_cmd evidence.
 ---
 
 # Caveman & Ultracave — Terse Token-Saving Communication Mode
 
 > Phóng tác và nâng cấp từ [`JuliusBrussee/caveman`](https://github.com/JuliusBrussee/caveman).
 > *"Why use many token when few token do trick."*
-> Cắt bỏ mọi từ ngữ thừa thãi để tiết kiệm chi phí token, chống tràn context window và tối ưu tốc độ đọc của lập trình viên.
+> Cắt bỏ mọi từ ngữ thừa thãi để tiết kiệm chi phí token, chống tràn context window và tối ưu tốc độ xử lý giữa các subagents.
 
 ## Khi nào dùng & Các cấp độ nén
 
-Kích hoạt qua cấu hình `developer.md` hoặc câu nói tự nhiên trong chat:
+- **MẶC ĐỊNH ỦY QUYỀN SUBAGENT (Default Machine-to-Machine Protocol):** Đây là giao thức nén mặc định của Agent-Dev-Kit cho toàn bộ các Subagent chạy ngầm (`scout`, `worker`, `verifier`, `critic`) thông qua [`adk-compressed-delegation`](../adk-compressed-delegation/SKILL.md) nhằm tiết kiệm 60–75% token, ngăn tràn context và bảo vệ Quality Gates.
+- **Kích hoạt cho Developer (Human Chat Interface):** Kích hoạt qua cấu hình `developer.md` hoặc câu nói tự nhiên trong chat khi muốn văn phong siêu ngắn:
 
 | Cấp độ | Lệnh kích hoạt | Mô tả | Mức giảm token |
 |---|---|---|---|
-| **Caveman** (Mặc định) | `/caveman`, `caveman mode`, `nói ngắn`, `be brief` | Câu ngắn mệnh lệnh, trả lời trước, không từ thừa, câu đầy đủ ý | ~50% – 60% |
+| **Caveman** | `/caveman`, `caveman mode`, `nói ngắn`, `be brief` | Câu ngắn mệnh lệnh, trả lời trước, không từ thừa, câu đầy đủ ý | ~50% – 60% |
 | **Ultracave** (Cực hạn) | `/ultracave`, `ultra caveman`, `!ultra`, `ít token nhất` | Vứt bỏ ngữ pháp hoàn chỉnh, chỉ dùng keyword, fragment, status tokens | ~65% – 75% |
 | **ADHD-Caveman** (Hybrid) | `/hybrid`, `adhd-caveman`, `!hybrid` | Kết hợp cấu trúc ADHD (Action-First, 1-line badge, numbered steps) + văn phong Ultracave | Tối ưu nhận thức & token |
 

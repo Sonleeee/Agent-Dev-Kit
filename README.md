@@ -109,25 +109,6 @@ từng skill thành thư mục trực tiếp dưới `.agents/skills/<skill-name
 `adk addon add <name>`, skill của addon cũng được export theo layout này. Skill trùng
 tên với skill riêng của user được giữ nguyên, không bị installer ghi đè.
 
-## 📋 Ánh xạ Lệnh Legacy `/wf-*` sang Skill-First
-
-Từ v0.8.0, kit đã chuyển đổi 100% sang Skill-First & Intent-Driven; thư mục `workflows/` tại root đã được gỡ bỏ. Nếu người dùng quen tay dùng lệnh slash cũ hoặc host IDE có alias, hệ thống sẽ tự động ánh xạ sang Skill/Intent tương ứng:
-
-
-
-| Lệnh legacy | Intent / Skill chuẩn thay thế |
-|---|---|
-| `/wf-clarify`, `/wf-plan` | Khảo sát & lập kế hoạch (`adk-business-discovery`, `adk-solution-planning`) |
-| `/wf-impl`, `/wf-fix`, `/wf-enhance` | Triển khai code trực tiếp + TDD; debug có hệ thống (`adk-systematic-debugging`) |
-| `/wf-review`, `/wf-test`, `/wf-docs`, `/wf-research` | Review độc lập (`adk-code-review`), test authoring (`adk-test-authoring`), bảo trì docs, tra cứu pattern |
-| `/wf-security`, `/wf-xia`, `/wf-retro`, `/wf-status` | Quét bảo mật (`adk-owasp-scan`), audit/port, retrospective, ledger (`adk-execution-contract`) |
-| `/wf-git`, `/wf-deploy`, `/wf-scaffold`, `/wf-evolve` | Soạn git content (`adk-git-content`), deploy, scaffold MCP (`adk-system-design-scaffold`), GEPA-Lite |
-
-Modifiers như `--red-team`, `--compare` hay `--churn` thuộc command cụ thể; skills
-không phụ thuộc vào cú pháp modifier riêng của một host.
-
----
-
 ## 🤖 System Agents (4 Specialist Subagents)
 
 | Subagent | Tool Authority (Inner Harness) | Vai trò & Hợp đồng Đầu ra (Outer Harness) |

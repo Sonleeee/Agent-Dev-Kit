@@ -536,7 +536,7 @@ def cmd_get_preferences(args: Any = None) -> dict[str, Any]:
 
 
 def cmd_sync_profile(args: Any = None) -> dict[str, Any]:
-    """Synchronize high-confidence preferences into ~/.agents/developer.md."""
+    """Synchronize high-confidence developer preferences into ~/.agents/developer.md."""
     min_conf = 0.6
     if isinstance(args, dict):
         min_conf = float(args.get("min_confidence", 0.6))
@@ -566,12 +566,8 @@ def cmd_sync_profile(args: Any = None) -> dict[str, Any]:
 
     existing_content = profile_path.read_text(encoding="utf-8") if profile_path.exists() else ""
     if section_header in existing_content:
-        parts = existing_content.split(section_header)
-        prefix = parts[0].rstrip()
-        remainder = parts[1]
-        next_sec_idx = remainder.find("\n## ")
-        suffix = remainder[next_sec_idx:] if next_sec_idx != -1 else ""
-        updated_content = f"{prefix}\n{new_section}{suffix}".strip() + "\n"
+        prefix = existing_content.split(section_header)[0].rstrip()
+        updated_content = f"{prefix}\n{new_section}".strip() + "\n"
     else:
         updated_content = (existing_content.rstrip() + "\n" + new_section).strip() + "\n"
 

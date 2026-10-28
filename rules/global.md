@@ -129,7 +129,15 @@ Decision table nhanh:
 | Đọc source một file đã biết | `mcp__codegraph.codegraph_node` với `file` |
 | Xem ai gọi function/method | `mcp__codegraph.codegraph_callers` |
 | Tìm text/config/docs không phải symbol | `rg` hoặc tool đọc file phù hợp |
+| Kiểm tra lịch sử lỗi & chỉ dẫn thao tác file trước khi sửa | `py tools/evolution_db.py inspect "<file>"` hoặc `.agents/runtime/latest-handoff.md` |
 | Kiểm tra thay đổi git | `git status`, `git diff`, `git log` |
+
+### Empirical Pre-Edit Guardrails (Zero-RAG Entity Graph) [PROTECTED]
+Tư liệu trong Entity Graph (`evolution.db` & `.agents/runtime/latest-handoff.md`) là hướng dẫn để Agent **thao tác đúng ngay trước khi sửa file (Pre-Edit)**, tuyệt đối không đợi đến bước review cuối (`/adk-code-review`) hay đợi Developer nhắc:
+- **Trước khi gọi `edit_file` / `write_file`:**
+  1. Đọc lại đúng line range bằng `read_file` ngay trước khi `edit_file` và bảo toàn line-ending (`CRLF`/`LF`) để tránh `edit_target_mismatch`.
+  2. Không gọi `read_file` trực tiếp lên file nhị phân (`.db`, `.pyc`) hoặc UTF-16LE; chỉ truyền `ArtifactMetadata` khi ghi file vào thư mục `brain/<conversation-id>`.
+  3. Khi sửa file SQL/migration hoặc điều tra file từng gây lỗi nhiều lần, chạy `py tools/evolution_db.py inspect "<file>"` ngay ở bước khảo sát (cùng lúc với CodeGraph) để nắm lịch sử lỗi (`SUFFERED_FROM`) và skill thực thi đi kèm (`USED_WITH_SKILL`).
 
 ---
 
@@ -158,7 +166,7 @@ Decision table nhanh:
 ### R-AUTONOMOUS-DEV-STYLE — Tự giác thích ứng và ghi nhận phong cách Dev [PROTECTED]
 - **Tự giác nạp gu code:** Đầu mỗi phiên làm việc, luôn ưu tiên đọc `~/.agents/developer.md` (hoặc `.agents/developer.local.md`) để tuân thủ phong cách giao tiếp, tech stack và quy ước của Developer.
 - **Tự động bắt Preference:** Khi Developer đưa ra góp ý chỉnh sửa phong cách, chỉ dẫn công nghệ hoặc quy ước mới trong lúc chat, Agent có thể chủ động ghi nhận vào `evolution.db` và profile cá nhân mà không bắt người dùng phải gọi workflow thủ công.
-- **Lifecycle Hook Curator:** Sau mỗi phiên làm việc hoặc khi luồng tác vụ kết thúc, hệ thống hook ngầm (`tools/session_curator.py`) tự động trích xuất Session Summary, Dev Preferences và Friction Points vào `~/.adk/evolution.db`.
+- **Lifecycle Hook Curator:** Sau mỗi phiên làm việc hoặc khi luồng tác vụ kết thúc, hệ thống hook ngầm (`tools/session_curator.py`) tự động trích xuất Session Summary, Dev Preferences, Friction Points và Entity Graph Guardrails vào `~/.adk/evolution.db` cùng `.agents/runtime/latest-handoff.md`.
 
 ---
 

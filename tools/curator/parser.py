@@ -41,25 +41,25 @@ def normalize_project_file(raw_path: str) -> str | None:
 
 
 def fingerprint_error(category: str, content: str) -> tuple[str, str]:
-    """Map raw tool/step error text into a deterministic (fingerprint_id, summary) pair."""
+    """Map raw tool/step error text into a deterministic (fingerprint_id, actionable_guardrail) pair."""
     if category == "user_correction":
-        return ("user_correction", "User pivot or correction during turn")
+        return ("user_correction", "Đọc kỹ yêu cầu chỉnh sửa của Dev ở lượt trước để không lặp lại giả định cũ")
     low = (content or "").lower()
     if "target content not found" in low:
-        return ("edit_target_mismatch", "edit_file target string or line-ending mismatch")
+        return ("edit_target_mismatch", "Đọc lại đúng line range bằng read_file ngay trước khi edit_file; giữ nguyên CRLF/indent")
     if "unicodeencodeerror" in low or "failed to detect charset" in low or "charmap" in low:
-        return ("encoding_charset", "Console/file encoding charset mismatch (UTF-8 vs cp1252)")
+        return ("encoding_charset", "Luôn truyền encoding='utf-8' khi đọc/ghi file và reconfigure stdout UTF-8 trên Windows")
     if "appears to be a binary file" in low:
-        return ("binary_file_read", "Attempted text read on binary/UTF-16 file")
+        return ("binary_file_read", "Không gọi read_file trên file nhị phân (.db, .pyc) hoặc UTF-16LE; dùng python/sqlite3 để đọc")
     if "does not exist" in low or "cannot find path" in low or "filenotfounderror" in low or "pathnotfound" in low:
-        return ("path_not_found", "File or directory path does not exist")
+        return ("path_not_found", "Kiểm tra đường dẫn tồn tại trước khi đọc/chạy lệnh; không đoán mò vị trí file")
     if "artifactmetadata was provided" in low:
-        return ("invalid_artifact_path", "ArtifactMetadata used on non-artifact directory path")
+        return ("invalid_artifact_path", "Chỉ truyền ArtifactMetadata khi ghi vào brain/<conversation-id>; bỏ trống với file trong repo")
     if "no such column" in low or "operationalerror" in low or "sqlite3." in low:
-        return ("sql_schema_mismatch", "SQL query referenced missing column or syntax error")
+        return ("sql_schema_mismatch", "Chạy ensure_schema_migrations() hoặc kiểm tra PRAGMA table_info trước khi truy vấn/tạo index cột mới")
     if "syntaxerror" in low or "parsererror" in low or "missing argument" in low or "unexpected token" in low:
-        return ("shell_or_syntax_error", "Command quoting or syntax error in shell/python")
-    return ("tool_execution_error", "General tool or command execution failure")
+        return ("shell_or_syntax_error", "Trên Windows PowerShell dùng py -3 và tránh chuỗi multiline phức tạp trong python -c")
+    return ("tool_execution_error", "Kiểm tra tham số đầu vào và quyền thực thi trước khi gọi lại công cụ")
 
 
 def read_stdin_with_timeout(timeout_sec: float = 0.5) -> str:

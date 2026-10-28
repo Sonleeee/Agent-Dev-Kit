@@ -190,11 +190,14 @@ def curate_session(
 
         # 4. Replace friction points & populate Empirical Entity Graph (idempotent per trace)
         conn.execute("DELETE FROM friction_points WHERE trace_id = ?;", (trace_id,))
-        fallback_skill = data["skills_observed"][-1] if data.get("skills_observed") else None
+        post_hoc_skills = {"adk-code-review", "adk-git-content", "adk-regression-checklist"}
+        impl_skills = [s for s in data.get("skills_observed", []) if s not in post_hoc_skills]
+        fallback_skill = impl_skills[-1] if impl_skills else None
         for err in data.get("errors_encountered", [])[:8]:
             cat = err.get("category") or "tool_error"
             rel_file = err.get("related_file")
-            rel_skill = err.get("related_skill") or fallback_skill
+            raw_skill = err.get("related_skill")
+            rel_skill = raw_skill if (raw_skill and raw_skill not in post_hoc_skills) else fallback_skill
             fp_id = err.get("fingerprint") or cat
             fp_sum = err.get("fingerprint_summary") or err.get("content", "")[:140]
             conn.execute(
@@ -213,7 +216,7 @@ def curate_session(
                     rel_skill,
                     rel_file,
                     fp_id,
-                    "Review turn trajectory and add deterministic guard/script if recurring",
+                    fp_sum,
                 ),
             )
             if upsert_graph_link is not None:
@@ -247,12 +250,12 @@ def curate_session(
                         trace_id,
                     )
 
-        # 5. Populate Empirical File <-> Skill Edges from Turn Co-occurrence
+        # 5. Populate Empirical File <-> Implementation Skill Edges (excluding post-hoc review/git skills)
         if upsert_graph_link is not None:
             active_skills: list[str] = []
             for turn in data.get("interaction_turns", []):
                 for sk in turn.get("skills_loaded", []):
-                    if sk not in active_skills:
+                    if sk not in post_hoc_skills and sk not in active_skills:
                         active_skills.append(sk)
                 for f_path in turn.get("files_touched", []):
                     for sk in active_skills:
@@ -284,6 +287,33 @@ def curate_session(
                 """,
                 (pref["key"], pref["value"], pref["confidence"], sess_id),
             )
+
+        # 7. Extract top Empirical File Guardrails for Kit runtime handoff
+        guard_cur = conn.execute(
+            """
+            SELECT
+                s.name AS file_path,
+                t.name AS friction_type,
+                t.summary AS how_to_operate,
+                e.hit_count,
+                (
+                    SELECT GROUP_CONCAT(sk.name, ', ')
+                    FROM graph_edges es
+                    JOIN graph_nodes sk ON sk.id = es.target_id
+                    WHERE es.source_id = s.id
+                      AND es.edge_type = 'USED_WITH_SKILL'
+                      AND sk.name NOT IN ('adk-code-review', 'adk-git-content', 'adk-regression-checklist')
+                ) AS impl_skills
+            FROM graph_edges e
+            JOIN graph_nodes s ON s.id = e.source_id
+            JOIN graph_nodes t ON t.id = e.target_id
+            WHERE s.node_type = 'file'
+              AND e.edge_type = 'SUFFERED_FROM'
+            ORDER BY e.hit_count DESC, e.last_seen DESC
+            LIMIT 10;
+            """
+        )
+        data["file_guardrails"] = [dict(r) for r in guard_cur.fetchall()]
 
     if sync_profile_enabled and cmd_sync_profile is not None:
         try:

@@ -126,6 +126,18 @@ def write_runtime_artifacts(
     else:
         handoff_lines.append("- _(Zero tool errors or user pivot corrections in this session)_")
 
+    guardrails = data.get("file_guardrails", [])
+    if guardrails:
+        handoff_lines.extend([
+            "",
+            "## 5. Empirical File Guardrails (from Entity Graph)",
+        ])
+        for fg in guardrails:
+            sk_note = f" | Skills: `{fg['impl_skills']}`" if fg.get("impl_skills") else ""
+            handoff_lines.append(
+                f"- **`{fg['file_path']}`** (`{fg['friction_type']}` x{fg['hit_count']}): {fg['how_to_operate']}{sk_note}"
+            )
+
     handoff_path.write_text("\n".join(handoff_lines) + "\n", encoding="utf-8")
 
     # 2. Upsert Session Block inside session-journal.md

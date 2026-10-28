@@ -1,6 +1,6 @@
 -- ADK Evolution Database Schema
 -- SQLite + FTS5
--- Version: 1.0.0
+-- Version: 1.1.0
 
 PRAGMA journal_mode = WAL;
 PRAGMA foreign_keys = ON;
@@ -54,6 +54,8 @@ CREATE TABLE IF NOT EXISTS friction_points (
     severity TEXT CHECK(severity IN ('low','medium','high')),
     related_skill TEXT,
     related_rule TEXT,
+    related_file TEXT,
+    error_fingerprint TEXT,
     suggested_fix TEXT
 );
 
@@ -138,6 +140,24 @@ CREATE TABLE IF NOT EXISTS user_preferences (
     last_confirmed TEXT
 );
 
+-- Deterministic Experience & Entity Graph (Zero-RAG)
+CREATE TABLE IF NOT EXISTS graph_nodes (
+    id TEXT PRIMARY KEY,
+    node_type TEXT NOT NULL CHECK(node_type IN ('file','skill','rule','friction')),
+    name TEXT NOT NULL,
+    summary TEXT
+);
+
+CREATE TABLE IF NOT EXISTS graph_edges (
+    source_id TEXT NOT NULL REFERENCES graph_nodes(id) ON DELETE CASCADE,
+    target_id TEXT NOT NULL REFERENCES graph_nodes(id) ON DELETE CASCADE,
+    edge_type TEXT NOT NULL CHECK(edge_type IN ('SUFFERED_FROM','USED_WITH_SKILL','GOVERNED_BY','RESOLVES')),
+    hit_count INTEGER DEFAULT 1,
+    last_trace_id TEXT,
+    last_seen TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+    PRIMARY KEY (source_id, target_id, edge_type)
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_traces_session ON traces(session_id);
 CREATE INDEX IF NOT EXISTS idx_traces_outcome ON traces(outcome);
@@ -147,8 +167,11 @@ CREATE INDEX IF NOT EXISTS idx_steps_trace ON trace_steps(trace_id);
 CREATE INDEX IF NOT EXISTS idx_friction_trace ON friction_points(trace_id);
 CREATE INDEX IF NOT EXISTS idx_friction_category ON friction_points(category);
 CREATE INDEX IF NOT EXISTS idx_friction_skill ON friction_points(related_skill);
+CREATE INDEX IF NOT EXISTS idx_friction_file ON friction_points(related_file);
 CREATE INDEX IF NOT EXISTS idx_skills_used_trace ON skills_used(trace_id);
 CREATE INDEX IF NOT EXISTS idx_evolution_target ON evolution_runs(target_type, target_name);
+CREATE INDEX IF NOT EXISTS idx_graph_edges_source ON graph_edges(source_id);
+CREATE INDEX IF NOT EXISTS idx_graph_edges_target ON graph_edges(target_id);
 
 -- FTS5 Virtual Tables
 CREATE VIRTUAL TABLE IF NOT EXISTS traces_fts USING fts5(

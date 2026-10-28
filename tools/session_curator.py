@@ -3,7 +3,7 @@
 ADK Session Curator
 Autonomous post-session reflection & interaction trajectory engine.
 Reads conversation transcripts (transcript.jsonl), extracts trajectory, friction points,
-and developer preferences, persisting everything into evolution.db.
+entity graph edges, and developer preferences, persisting everything into evolution.db.
 Compatible with Antigravity Lifecycle Hooks ('Stop' event via hooks.json) and CLI execution.
 """
 
@@ -43,6 +43,7 @@ try:
         cmd_sync_profile,
         get_connection,
         get_db_path,
+        upsert_graph_link,
     )
 except ImportError:
     def get_db_path() -> Path:
@@ -59,6 +60,7 @@ except ImportError:
         return conn
 
     cmd_sync_profile = None
+    upsert_graph_link = None
 
 
 def curate_session(
@@ -186,27 +188,89 @@ def curate_session(
                 (trace_id, sk_name, "success" if outcome == "SUCCESS" else "partial"),
             )
 
-        # 4. Replace friction points for this trace (idempotent re-runs)
+        # 4. Replace friction points & populate Empirical Entity Graph (idempotent per trace)
         conn.execute("DELETE FROM friction_points WHERE trace_id = ?;", (trace_id,))
-        last_skill = data["skills_observed"][-1] if data.get("skills_observed") else None
+        fallback_skill = data["skills_observed"][-1] if data.get("skills_observed") else None
         for err in data.get("errors_encountered", [])[:8]:
             cat = err.get("category") or "tool_error"
+            rel_file = err.get("related_file")
+            rel_skill = err.get("related_skill") or fallback_skill
+            fp_id = err.get("fingerprint") or cat
+            fp_sum = err.get("fingerprint_summary") or err.get("content", "")[:140]
             conn.execute(
                 """
-                INSERT INTO friction_points (trace_id, category, description, severity, related_skill, suggested_fix)
-                VALUES (?, ?, ?, ?, ?, ?);
+                INSERT INTO friction_points (
+                    trace_id, category, description, severity,
+                    related_skill, related_file, error_fingerprint, suggested_fix
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?);
                 """,
                 (
                     trace_id,
                     cat,
                     f"Step {err.get('step_index')}: {err.get('content', '')[:180]}",
                     "medium",
-                    last_skill,
+                    rel_skill,
+                    rel_file,
+                    fp_id,
                     "Review turn trajectory and add deterministic guard/script if recurring",
                 ),
             )
+            if upsert_graph_link is not None:
+                frict_node_id = f"friction:{fp_id}"
+                if rel_file:
+                    upsert_graph_link(
+                        conn,
+                        f"file:{rel_file}",
+                        "file",
+                        rel_file,
+                        None,
+                        frict_node_id,
+                        "friction",
+                        fp_id,
+                        fp_sum,
+                        "SUFFERED_FROM",
+                        trace_id,
+                    )
+                if rel_skill:
+                    upsert_graph_link(
+                        conn,
+                        f"skill:{rel_skill}",
+                        "skill",
+                        rel_skill,
+                        None,
+                        frict_node_id,
+                        "friction",
+                        fp_id,
+                        fp_sum,
+                        "SUFFERED_FROM",
+                        trace_id,
+                    )
 
-        # 5. Upsert user preferences
+        # 5. Populate Empirical File <-> Skill Edges from Turn Co-occurrence
+        if upsert_graph_link is not None:
+            active_skills: list[str] = []
+            for turn in data.get("interaction_turns", []):
+                for sk in turn.get("skills_loaded", []):
+                    if sk not in active_skills:
+                        active_skills.append(sk)
+                for f_path in turn.get("files_touched", []):
+                    for sk in active_skills:
+                        upsert_graph_link(
+                            conn,
+                            f"file:{f_path}",
+                            "file",
+                            f_path,
+                            None,
+                            f"skill:{sk}",
+                            "skill",
+                            sk,
+                            None,
+                            "USED_WITH_SKILL",
+                            trace_id,
+                        )
+
+        # 6. Upsert user preferences
         for pref in preferences:
             conn.execute(
                 """

@@ -14,11 +14,52 @@ from typing import Any
 
 sys.dont_write_bytecode = True
 
-SKILL_PATH_RE = re.compile(r"[/\\]+(sk-[a-z0-9\-]+)[/\\]+SKILL\.md$", re.IGNORECASE)
+SKILL_PATH_RE = re.compile(r"[/\\]+((?:adk|sk)-[a-z0-9\-]+)[/\\]+SKILL\.md$", re.IGNORECASE)
 PIVOT_KEYWORDS_RE = re.compile(
     r"\b(?:không phải|sai rồi|đừng làm thế|bỏ đi|làm lại|sửa lại|ý tôi là|chuyển sang)\b",
     re.IGNORECASE,
 )
+
+
+def normalize_project_file(raw_path: str) -> str | None:
+    """Normalize file path into clean forward-slash relative project path."""
+    if not raw_path:
+        return None
+    cleaned = raw_path.strip().strip('"').strip("'").replace("\\\\", "/").replace("\\", "/")
+    lower = cleaned.lower()
+    if "/.gemini/" in lower or "/appdata/" in lower or "transcript.jsonl" in lower:
+        return None
+    for marker in ("/agent-dev-kit/.agents/", "/agent-dev-kit/", "/.agents/"):
+        idx = lower.find(marker)
+        if idx != -1:
+            rel = cleaned[idx + len(marker) :].lstrip("/")
+            return rel if rel else None
+    parts = [p for p in cleaned.split("/") if p and not p.endswith(":")]
+    if len(parts) > 3:
+        return "/".join(parts[-3:])
+    return "/".join(parts) if parts else None
+
+
+def fingerprint_error(category: str, content: str) -> tuple[str, str]:
+    """Map raw tool/step error text into a deterministic (fingerprint_id, summary) pair."""
+    if category == "user_correction":
+        return ("user_correction", "User pivot or correction during turn")
+    low = (content or "").lower()
+    if "target content not found" in low:
+        return ("edit_target_mismatch", "edit_file target string or line-ending mismatch")
+    if "unicodeencodeerror" in low or "failed to detect charset" in low or "charmap" in low:
+        return ("encoding_charset", "Console/file encoding charset mismatch (UTF-8 vs cp1252)")
+    if "appears to be a binary file" in low:
+        return ("binary_file_read", "Attempted text read on binary/UTF-16 file")
+    if "does not exist" in low or "cannot find path" in low or "filenotfounderror" in low or "pathnotfound" in low:
+        return ("path_not_found", "File or directory path does not exist")
+    if "artifactmetadata was provided" in low:
+        return ("invalid_artifact_path", "ArtifactMetadata used on non-artifact directory path")
+    if "no such column" in low or "operationalerror" in low or "sqlite3." in low:
+        return ("sql_schema_mismatch", "SQL query referenced missing column or syntax error")
+    if "syntaxerror" in low or "parsererror" in low or "missing argument" in low or "unexpected token" in low:
+        return ("shell_or_syntax_error", "Command quoting or syntax error in shell/python")
+    return ("tool_execution_error", "General tool or command execution failure")
 
 
 def read_stdin_with_timeout(timeout_sec: float = 0.5) -> str:
@@ -85,6 +126,7 @@ def parse_transcript(transcript_path: Path) -> dict[str, Any]:
     errors_encountered: list[dict[str, Any]] = []
     interaction_turns: list[dict[str, Any]] = []
     current_turn: dict[str, Any] | None = None
+    last_step_file: str | None = None
     total_tokens = 0
     total_turns = 0
 
@@ -113,6 +155,7 @@ def parse_transcript(transcript_path: Path) -> dict[str, Any]:
                 if cleaned:
                     user_messages.append(cleaned)
                 is_pivot = bool(total_turns > 1 and PIVOT_KEYWORDS_RE.search(cleaned))
+                prev_turn_file = last_step_file
                 current_turn = {
                     "turn": total_turns,
                     "step_index": step_index,
@@ -120,16 +163,22 @@ def parse_transcript(transcript_path: Path) -> dict[str, Any]:
                     "is_user_pivot": is_pivot,
                     "tools_called": [],
                     "skills_loaded": [],
+                    "files_touched": [],
                     "commands_run": [],
                     "errors": [],
                 }
                 interaction_turns.append(current_turn)
                 if is_pivot:
+                    fp_id, fp_sum = fingerprint_error("user_correction", cleaned)
                     errors_encountered.append({
                         "step_index": step_index,
                         "category": "user_correction",
                         "source": "USER_EXPLICIT",
                         "content": f"User pivot/correction at turn {total_turns}: {cleaned[:200]}",
+                        "related_file": prev_turn_file,
+                        "related_skill": skills_observed[-1] if skills_observed else None,
+                        "fingerprint": fp_id,
+                        "fingerprint_summary": fp_sum,
                     })
 
             elif msg_type in ("PLANNER_RESPONSE", "GENERIC") and source == "MODEL":
@@ -148,16 +197,22 @@ def parse_transcript(transcript_path: Path) -> dict[str, Any]:
                         except Exception:
                             args = {}
 
-                    # 1. Detect Observed Skill Loads (read_file on .../sk-*/SKILL.md)
-                    if tool_name == "read_file" and isinstance(args, dict):
-                        file_path = str(args.get("Path") or args.get("path") or "").strip().strip('"')
-                        m_skill = SKILL_PATH_RE.search(file_path)
-                        if m_skill:
+                    # 1. Detect Observed Skill Loads & Touched Files
+                    if tool_name in ("read_file", "edit_file", "write_file") and isinstance(args, dict):
+                        raw_path = str(args.get("Path") or args.get("path") or "").strip().strip('"')
+                        m_skill = SKILL_PATH_RE.search(raw_path)
+                        if m_skill and tool_name == "read_file":
                             sk_name = m_skill.group(1).lower()
                             if sk_name not in skills_observed:
                                 skills_observed.append(sk_name)
                             if current_turn is not None and sk_name not in current_turn["skills_loaded"]:
                                 current_turn["skills_loaded"].append(sk_name)
+                        else:
+                            norm_file = normalize_project_file(raw_path)
+                            if norm_file:
+                                last_step_file = norm_file
+                                if current_turn is not None and norm_file not in current_turn["files_touched"]:
+                                    current_turn["files_touched"].append(norm_file)
 
                     # 2. Detect Observed Commands (run_command)
                     if tool_name == "run_command" and isinstance(args, dict):
@@ -181,11 +236,22 @@ def parse_transcript(transcript_path: Path) -> dict[str, Any]:
             )
             if has_step_err or has_call_err:
                 raw_err = re.sub(r"^(?:Created|Completed) At:[^\n]*\n?", "", content or "", flags=re.MULTILINE).strip()
+                err_text = (raw_err or "Tool execution error")[:250]
+                fp_id, fp_sum = fingerprint_error("tool_error", err_text)
+                turn_skill = (
+                    current_turn["skills_loaded"][-1]
+                    if (current_turn and current_turn.get("skills_loaded"))
+                    else (skills_observed[-1] if skills_observed else None)
+                )
                 err_item = {
                     "step_index": step_index,
                     "category": "tool_error",
                     "source": source,
-                    "content": (raw_err or "Tool execution error")[:250],
+                    "content": err_text,
+                    "related_file": last_step_file,
+                    "related_skill": turn_skill,
+                    "fingerprint": fp_id,
+                    "fingerprint_summary": fp_sum,
                 }
                 errors_encountered.append(err_item)
                 if current_turn is not None:

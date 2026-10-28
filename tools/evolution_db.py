@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ADK Evolution Database CLI Tool & Facade
-Manage evolutionary traces, steps, friction points, skills, and metrics.
+Manage evolutionary traces, steps, friction points, skills, entity graph, and metrics.
 """
 
 from __future__ import annotations
@@ -11,6 +11,8 @@ import json
 from pathlib import Path
 import sys
 from typing import Any
+
+sys.dont_write_bytecode = True
 
 # Ensure ADK root is in sys.path
 ADK_ROOT = Path(__file__).resolve().parent.parent
@@ -24,6 +26,7 @@ from tools.evolution import (
     get_schema_path,
     hash_content,
     cmd_init,
+    cmd_inspect,
     cmd_log_session,
     cmd_log_step,
     cmd_log_friction,
@@ -37,10 +40,9 @@ from tools.evolution import (
     cmd_sync_profile,
 )
 
-sys.dont_write_bytecode = True
-
 COMMANDS = {
     "init": cmd_init,
+    "inspect": cmd_inspect,
     "log_session": cmd_log_session,
     "log_step": cmd_log_step,
     "log_friction": cmd_log_friction,
@@ -58,13 +60,14 @@ COMMANDS = {
 def print_help() -> None:
     help_doc = {
         "name": "evolution_db.py",
-        "description": "ADK Evolution Database CLI Tool & Schema Manager",
-        "usage": "python evolution_db.py <subcommand> [json_args]",
+        "description": "ADK Evolution Database CLI Tool & Zero-RAG Entity Graph Manager",
+        "usage": "python evolution_db.py <subcommand> [json_or_str_args]",
         "commands": {
             "init": "Apply SQL schema and initialize database",
+            "inspect": "Traverse Zero-RAG Entity Graph via Recursive CTE (e.g., inspect 'parser.py' or inspect)",
             "log_session": "Upsert session metadata (id, project, user_intent, workflow_used, outcome)",
             "log_step": "Append step to trace (trace_id, step_type, description, tool_used, tokens, outcome)",
-            "log_friction": "Record friction point (trace_id, category, description, severity, related_skill)",
+            "log_friction": "Record friction point (trace_id, category, description, severity, related_skill, related_file)",
             "update_outcome": "Update trace outcome and update skill success/fail statistics",
             "log_skill_use": "Record skill execution into skills_used table",
             "query": "Execute arbitrary SQL query and return results as JSON",

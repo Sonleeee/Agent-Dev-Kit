@@ -2,17 +2,24 @@
 ADK Evolution Database Package
 """
 
+import sys
+
+sys.dont_write_bytecode = True
+
 from .connection import (
+    ensure_schema_migrations,
     ensure_trace_exists,
     get_connection,
     get_db_path,
     get_schema_path,
     hash_content,
+    upsert_graph_link,
 )
 from .repositories import (
     cmd_get_preferences,
     cmd_health,
     cmd_init,
+    cmd_inspect,
     cmd_log_friction,
     cmd_log_preference,
     cmd_log_session,
@@ -29,8 +36,11 @@ __all__ = [
     "get_schema_path",
     "hash_content",
     "get_connection",
+    "ensure_schema_migrations",
     "ensure_trace_exists",
+    "upsert_graph_link",
     "cmd_init",
+    "cmd_inspect",
     "cmd_log_session",
     "cmd_log_step",
     "cmd_log_friction",

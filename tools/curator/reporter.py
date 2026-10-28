@@ -120,7 +120,9 @@ def write_runtime_artifacts(
     if errs:
         for e in errs:
             clean_err = str(e.get("content", "")).replace("\n", " ")[:160]
-            handoff_lines.append(f"- **[{e.get('category', 'error')}]** (Step {e.get('step_index')}): {clean_err}")
+            fp_tag = e.get("fingerprint") or e.get("category", "error")
+            file_tag = f" on `{e['related_file']}`" if e.get("related_file") else ""
+            handoff_lines.append(f"- **[{fp_tag}]**{file_tag} (Step {e.get('step_index')}): {clean_err}")
     else:
         handoff_lines.append("- _(Zero tool errors or user pivot corrections in this session)_")
 

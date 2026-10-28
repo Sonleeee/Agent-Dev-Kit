@@ -1,6 +1,6 @@
 """
 ADK Evolution Database - Data Access Object & Repositories
-Implements CRUD, Analytics, FTS search, and Developer Profile synchronization.
+Implements CRUD, Analytics, FTS search, Entity Graph Traversal, and Developer Profile synchronization.
 """
 
 from __future__ import annotations
@@ -12,7 +12,14 @@ import sqlite3
 import sys
 from typing import Any
 
-from .connection import ensure_trace_exists, get_connection, get_db_path, get_schema_path
+from .connection import (
+    ensure_schema_migrations,
+    ensure_trace_exists,
+    get_connection,
+    get_db_path,
+    get_schema_path,
+    upsert_graph_link,
+)
 
 sys.dont_write_bytecode = True
 
@@ -22,6 +29,7 @@ def cmd_init(args: Any = None) -> dict[str, Any]:
     db_path = get_db_path()
     schema_file = get_schema_path()
     with sqlite3.connect(str(db_path)) as conn:
+        ensure_schema_migrations(conn)
         conn.executescript(schema_file.read_text(encoding="utf-8"))
     return {"status": "ok", "message": "Database initialized successfully", "db_path": str(db_path)}
 
@@ -104,37 +112,73 @@ def cmd_log_step(args: Any) -> dict[str, Any]:
 
 
 def cmd_log_friction(args: Any) -> dict[str, Any]:
-    """Insert friction point record into friction_points table."""
+    """Insert friction point record into friction_points table and update Entity Graph."""
     if not isinstance(args, dict):
         raise ValueError("log_friction expects a JSON object payload.")
     trace_id, description = args.get("trace_id"), args.get("description")
     if not trace_id or not description:
         raise ValueError("Fields 'trace_id' and 'description' are required for log_friction.")
 
+    category = args.get("category", "tool_error")
+    related_file = args.get("related_file")
+    related_skill = args.get("related_skill")
+    fp_id = args.get("error_fingerprint") or category
+
     with get_connection() as conn:
         ensure_trace_exists(conn, trace_id)
         params = {
             "trace_id": trace_id,
             "step_id": args.get("step_id"),
-            "category": args.get("category", "tool_error"),
+            "category": category,
             "description": description,
             "severity": args.get("severity", "medium"),
-            "related_skill": args.get("related_skill"),
+            "related_skill": related_skill,
             "related_rule": args.get("related_rule"),
+            "related_file": related_file,
+            "error_fingerprint": fp_id,
             "suggested_fix": args.get("suggested_fix"),
         }
         cur = conn.execute(
             """
             INSERT INTO friction_points (
                 trace_id, step_id, category, description, severity,
-                related_skill, related_rule, suggested_fix
+                related_skill, related_rule, related_file, error_fingerprint, suggested_fix
             ) VALUES (
                 :trace_id, :step_id, :category, :description, :severity,
-                :related_skill, :related_rule, :suggested_fix
+                :related_skill, :related_rule, :related_file, :error_fingerprint, :suggested_fix
             )
             """,
             params,
         )
+        frict_node_id = f"friction:{fp_id}"
+        if related_file:
+            upsert_graph_link(
+                conn,
+                f"file:{related_file}",
+                "file",
+                related_file,
+                None,
+                frict_node_id,
+                "friction",
+                fp_id,
+                description[:140],
+                "SUFFERED_FROM",
+                trace_id,
+            )
+        if related_skill:
+            upsert_graph_link(
+                conn,
+                f"skill:{related_skill}",
+                "skill",
+                related_skill,
+                None,
+                frict_node_id,
+                "friction",
+                fp_id,
+                description[:140],
+                "SUFFERED_FROM",
+                trace_id,
+            )
         return {"status": "ok", "friction_id": cur.lastrowid, "trace_id": trace_id}
 
 
@@ -276,7 +320,7 @@ def cmd_search(args: Any) -> dict[str, Any]:
         elif target in ("friction", "friction_points", "friction_fts"):
             cur = conn.execute(
                 """
-                SELECT fp.id, fp.trace_id, fp.step_id, fp.category, fp.description, fp.severity, fp.related_skill, fp.suggested_fix, f.rank
+                SELECT fp.id, fp.trace_id, fp.step_id, fp.category, fp.description, fp.severity, fp.related_skill, fp.related_file, fp.error_fingerprint, fp.suggested_fix, f.rank
                 FROM friction_fts f
                 JOIN friction_points fp ON fp.id = f.rowid
                 WHERE friction_fts MATCH ? ORDER BY rank LIMIT 50;
@@ -287,6 +331,140 @@ def cmd_search(args: Any) -> dict[str, Any]:
             raise ValueError(f"Unknown target '{target}'. Allowed: 'traces', 'friction'.")
         results = [dict(row) for row in cur.fetchall()]
         return {"status": "ok", "target": target, "count": len(results), "results": results}
+
+
+def cmd_inspect(args: Any = None) -> dict[str, Any]:
+    """Traverse Zero-RAG Entity Graph via SQLite Recursive CTE (<1ms, 0 tokens)."""
+    target_str = ""
+    max_hops = 2
+    if isinstance(args, str):
+        target_str = args.strip()
+    elif isinstance(args, dict):
+        target_str = str(args.get("target") or args.get("entity") or args.get("path") or "").strip()
+        max_hops = max(1, min(4, int(args.get("hops", 2))))
+
+    clean_target = target_str.replace("\\\\", "/").replace("\\", "/").strip("/")
+
+    with get_connection() as conn:
+        if not clean_target:
+            # Return top hotspots across the graph sorted by hit_count DESC
+            cur = conn.execute(
+                """
+                SELECT
+                    e.source_id,
+                    s.node_type AS source_type,
+                    s.name AS source_name,
+                    e.edge_type,
+                    e.target_id,
+                    t.node_type AS target_type,
+                    t.name AS target_name,
+                    t.summary AS target_summary,
+                    e.hit_count,
+                    e.last_seen
+                FROM graph_edges e
+                JOIN graph_nodes s ON s.id = e.source_id
+                JOIN graph_nodes t ON t.id = e.target_id
+                ORDER BY e.hit_count DESC, e.last_seen DESC
+                LIMIT 25;
+                """
+            )
+            hotspots = [dict(r) for r in cur.fetchall()]
+            return {"status": "ok", "mode": "top_hotspots", "count": len(hotspots), "edges": hotspots}
+
+        roots_cur = conn.execute(
+            """
+            SELECT id, node_type, name, summary
+            FROM graph_nodes
+            WHERE id = ?
+               OR name = ?
+               OR id LIKE ?
+               OR name LIKE ?
+            ORDER BY LENGTH(id) ASC
+            LIMIT 10;
+            """,
+            (clean_target, clean_target, f"%{clean_target}", f"%{clean_target}%"),
+        )
+        root_nodes = [dict(r) for r in roots_cur.fetchall()]
+        if not root_nodes:
+            return {
+                "status": "ok",
+                "target": clean_target,
+                "matched_nodes": [],
+                "connections": [],
+                "message": f"No entity graph nodes found matching '{clean_target}'.",
+            }
+
+        root_ids = [r["id"] for r in root_nodes]
+        placeholders = ",".join("?" for _ in root_ids)
+
+        cte_sql = f"""
+        WITH RECURSIVE graph_walk(
+            start_id,
+            current_id,
+            neighbor_id,
+            edge_type,
+            hit_count,
+            last_seen,
+            depth,
+            path
+        ) AS (
+            SELECT
+                n.id,
+                n.id,
+                CASE WHEN e.source_id = n.id THEN e.target_id ELSE e.source_id END,
+                e.edge_type,
+                e.hit_count,
+                e.last_seen,
+                1,
+                n.id || ' --[' || e.edge_type || ' x' || e.hit_count || ']--> ' ||
+                    (CASE WHEN e.source_id = n.id THEN e.target_id ELSE e.source_id END)
+            FROM graph_nodes n
+            JOIN graph_edges e ON (e.source_id = n.id OR e.target_id = n.id)
+            WHERE n.id IN ({placeholders})
+
+            UNION ALL
+
+            SELECT
+                gw.start_id,
+                gw.neighbor_id,
+                CASE WHEN e.source_id = gw.neighbor_id THEN e.target_id ELSE e.source_id END,
+                e.edge_type,
+                e.hit_count,
+                e.last_seen,
+                gw.depth + 1,
+                gw.path || ' --[' || e.edge_type || ' x' || e.hit_count || ']--> ' ||
+                    (CASE WHEN e.source_id = gw.neighbor_id THEN e.target_id ELSE e.source_id END)
+            FROM graph_walk gw
+            JOIN graph_edges e ON (e.source_id = gw.neighbor_id OR e.target_id = gw.neighbor_id)
+            WHERE gw.depth < ?
+              AND instr(gw.path, CASE WHEN e.source_id = gw.neighbor_id THEN e.target_id ELSE e.source_id END) = 0
+        )
+        SELECT DISTINCT
+            gw.depth,
+            gw.current_id AS from_node,
+            gw.edge_type,
+            gw.neighbor_id AS to_node,
+            gn.node_type AS to_type,
+            gn.name AS to_name,
+            gn.summary AS to_summary,
+            gw.hit_count,
+            gw.last_seen,
+            gw.path
+        FROM graph_walk gw
+        JOIN graph_nodes gn ON gn.id = gw.neighbor_id
+        ORDER BY gw.depth ASC, gw.hit_count DESC, gw.last_seen DESC
+        LIMIT 50;
+        """
+        walk_cur = conn.execute(cte_sql, [*root_ids, max_hops])
+        connections = [dict(r) for r in walk_cur.fetchall()]
+        return {
+            "status": "ok",
+            "target": clean_target,
+            "max_hops": max_hops,
+            "matched_nodes": root_nodes,
+            "count": len(connections),
+            "connections": connections,
+        }
 
 
 def cmd_health(args: Any = None) -> dict[str, Any]:

@@ -49,6 +49,12 @@
 - **Code review:** khuyến nghị khi đổi workflow/rules ảnh hưởng rộng
 - **Release:** theo CHANGELOG / tag
 
+## Ranh Giới An Toàn (Invariants)
+
+- **Always (Ground-Truth First):** Bắt buộc chạy `read_file` kiểm tra mã nguồn và CLI hiện tại TRƯỚC KHI đề xuất giải pháp, thêm cờ (flag), hoặc sửa code. Tuyệt đối không phán đoán dựa trên giả định.
+- **Never (Ponytail Rule — R-MINIMAL-CODE):** Tuyệt đối không tự ý thêm cờ CLI, wrapper, helper hoặc abstraction mới khi chưa có ít nhất 3 ca sử dụng thực tế hoặc chưa có yêu cầu rõ ràng từ người dùng. Đoạn code tốt nhất là đoạn code không phải viết.
+- **Ask First:** Hỏi người dùng trước khi thực hiện hành vi có side effect lớn (commit/push, xóa file hàng loạt, thay đổi kiến trúc cốt lõi).
+
 ## Rule Overrides
 
 Không có override riêng cho repo kit — giữ `rules/global.md` làm nguồn chuẩn trừ khi tài liệu kit quy định khác.

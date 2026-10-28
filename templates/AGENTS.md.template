@@ -21,6 +21,8 @@
 - [Bổ sung thêm nếu cần]
 
 ## Ranh Giới An Toàn (Boundaries)
+- **Always (Ground-Truth First):** Bắt buộc chạy kiểm tra mã nguồn (`read_file`) và CLI hiện tại TRƯỚC KHI đề xuất giải pháp, thêm cờ (flag), hoặc sửa code. Tuyệt đối không phán đoán dựa trên giả định.
+- **Never (Ponytail Rule — R-MINIMAL-CODE):** Tuyệt đối không tự ý thêm cờ CLI, wrapper, helper hoặc abstraction mới khi chưa có ít nhất 3 ca sử dụng thực tế hoặc chưa có yêu cầu từ user. Đoạn code tốt nhất là đoạn code không phải viết.
 - **Always:** [Ví dụ: Luôn chạy test trước khi báo xong]
 - **Never:** [Ví dụ: Không commit .env, không sửa file auto-generated]
 - **Ask First:** [Ví dụ: Hỏi trước khi cài thêm package mới]

@@ -30,6 +30,8 @@ Chỉ kích hoạt khi task có thay đổi/xây mới mã nguồn Frontend/UI (
 Không được khẳng định đã chạy build/test/review nếu chưa có bằng chứng. Nếu chưa thể
 kiểm chứng, ghi rõ điều đã kiểm tra, điều chưa chạy và lý do; không bắt buộc tạo
 execution contract hoặc trạng thái `READY` cho task ngắn.
+Cấm đề xuất thay đổi cờ CLI, kiến trúc hoặc sửa code dựa trên giả định khi chưa gọi lệnh
+kiểm tra mã nguồn (`read_file`) hoặc CLI hiện tại (Ground-Truth First).
 
 ---
 

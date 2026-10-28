@@ -13,6 +13,11 @@ IGNORE_DIRS = {".git", "node_modules", "dist", "build", ".next", ".nuxt", "cover
 
 DIMENSIONS = ("AESTHETICS", "MOTION", "A11Y", "MOBILE", "DATA_DENSE")
 SEVERITY_PENALTY = {"HIGH": 2.0, "MEDIUM": 1.0, "LOW": 0.5}
+SEVERITY_BADGE = {
+    "HIGH": "🔴 P0 (HIGH)",
+    "MEDIUM": "🟡 P1 (MED)",
+    "LOW": "🟢 P2 (LOW)",
+}
 
 RULES: list[dict[str, Any]] = [
     # --- Dimension 1: AESTHETICS (4.0 pts) ---
@@ -81,6 +86,18 @@ RULES: list[dict[str, Any]] = [
             re.IGNORECASE,
         ),
         "remediation": "Write complete implementation code and specific, factual product microcopy instead of lazy AI placeholders or clichés.",
+    },
+    {
+        "id": "BAN-09",
+        "dimension": "AESTHETICS",
+        "severity": "MEDIUM",
+        "multiline": True,
+        "name": "Non-Concentric Border Radius or Nested Radius Clash",
+        "pattern": re.compile(
+            r"<[a-zA-Z0-9_-]+[^>]*\brounded-(?:2xl|3xl|xl)\b[^>]*\bp-[1-4]\b[^>]*>[\s\S]{1,250}?<[a-zA-Z0-9_-]+[^>]*\brounded-(?:2xl|3xl|xl)\b|<[a-zA-Z0-9_-]+[^>]*\bp-[1-4]\b[^>]*\brounded-(?:2xl|3xl|xl)\b[^>]*>[\s\S]{1,250}?<[a-zA-Z0-9_-]+[^>]*\brounded-(?:2xl|3xl|xl)\b",
+            re.IGNORECASE,
+        ),
+        "remediation": "Apply concentric border radius formula: R_inner = R_outer - Padding (e.g. parent rounded-2xl (16px) with p-2 (8px) requires child rounded-lg (8px)).",
     },
     # --- Dimension 2: MOTION (4.0 pts) ---
     {

@@ -196,16 +196,19 @@ Kit cung cấp **4 Specialist Subagents** trong `agents/`, được phân tách 
 | `verifier` | **Read-Only + Test/Lint/Audit Runner** — *Cô lập khỏi lịch sử chat của Worker* | Cổng kiểm định độc lập (Fail-Closed Verification Gate theo `arXiv:2605.17998`): chạy test/lint/scanner thực tế và ra phán quyết `ADMIT` hoặc `REJECT` |
 | `critic` | **Read-Only** — *4-Persona Adversarial (Security, Data/State, API, Perf)* | Phản biện thiết kế/code, công kích giả định ngầm, tìm lỗ hổng logic/bảo mật và rủi ro kiến trúc trước khi chốt hoặc merge |
 
-### Ánh xạ Vai trò Legacy sang 4 Specialist Subagents
+### Ánh xạ Vai trò Legacy & Nguyên tắc Inline-First
 
-| Vai trò cũ (Legacy) | Cách thức xử lý trong kiến trúc 4 Specialist Subagents |
-|---|---|
-| `planner` | Main Agent xử lý trực tiếp với `adk-solution-planning` / `adk-sdd` (dùng `scout` nếu cần khảo sát diện rộng trước khi lập plan) |
-| `implementer` | `worker` (khi delegate subtask độc lập) hoặc Main Agent thực thi trực tiếp |
-| `debugger` | `scout` (khoanh vùng root cause read-only) + `adk-systematic-debugging` |
-| `tester` | `verifier` (chạy kiểm định độc lập) hoặc `worker` + `adk-test-authoring` (khi viết test mới) |
-| `reviewer` | `verifier` (kiểm định thực thi) kết hợp `critic` (review rủi ro kiến trúc/logic với `adk-code-review`) |
-| `red-team` | `critic` (chế độ tấn công đối kháng với `adk-doubt-critic` & `adk-owasp-scan`) |
+> [!IMPORTANT]
+> **INLINE-FIRST INVARIANT:** Mặc định Main Agent trực tiếp đảm nhiệm toàn bộ các vai trò dưới đây trong cùng phiên làm việc (tự khảo sát, tự code, tự chạy test, tự rà diff). Tuyệt đối **KHÔNG** tự ý spawn subagent trừ khi Developer yêu cầu đích danh hoặc task đáp ứng điều kiện R-INLINE-FIRST trong `rules/global.md`.
+
+| Vai trò cũ (Legacy) | Thực thi Inline (Mặc định 100%) | Ủy quyền Subagent (Chỉ khi được yêu cầu) |
+|---|---|---|
+| planner | Main Agent lập plan trực tiếp (`adk-solution-planning` / `adk-sdd`) | Dùng `scout` nếu cần khảo sát diện rộng (>15 files) |
+| implementer | Main Agent trực tiếp sửa mã (`edit_file` / `write_file`) | Dùng `worker` khi Developer yêu cầu hoặc cô lập worktree |
+| debugger | Main Agent tự trace lỗi với CodeGraph & `adk-systematic-debugging` | Dùng `scout` khi cần khoanh vùng root cause diện rộng |
+| tester | Main Agent tự chạy test suite (`run_command`) | Dùng `verifier` khi cần cổng kiểm định độc lập tách biệt |
+| reviewer | Main Agent tự rà git diff trước khi giao nạp | Dùng `critic` / `verifier` khi Developer yêu cầu review độc lập |
+| red-team | Main Agent tự chạy scanner (`vbsec_scanner.py`) | Dùng `critic` khi Developer yêu cầu tấn công đối kháng |
 
 **IDE-agnostic:** Mỗi `agents/<name>/AGENT.md` định nghĩa rõ Tool Authority, Input/Output Contract (`Proof-First Cavecrew`) và Fail-Closed Gate:
 - Host hỗ trợ subagent → delegate khi lợi ích vượt chi phí handoff.

@@ -71,6 +71,20 @@ Ràng buộc bắt buộc:
    Observer, Mediator hoặc bất kỳ pattern nào khi chỉ có duy nhất 1 concrete
    implementation và không có kế hoạch mở rộng rõ ràng trong scope hiện tại.
 
+### R-INLINE-FIRST — Thực thi Trực tiếp & Chống Lạm dụng Subagent [PROTECTED]
+Triết lý: *"Subagent tốt nhất là subagent không phải spawn."*
+
+Ràng buộc bắt buộc:
+1. **Mặc định 100% làm INLINE:** Main Agent là người thực thi chính: trực tiếp đọc mã nguồn, sửa code và chạy lệnh kiểm chứng (`verified_cmd`) trong cùng phiên làm việc.
+2. **Chỉ spawn subagent khi thoả mãn ít nhất 1 điều kiện sau:**
+   - Developer yêu cầu tường minh (ví dụ: *"gọi worker làm đi"*, *"dùng scout kiểm tra"*).
+   - Tác vụ khảo sát diện rộng (>15 files phức tạp) hoặc Deep Research đa nguồn có nguy cơ gây cạn kiệt context của phiên chính.
+   - Cần review đối kháng độc lập cho thay đổi có blast radius cực lớn (ảnh hưởng core database/security) mà Developer muốn tách biệt hoàn toàn thiên kiến sunk-cost.
+3. **Các hành vi NGHIÊM CẤM (Anti-Spam Denylist):**
+   - ❌ **Cấm tự ý spawn subagent cho task thông thường:** Task sửa bug, thêm tính năng 1–5 files, refactor cục bộ hoặc sửa docs BẮT BUỘC thực thi trực tiếp inline.
+   - ❌ **Cấm tự tiện song song hoá:** Tuyệt đối không tự ý đẻ 2–3 Worker hoặc Researcher song song khi Developer chưa yêu cầu.
+   - ❌ **Cấm chuỗi nghi thức (Ritual Chaining):** Cấm tự động kích hoạt dây chuyền 4 subagents (`scout` → `worker` → `verifier` → `critic`) cho các tác vụ code thông thường.
+
 ### Task Ledger [PROTECTED]
 Chỉ tạo progress ledger khi task kéo dài qua nhiều lượt, cần resume/context
 compaction, có nhiều nhánh cần theo dõi hoặc có rủi ro cao. Task nhiều bước nhưng

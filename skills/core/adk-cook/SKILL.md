@@ -27,13 +27,16 @@ description: Pipeline tự chủ trọn gói ("Let him cook") điều phối 4 s
 
 ## ⚡ Modifiers (Cờ điều khiển hành vi)
 
+> [!IMPORTANT]
+> **MẶC ĐỊNH THỰC THI INLINE (R-INLINE-FIRST):** Nhằm tối ưu hóa token và triệt tiêu độ trễ, Main Agent **mặc định tự mình thực thi cả 5 bước inline** trong cùng phiên chat (tự khảo sát CodeGraph, tự lập plan, tự sửa code, tự chạy test, tự rà diff). Tuyệt đối **KHÔNG** tự ý spawn subagent trừ khi có cờ --subagents hoặc yêu cầu rõ ràng từ Developer.
+
 | Modifier | Tác dụng | Khi nào nên dùng |
 |---|---|---|
-| `--fast` | Rút gọn quy trình: bỏ artifact trung gian, scout nhanh, thực thi trực tiếp, chạy test tối thiểu | Bug nhỏ, thay đổi giao diện nhỏ, prototype |
-| `--tdd` | Bắt buộc viết test đỏ trước (`Red -> Green -> Refactor`), Verifier kiểm tra assertion chặt chẽ | Logic tính toán, xử lý nghiệp vụ cốt lõi, API endpoints |
-| `--no-review` | Bỏ qua bước Critic đối kháng độc lập, chỉ giữ lại Verifier kiểm tra build/test | Task nội bộ ít rủi ro, refactor không đổi contract |
-| `--no-test` | Bỏ qua bước chạy test tự động | Dự án chưa có test runner hoặc task thuần tài liệu/cấu hình |
-
+| --subagents | Ủy quyền phân tán cho specialist subagents chạy độc lập (tốn thêm token & độ trễ) | Khi cần cô lập context hoàn toàn hoặc tác vụ đa module cực lớn |
+| --fast | Rút gọn quy trình: bỏ artifact trung gian, scout nhanh, thực thi trực tiếp, chạy test tối thiểu | Bug nhỏ, thay đổi giao diện nhỏ, prototype |
+| --tdd | Bắt buộc viết test đỏ trước (Red -> Green -> Refactor), kiểm tra assertion chặt chẽ | Logic tính toán, xử lý nghiệp vụ cốt lõi, API endpoints |
+| --no-review | Bỏ qua bước Critic đối kháng độc lập, chỉ giữ lại bước test build/test | Task nội bộ ít rủi ro, refactor không đổi contract |
+| --no-test | Bỏ qua bước chạy test tự động | Dự án chưa có test runner hoặc task thuần tài liệu/cấu hình |
 ---
 
 ## 🔄 Quy Trình 5 Bước Tự Động (The 5-Step Cooking Loop)

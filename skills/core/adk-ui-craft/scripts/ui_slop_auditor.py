@@ -22,6 +22,7 @@ from rules_data import (
     DIMENSIONS,
     IGNORE_DIRS,
     RULES,
+    SEVERITY_BADGE,
     SEVERITY_PENALTY,
     UI_EXTENSIONS,
 )
@@ -104,6 +105,8 @@ def scan_file(file_path: Path, base_dir: Path) -> list[dict[str, Any]]:
 
     for line_no, line in enumerate(text.splitlines(), start=1):
         for rule in RULES:
+            if rule.get("multiline"):
+                continue
             if not rule["pattern"].search(line):
                 continue
             line_guard = rule.get("line_guard_absent")
@@ -124,6 +127,22 @@ def scan_file(file_path: Path, base_dir: Path) -> list[dict[str, Any]]:
                 "name": rule["name"],
                 "location": f"{rel_path}:{line_no}",
                 "snippet": line.strip()[:140],
+                "remediation": rule["remediation"],
+            })
+
+    for rule in RULES:
+        if not rule.get("multiline"):
+            continue
+        for m in rule["pattern"].finditer(text):
+            line_no = text[:m.start()].count("\n") + 1
+            snippet = m.group(0).replace("\n", " ").strip()[:140]
+            findings.append({
+                "rule_id": rule["id"],
+                "dimension": rule["dimension"],
+                "severity": rule["severity"],
+                "name": rule["name"],
+                "location": f"{rel_path}:{line_no}",
+                "snippet": snippet,
                 "remediation": rule["remediation"],
             })
     return findings
@@ -199,11 +218,12 @@ def main() -> None:
         )
         print(f"Dimensions: [ {dims_str} ]")
         if all_findings:
-            print("| Rule | Dim | Severity | Location | Issue & Remediation |")
+            print("| Priority | Rule | Dim | Location | Issue & Remediation |")
             print("|---|---|---|---|---|")
             for item in all_findings:
+                badge = SEVERITY_BADGE.get(item["severity"], item["severity"])
                 print(
-                    f"| `{item['rule_id']}` | `{item['dimension']}` | {item['severity']} "
+                    f"| {badge} | `{item['rule_id']}` | `{item['dimension']}` "
                     f"| `{item['location']}` | **{item['name']}** — {item['remediation']} |"
                 )
         else:

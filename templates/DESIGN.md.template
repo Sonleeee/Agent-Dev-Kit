@@ -4,7 +4,14 @@
 # Kế thừa chuẩn Google Labs DESIGN.md + Taste-Skill 3-Dial + Impeccable 20/20
 # ==============================================================================
 name: "Project Design Identity"
-version: "2.0.0"
+version: "2.1.0"
+
+# --- Strategy & Conversion Intake (Kỷ luật Elaya Part A) ---
+strategy_intake:
+  core_offer: "Mô tả giá trị định lượng duy nhất trong 1 câu (Ví dụ: Giảm 70% thời gian deploy)"
+  target_icp: "Chân dung người dùng / người trả tiền chính (Ví dụ: Senior Fullstack Engineer)"
+  top_objections: ["Bảo mật mã nguồn", "Rào cản di chuyển dữ liệu"]
+  primary_cta: "Hành động chuyển đổi duy nhất (Ví dụ: Cài đặt CLI miễn phí trong 1 lệnh)"
 
 # --- 3-Dial Parametric Aesthetic Tuning (Thang 1 - 10) ---
 dials:
@@ -47,6 +54,7 @@ typography:
     caption: { fontSize: "0.75rem", lineHeight: "1rem", fontWeight: "500" }   # 12px
 
 radius:
+  concentric: true            # Bắt buộc bo góc đồng tâm: R_con = R_cha - Padding (khi Padding < 32px)
   sm: "4px"                   # Input, tag, badge
   md: "8px"                   # Nút bấm, dropdown menu
   lg: "12px"                  # Card, modal, container
@@ -95,6 +103,7 @@ Trình kiểm định `ui_slop_auditor.py` chấm điểm tự động trên 5 t
 | **`BAN-05`** | MEDIUM | Cấm lạm dụng các font trưng bày rập khuôn cho giao diện nghiệp vụ; bám sát `font-sans`. |
 | **`BAN-07`** | LOW | Cấm dùng viền xám đặc cứng nhắc trên nền tối; ưu tiên viền bán trong suốt `border-white/10`. |
 | **`BAN-08`** | HIGH | Cấm để sót comment viết dở của AI hoặc các câu khẩu hiệu quảng cáo sáo rỗng. |
+| **`BAN-09`** | MEDIUM | Cấm bo góc lệch tâm quang học; phần tử lồng nhau có padding bắt buộc tuân theo $R_{\text{con}} = R_{\text{cha}} - \text{Padding}$. |
 
 ### Trục 2: `MOTION` (4.0đ) — Vật lý Chuyển động Emil Kowalski
 | Mã Rule | Mức độ | Quy tắc & Cách khắc phục chuẩn |
@@ -128,8 +137,27 @@ Trình kiểm định `ui_slop_auditor.py` chấm điểm tự động trên 5 t
 
 ---
 
-## 🧪 3. Kỷ luật Thử thách Giao diện (`break-ui` Stress Test)
-Trước khi bàn giao, giao diện phải vượt qua bài kiểm tra dữ liệu biên:
-1. **Chuỗi văn bản cực đại:** Tên người dùng hoặc tiêu đề dài 100 ký tự liên tục không làm vỡ khung (nhờ `truncate` hoặc `break-words`).
-2. **Số liệu cực đại:** Giá trị tài chính hàng tỷ (`999,999,999,999 ₫`) không bị xuống dòng lệch cột.
-3. **Trạng thái biên:** Hiển thị đầy đủ trạng thái Đang tải (`Skeleton`), Rỗng (`EmptyState`), và Lỗi (`ErrorBanner`).
+## 🏛️ 4. Danh Mục 21 Macrostructures (Khung Xương Trang Chống Slop)
+Trước khi sinh mã nguồn giao diện trang mới, Agent bắt buộc phải chọn 1 trong 21 Macrostructures dưới đây (cấm mặc định dùng bố cục 3 card chia đều):
+
+1. **Bento Grid:** Các khối module bất đối xứng ($2\times1, 1\times2, 2\times2$) tạo nhịp điệu thị giác cho SaaS/Dashboard.
+2. **Long Document:** Bố cục dạng tài liệu, bài luận liên tục với mục lục phụ cho DevTools/Research.
+3. **Marquee Hero:** Tiêu đề áp đảo toàn bộ khung nhìn nếp gấp đầu tiên cho Launching/Creative.
+4. **Stat-Led:** Lấy chỉ số đo lường/dữ liệu KPI cốt lõi làm tâm điểm cho FinTech/Cloud Infra.
+5. **Workbench:** Không gian làm việc mô phỏng IDE/Canvas/Terminal tương tác thực tế.
+6. **Conversational FAQ:** Dẫn dắt bằng chuỗi câu hỏi - đáp tương tác cho sản phẩm phức tạp.
+7. **Manifesto:** Thuần văn bản đậm nét, độ tương phản cao, triệt tiêu card màu mè.
+8. **Photographic:** Hình ảnh thực tế chất lượng cao dẫn dắt cấu trúc cho Hardware/E-commerce.
+9. **Quote-Led:** Lấy trích dẫn đánh giá thực tế của khách hàng (Testimonial) làm trục dẫn chuyện.
+10. **Specimen:** Bảng thông số kỹ thuật chia ngăn chuẩn xác cho IoT/Thư viện phần mềm.
+11. **Catalogue:** Danh mục dạng kho hàng có bộ lọc bên trái và danh sách thẻ bên phải.
+12. **Letter:** Thư ngỏ của nhà sáng lập (Founder's Letter) kèm chữ ký tay và ghi chú ngoài lề.
+13. **Index-First:** Mục lục danh bạ trung tâm, bấm đến đâu bung chi tiết đến đó.
+14. **Narrative Workflow:** Kể chuyện theo các bước trải nghiệm tuyến tính (Step 1 -> Step 2 -> Step 3).
+15. **Split Studio:** Chia đôi màn hình cố định: một bên ghim demo/canvas, một bên cuộn mô tả.
+16. **Feature Stack:** Các thẻ tính năng xếp chồng và dính chặt (sticky stack) khi cuộn.
+17. **Type Specimen:** Tôn vinh nghệ thuật sắp chữ và font chữ với kích cỡ tương phản mạnh.
+18. **Portfolio Grid:** Lưới trưng bày tác phẩm sole, thoáng đãng, chú thích tinh gọn.
+19. **Map / Diagram:** Bố cục lấy sơ đồ kiến trúc hoặc bản đồ tương tác làm tâm điểm.
+20. **Ecosystem Index:** Ma trận kết nối và logo tích hợp chứng minh tính tương thích.
+21. **Component Playground:** Khung cho phép người dùng kéo slider và test trực tiếp tính năng.

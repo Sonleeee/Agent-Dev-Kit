@@ -23,9 +23,9 @@ docs/
 
 # Project-specific context
 context/
-AGENTS.md
-AGENT.md
+/AGENT.md
 rule-overrides.approved.md
+!agents/**/AGENT.md
 
 # Analysis reports
 GRAPH_REPORT*.md

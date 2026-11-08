@@ -6,6 +6,7 @@ Parses Antigravity transcript.jsonl into turn-by-turn interaction trajectory.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import re
 import sys
@@ -27,7 +28,15 @@ def normalize_project_file(raw_path: str) -> str | None:
         return None
     cleaned = raw_path.strip().strip('"').strip("'").replace("\\\\", "/").replace("\\", "/")
     lower = cleaned.lower()
-    if "/.gemini/" in lower or "/appdata/" in lower or "transcript.jsonl" in lower:
+    if "/.gemini/" in lower or "transcript.jsonl" in lower:
+        return None
+    env_root = os.environ.get("ADK_PROJECT_ROOT")
+    if env_root:
+        norm_root = env_root.strip().replace("\\\\", "/").replace("\\", "/").rstrip("/").lower()
+        if lower.startswith(norm_root + "/"):
+            rel_env = cleaned[len(norm_root) + 1 :].lstrip("/")
+            return rel_env if rel_env else None
+    if "/appdata/" in lower:
         return None
     for marker in ("/agent-dev-kit/.agents/", "/agent-dev-kit/", "/.agents/"):
         idx = lower.find(marker)

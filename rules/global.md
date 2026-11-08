@@ -12,7 +12,7 @@ Mỗi rule được đánh dấu:
 
 ### Scope và cách kiểm chứng
 - Task rõ được implement trực tiếp; không bắt buộc tạo problem statement, scope record, plan artifact hoặc quality card.
-- Chỉ hỏi khi thiếu quyết định có thể đổi hành vi, phạm vi hoặc ranh giới an toàn. Giả định nhỏ, dễ đảo ngược có thể nêu ra và tiếp tục.
+- Chỉ hỏi khi thiếu quyết định có thể đổi hành vi, phạm vi hoặc ranh giới an toàn. Khi yêu cầu có nhiều cách hiểu hợp lệ, nêu rõ giả định (state assumptions explicitly) và trade-off thay vì âm thầm chọn ngầm; giả định nhỏ, dễ đảo ngược có thể nêu ra và tiếp tục.
 - Chọn build, lint, typecheck hoặc tests theo loại thay đổi, hướng dẫn repo và yêu cầu user. Không yêu cầu chạy toàn bộ bộ lệnh cho thay đổi không liên quan.
 - Báo chính xác lệnh đã chạy và kết quả. Không suy ra PASS từ code review hoặc từ một lệnh kiểm chứng chưa chạy.
 - Full code review và ship decision chỉ chạy khi user yêu cầu hoặc risk cần góc nhìn độc lập; rà diff ngắn vẫn thuộc bước hoàn tất bình thường.
@@ -67,9 +67,17 @@ Ràng buộc bắt buộc:
    định rõ ràng từ user. Một hàm chỉ được gọi 1 lần không cần wrapper.
 2. **Thứ tự ưu tiên giải pháp:** Built-in / standard library → tính năng có sẵn của
    framework → dependency đã cài sẵn trong project → mới cân nhắc thêm package mới.
-3. **Xóa trước, viết sau:** Khi refactor hoặc thêm tính năng, ưu tiên loại bỏ code
-   thừa, dead code, unused imports trước khi viết code mới.
-4. **Cấm design pattern cho single implementation:** Không áp dụng Factory, Strategy,
+3. **Surgical Changes & Dọn dẹp đúng ranh giới:** Chỉ chạm đúng dòng/hàm thuộc phạm vi
+   yêu cầu. Khi refactor hoặc sửa code, chỉ xóa orphan code/unused imports do **chính
+   thay đổi hiện tại tạo ra**; tuyệt đối không tự ý xóa pre-existing dead code ngoài
+   phạm vi hoặc reformat/đổi style các dòng lân cận làm nhiễu `git diff` (nếu phát hiện
+   dead code cũ, chỉ ghi chú báo cho user).
+4. **Chesterton's Fence (CodeGraph + Git Archeology trước khi xóa):** Trước khi xóa hoặc
+   sửa đổi một đoạn code/workaround cũ trông có vẻ "thừa thãi hoặc kỳ quặc", bắt buộc
+   kiểm tra 2 chiều để hiểu tường tận lý do nó tồn tại:
+   - **Call Graph:** Gọi `mcp__codegraph.codegraph_callers` / `codegraph_explore` để xem nơi nào đang phụ thuộc vào nó.
+   - **Git History:** Chạy `git blame -L <start>,<end> <file>` hoặc `git log -S "<symbol>" -p` để biết ai là người commit, thời điểm và nguyên nhân gốc (bugfix/edge case lịch sử) khiến dòng code đó được dựng lên. Chưa hiểu rõ lý do tồn tại thì tuyệt đối không xóa.
+5. **Cấm design pattern cho single implementation:** Không áp dụng Factory, Strategy,
    Observer, Mediator hoặc bất kỳ pattern nào khi chỉ có duy nhất 1 concrete
    implementation và không có kế hoạch mở rộng rõ ràng trong scope hiện tại.
 

@@ -37,6 +37,12 @@ Bản Spec kỹ thuật phải định rõ các nội dung sau (nếu liên quan
 4.  **Validation Rules:**
     - Các luật ràng buộc dữ liệu đầu vào (ví dụ: FluentValidation trong C# hoặc Zod Schema trong JS).
     - Các thông điệp báo lỗi (Error Messages).
+5.  **Shadow Paths & Error Rescue Matrix (Chống chỉ vẽ Happy Path):**
+    - Mọi luồng dữ liệu/API quan trọng phải chỉ rõ cách hệ thống xử lý 4 nhánh bóng tối:
+      - `Nil / Null / Missing Input`: Dữ liệu đầu vào hoặc bản ghi phụ thuộc không tồn tại.
+      - `Empty / Zero State`: Danh sách rỗng, chuỗi rỗng, hoặc giá trị biên bằng `0`.
+      - `Upstream Timeout / External Failure`: DB chậm, dịch vụ bên thứ ba/API ngoài lỗi hoặc quá thời gian chờ.
+      - `Concurrent Race / Idempotency`: Người dùng bấm đúp 2 lần liên tiếp hoặc 2 tiến trình cùng cập nhật 1 bản ghi.
 
 ### Bước 3: Chốt quyết định còn thuộc về người dùng
 Nếu user yêu cầu spec-only/approval gate, dừng sau khi trình spec. Nếu yêu cầu
@@ -52,5 +58,5 @@ Khi cần approval, nêu rõ:
 ## 🛡️ Guardrails
 
 *   Spec không phải điều kiện bắt buộc cho task thông thường.
-*   **Đúng trọng tâm kỹ thuật:** Spec tập trung vào cấu trúc code, DB, API, validation — không viết lan man sang phân tích nghiệp vụ dài dòng.
+*   **Đúng trọng tâm kỹ thuật:** Spec tập trung vào cấu trúc code, DB, API, validation và shadow paths — không viết lan man sang phân tích nghiệp vụ dài dòng.
 *   **Bám sát template dự án:** Đọc kỹ `.agents/context/templates/` (nếu có) để định nghĩa cấu trúc Spec đúng chuẩn dự án.

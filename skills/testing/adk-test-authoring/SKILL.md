@@ -8,10 +8,14 @@ description: Viết hoặc mở rộng automated tests khi người dùng yêu c
 ## Cách làm
 
 1. Xác định behavior cần bảo vệ và convention test đang dùng trong repo.
-2. Ưu tiên các trường hợp có ý nghĩa: happy path quan trọng, boundary/error path
+2. **The Beyoncé Rule ("Nếu hành vi đó quan trọng, phải đặt một bài test tự động lên nó"):**
+   Ưu tiên bảo vệ các bất biến nghiệp vụ cốt lõi, happy path quan trọng, boundary/error path
    liên quan và regression đã biết. Không tạo quota hoặc test cho mọi tổ hợp input.
-3. Viết test nhỏ, độc lập, dễ đọc; dùng fixture/factory hiện có thay vì thêm framework
-   hoặc abstraction mới.
+3. **Ưu tiên DAMP hơn DRY trong Unit Test (Descriptive And Meaningful Phrases over DRY):**
+   Viết từng bài test nhỏ, độc lập, tự chứa đầy đủ ngữ cảnh `Arrange-Act-Assert` để khi
+   test đỏ có thể đọc hiểu ngay tại chỗ; dùng fixture/factory đơn giản hiện có nhưng tuyệt
+   đối không gom chung helper/vòng lặp/if-else phức tạp bên trong code test khiến bài test
+   mất tính tường minh.
 4. Chạy test mục tiêu nếu môi trường cho phép. Chỉ mở rộng sang suite lớn hơn khi
    thay đổi hoặc yêu cầu cần thiết.
 5. Báo test nào đã thêm, lệnh đã chạy, kết quả và giới hạn còn lại.

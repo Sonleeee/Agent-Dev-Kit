@@ -65,11 +65,11 @@ flowchart TD
 
 ### Bước 2: Auto Plan (`Main Agent`)
 - Thiết lập kế hoạch phẫu thuật tối thiểu (Minimal Change Principle).
-- Xác định phạm vi file cần tác động (`files_changed`), blast radius và lệnh kiểm chứng mục tiêu (`verified_cmd`).
+- Xác định phạm vi thư mục khóa cứng (`freeze_scope`), danh sách file cần tác động (`files_changed`), blast radius và lệnh kiểm chứng mục tiêu (`verified_cmd`).
 - Nếu `--fast`: lập plan tóm tắt trong bộ nhớ, không tạo execution contract dài dòng.
 
 ### Bước 3: Auto Implement (`worker`)
-- Worker thực thi sửa đổi chính xác theo phạm vi được giao.
+- Worker thực thi sửa đổi chính xác bên trong `freeze_scope` được giao (được phép đọc toàn repo nhưng chỉ ghi trong vùng `freeze_scope`).
 - Nếu có cờ `--tdd`: viết failing test trước, sửa code tối thiểu để pass, dọn sạch code thừa (Ponytail Rule).
 - Không tự ý refactor ngoài phạm vi được chỉ định.
 
@@ -91,6 +91,16 @@ Agent **BẮT BUỘC** dừng quy trình và yêu cầu user xác nhận khi g�
 2. **Xung đột kiến trúc (Architecture Conflict):** Code thực tế mâu thuẫn sâu sắc với spec hoặc yêu cầu đòi hỏi phá vỡ API contract hiện hành.
 3. **Vòng lặp sửa lỗi thất bại (Infinite Repair Loop):** Verifier báo fail $\ge 3$ lần liên tiếp trên cùng một nguyên nhân lỗi mà Worker không giải quyết được.
 4. **Hành động có rủi ro cao ngoài ý muốn:** Cần drop database table, xóa vĩnh viễn dữ liệu, hoặc push code lên production remote.
+
+---
+
+## 🧭 5 Luật Điều Phối Main Agent Orchestrator (K2 Harness Laws)
+
+1. **Inline-First cho tác vụ cục bộ:** Nếu task chỉ chạm $\le 3$ file đã biết rõ vị trí, Main Agent tự thực thi inline, không spawn subagent gây tốn token và độ trễ.
+2. **Ủy quyền Mục tiêu Thay vì Kịch bản (Goal over Micromanagement):** Khi dùng `--subagents`, giao cho `scout`/`worker` mục tiêu, `freeze_scope` và `verified_cmd` cần đạt, không viết kịch bản từng lệnh nhỏ trói tay subagent.
+3. **Ngắt Mạch Sớm (Fail-Fast / 3-Strike Stop):** Nếu `worker` hoặc vòng lặp inline fail cùng một lỗi đến lần thứ 3 liên tiếp, bắt buộc dừng sửa, revert phần thử nghiệm hỏng và kích hoạt Auto-Pause hoặc đổi chiến thuật.
+4. **Không Che Giấu Lỗi (No Silent Failure):** Mọi lỗi từ `verifier`/`critic` phải được xử lý tường minh hoặc ghi nhận rõ vào `Open Risks`, tuyệt đối không hạ cấp test/linter để ép pass.
+5. **Kiểm Định Độc Lập Trước Khi Ship:** Chỉ xuất `status: SHIP` khi `verified_cmd` thực sự chạy pass trên mã nguồn hiện tại.
 
 ---
 

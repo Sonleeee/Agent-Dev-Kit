@@ -12,6 +12,11 @@ from pathlib import Path
 import sys
 from typing import Any
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
 sys.dont_write_bytecode = True
 
 # Ensure ADK root is in sys.path
@@ -27,6 +32,7 @@ from tools.evolution import (
     hash_content,
     cmd_init,
     cmd_inspect,
+    cmd_recall,
     cmd_log_session,
     cmd_log_step,
     cmd_log_friction,
@@ -43,6 +49,7 @@ from tools.evolution import (
 COMMANDS = {
     "init": cmd_init,
     "inspect": cmd_inspect,
+    "recall": cmd_recall,
     "log_session": cmd_log_session,
     "log_step": cmd_log_step,
     "log_friction": cmd_log_friction,
@@ -65,6 +72,7 @@ def print_help() -> None:
         "commands": {
             "init": "Apply SQL schema and initialize database",
             "inspect": "Traverse Zero-RAG Entity Graph via Recursive CTE (e.g., inspect 'parser.py' or inspect)",
+            "recall": "Conditional 2-aspect experience recall (what_went_wrong + how_to_resolve) with Time-Decay & fs_exists pruning",
             "log_session": "Upsert session metadata (id, project, user_intent, workflow_used, outcome)",
             "log_step": "Append step to trace (trace_id, step_type, description, tool_used, tokens, outcome)",
             "log_friction": "Record friction point (trace_id, category, description, severity, related_skill, related_file)",

@@ -8,6 +8,7 @@ from __future__ import annotations
 import hashlib
 import os
 from pathlib import Path
+import re
 import sqlite3
 import sys
 from typing import Any
@@ -28,8 +29,7 @@ def cmd_init(args: Any = None) -> dict[str, Any]:
     """Initialize evolution database and apply SQL schema."""
     db_path = get_db_path()
     schema_file = get_schema_path()
-    with sqlite3.connect(str(db_path)) as conn:
-        ensure_schema_migrations(conn)
+    with get_connection(db_path) as conn:
         conn.executescript(schema_file.read_text(encoding="utf-8"))
     return {"status": "ok", "message": "Database initialized successfully", "db_path": str(db_path)}
 
@@ -346,8 +346,11 @@ def cmd_inspect(args: Any = None) -> dict[str, Any]:
     clean_target = target_str.replace("\\\\", "/").replace("\\", "/").strip("/")
 
     with get_connection() as conn:
+        # Zero-Daemon In-Query Pruning: remove deleted file nodes (cascades to graph_edges)
+        conn.execute("DELETE FROM graph_nodes WHERE node_type = 'file' AND fs_exists(name) = 0;")
+
         if not clean_target:
-            # Return top hotspots across the graph sorted by hit_count DESC
+            # Return top hotspots across the graph sorted by Time-Decayed effective_score DESC
             cur = conn.execute(
                 """
                 SELECT
@@ -360,11 +363,16 @@ def cmd_inspect(args: Any = None) -> dict[str, Any]:
                     t.name AS target_name,
                     t.summary AS target_summary,
                     e.hit_count,
+                    ROUND(
+                        CAST(e.hit_count AS REAL) /
+                        (1.0 + 0.1 * MAX(0.0, julianday('now') - julianday(COALESCE(e.last_seen, 'now')))),
+                        2
+                    ) AS effective_score,
                     e.last_seen
                 FROM graph_edges e
                 JOIN graph_nodes s ON s.id = e.source_id
                 JOIN graph_nodes t ON t.id = e.target_id
-                ORDER BY e.hit_count DESC, e.last_seen DESC
+                ORDER BY effective_score DESC, e.hit_count DESC, e.last_seen DESC
                 LIMIT 25;
                 """
             )
@@ -448,11 +456,16 @@ def cmd_inspect(args: Any = None) -> dict[str, Any]:
             gn.name AS to_name,
             gn.summary AS to_summary,
             gw.hit_count,
+            ROUND(
+                CAST(gw.hit_count AS REAL) /
+                (1.0 + 0.1 * MAX(0.0, julianday('now') - julianday(COALESCE(gw.last_seen, 'now')))),
+                2
+            ) AS effective_score,
             gw.last_seen,
             gw.path
         FROM graph_walk gw
         JOIN graph_nodes gn ON gn.id = gw.neighbor_id
-        ORDER BY gw.depth ASC, gw.hit_count DESC, gw.last_seen DESC
+        ORDER BY gw.depth ASC, effective_score DESC, gw.hit_count DESC, gw.last_seen DESC
         LIMIT 50;
         """
         walk_cur = conn.execute(cte_sql, [*root_ids, max_hops])
@@ -536,11 +549,13 @@ def cmd_get_preferences(args: Any = None) -> dict[str, Any]:
 
 
 def cmd_sync_profile(args: Any = None) -> dict[str, Any]:
-    """Synchronize high-confidence developer preferences into ~/.agents/developer.md."""
+    """Explicitly synchronize approved developer preferences into ~/.agents/developer.md without truncating trailing sections."""
     min_conf = 0.6
+    target_path_str: str | None = None
     if isinstance(args, dict):
         min_conf = float(args.get("min_confidence", 0.6))
-    profile_path = Path.home() / ".agents" / "developer.md"
+        target_path_str = args.get("profile_path")
+    profile_path = Path(target_path_str).expanduser().resolve() if target_path_str else Path.home() / ".agents" / "developer.md"
     profile_path.parent.mkdir(parents=True, exist_ok=True)
 
     with get_connection() as conn:
@@ -553,23 +568,32 @@ def cmd_sync_profile(args: Any = None) -> dict[str, Any]:
     if not prefs:
         return {"status": "ok", "message": "No high-confidence preferences to sync", "synced": 0}
 
-    section_header = "## Auto-Learned Preferences (from Evolution DB)"
+    start_marker = "<!-- ADK_PROFILE_PREFS_START -->"
+    end_marker = "<!-- ADK_PROFILE_PREFS_END -->"
+    section_header = "## Distilled Preferences (from Evolution DB)"
     lines = [
-        f"\n{section_header}",
-        "> Tự động đồng bộ từ ~/.adk/evolution.db qua session_curator.",
+        start_marker,
+        section_header,
+        "> Chắt lọc có kiểm duyệt từ lịch sử tương tác trong ~/.adk/evolution.db.",
         "",
     ]
     for p in prefs:
         lines.append(f"- **{p['preference_key']}**: {p['preference_value']} *(confidence: {p['confidence']:.2f}, confirmed: {str(p['last_confirmed'])[:10]})*")
-    lines.append("")
-    new_section = "\n".join(lines)
+    lines.append(end_marker)
+    new_block = "\n".join(lines)
 
     existing_content = profile_path.read_text(encoding="utf-8") if profile_path.exists() else ""
-    if section_header in existing_content:
-        prefix = existing_content.split(section_header)[0].rstrip()
-        updated_content = f"{prefix}\n{new_section}".strip() + "\n"
+    if start_marker in existing_content and end_marker in existing_content:
+        pattern = re.compile(rf"{re.escape(start_marker)}[\s\S]*?{re.escape(end_marker)}")
+        updated_content = pattern.sub(new_block, existing_content).strip() + "\n"
+    elif "## Auto-Learned Preferences (from Evolution DB)" in existing_content:
+        legacy_pat = re.compile(
+            r"^## Auto-Learned Preferences \(from Evolution DB\).*?(?=^## |\Z)",
+            re.MULTILINE | re.DOTALL,
+        )
+        updated_content = legacy_pat.sub(new_block + "\n\n", existing_content).strip() + "\n"
     else:
-        updated_content = (existing_content.rstrip() + "\n" + new_section).strip() + "\n"
+        updated_content = (existing_content.rstrip() + "\n\n" + new_block).strip() + "\n"
 
     profile_path.write_text(updated_content, encoding="utf-8")
     return {"status": "ok", "profile_path": str(profile_path), "synced_count": len(prefs)}

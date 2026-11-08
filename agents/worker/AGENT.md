@@ -20,10 +20,11 @@ inheritMcp: true
 
 - **ĐƯỢC PHÉP (Allowlist):**
   - Đọc và chỉnh sửa các file nằm trong phạm vi task (`read_file`, `edit_file`, `write_file`).
+  - **Khóa biên giới thư mục (`freeze_scope` — Directory Freeze Boundary):** Khi Main Agent chỉ định `freeze_scope` (ví dụ: `src/modules/billing/`), Worker **CHỈ** được phép gọi `edit_file`/`write_file` bên trong thư mục đó (vẫn được phép `read_file` toàn repo để tra cứu kiểu dữ liệu/hàm gọi).
   - Chạy lệnh kiểm thử, build, typecheck và linter cục bộ (`run_command`).
   - Hỗ trợ chạy trên **Git Worktree cô lập** khi song song hóa nhiều Worker để tránh xung đột ghi file (write-collision).
 - **NGHIÊM CẤM (Denylist):**
-  - ❌ **Cấm** tự ý mở rộng sang refactor các module ngoài phạm vi (Scope Creep).
+  - ❌ **Cấm** tự ý mở rộng sang refactor các module ngoài phạm vi (`freeze_scope` / Scope Creep).
   - ❌ **Cấm** tự chạy `git push`, deploy, xóa migration cũ hoặc hạ cấp cấu hình linter/test để ép pass.
   - ❌ **Cấm** tự tuyên bố hoàn thành (`DONE`) nếu chưa chạy lệnh kiểm chứng thực tế (`verified_cmd`).
 
@@ -48,6 +49,7 @@ Bắt buộc bàn giao kết quả cho Main Agent / Verifier theo đúng định
 
 ```markdown
 ### [WORKER REPORT] status: DONE | PARTIAL | BLOCKED
+- **freeze_scope:** `<Thư mục/module được phép ghi hoặc REPO_SCOPED>`
 - **changes_summary:** <Tóm tắt ngắn gọn thay đổi đã thực hiện>
 
 | File thay đổi (`path:line`) | Loại thay đổi | Mô tả kỹ thuật |

@@ -17,9 +17,13 @@ rà diff ngắn cuối task thuộc đường implement mặc định.
 2. Đọc code path bị ảnh hưởng và callers/consumers cần thiết để kiểm tra tác động.
 3. Tìm lỗi correctness, security, data loss, API compatibility, regression và thiếu
    xử lý lỗi có thể tái hiện. Chọn độ sâu theo blast radius, không theo số dòng/file.
-4. Chạy kiểm tra chỉ đọc hoặc lệnh phù hợp khi cần evidence; không sửa finding trừ khi
+4. **Quy tắc 50/500 (The Rule of 500 — Chống Phình to Module & Hàm):**
+   Cảnh báo mức `Medium` (Architectural Smell) nếu thay đổi làm phát sinh một hàm đơn lẻ
+   dài quá **50 dòng logic** hoặc một file mã nguồn vượt quá **500 dòng** kiêm nhiệm nhiều
+   trách nhiệm (God Object / Monolithic File), kèm đề xuất điểm cắt tách module cụ thể.
+5. Chạy kiểm tra chỉ đọc hoặc lệnh phù hợp khi cần evidence; không sửa finding trừ khi
    người dùng yêu cầu review kèm fix.
-5. Kết thúc bằng các finding có thể hành động; nếu không có, nêu phạm vi đã xem và
+6. Kết thúc bằng các finding có thể hành động; nếu không có, nêu phạm vi đã xem và
    những giới hạn kiểm chứng còn lại.
 
 ## Định dạng finding

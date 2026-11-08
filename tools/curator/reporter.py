@@ -14,13 +14,22 @@ from typing import Any
 sys.dont_write_bytecode = True
 
 
+def _strip_noise_from_prompt(msg: str) -> str:
+    """Strip fenced code blocks, markdown blockquotes, and URLs before counting natural developer words."""
+    text = re.sub(r"```[\s\S]*?```", " ", msg)
+    text = re.sub(r"^>.*$", " ", text, flags=re.MULTILINE)
+    text = re.sub(r"https?://\S+", " ", text)
+    return text.strip()
+
+
 def analyze_dev_style(user_messages: list[str]) -> list[dict[str, Any]]:
-    """Extract high-confidence communication density signals without hardcoded keyword pollution."""
+    """Extract communication density signals on clean natural text (never auto-synced without review)."""
     preferences: list[dict[str, Any]] = []
-    if not user_messages:
+    cleaned_msgs = [_strip_noise_from_prompt(m) for m in user_messages if m and _strip_noise_from_prompt(m)]
+    if not cleaned_msgs:
         return preferences
 
-    avg_words = sum(len(m.split()) for m in user_messages) / len(user_messages)
+    avg_words = sum(len(m.split()) for m in cleaned_msgs) / len(cleaned_msgs)
     if avg_words <= 18:
         preferences.append({
             "key": "communication.prompt_density",
@@ -116,9 +125,15 @@ def write_runtime_artifacts(
         "",
         "## 4. Friction & Failed Approaches to Avoid",
     ])
-    errs = data.get("errors_encountered", [])[-6:]
-    if errs:
-        for e in errs:
+    all_errs = data.get("errors_encountered", [])
+    pivots = [e for e in all_errs if e.get("category") == "user_correction"][-4:]
+    tool_errs = [e for e in all_errs if e.get("category") != "user_correction"][-4:]
+    if pivots or tool_errs:
+        for p in pivots:
+            clean_p = str(p.get("content", "")).replace("\n", " ")[:180]
+            file_tag = f" on `{p['related_file']}`" if p.get("related_file") else ""
+            handoff_lines.append(f"- 🚨 **[USER_PIVOT — Tuyệt đối không lặp lại]**{file_tag} (Step {p.get('step_index')}): {clean_p}")
+        for e in tool_errs:
             clean_err = str(e.get("content", "")).replace("\n", " ")[:160]
             fp_tag = e.get("fingerprint") or e.get("category", "error")
             file_tag = f" on `{e['related_file']}`" if e.get("related_file") else ""
@@ -134,8 +149,9 @@ def write_runtime_artifacts(
         ])
         for fg in guardrails:
             sk_note = f" | Skills: `{fg['impl_skills']}`" if fg.get("impl_skills") else ""
+            score_note = f", score={fg['effective_score']}" if fg.get("effective_score") is not None else ""
             handoff_lines.append(
-                f"- **`{fg['file_path']}`** (`{fg['friction_type']}` x{fg['hit_count']}): {fg['how_to_operate']}{sk_note}"
+                f"- **`{fg['file_path']}`** (`{fg['friction_type']}` x{fg['hit_count']}{score_note}): {fg['how_to_operate']}{sk_note}"
             )
 
     handoff_path.write_text("\n".join(handoff_lines) + "\n", encoding="utf-8")

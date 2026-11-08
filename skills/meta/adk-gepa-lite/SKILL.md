@@ -457,3 +457,53 @@ ORDER BY succeeded DESC;
 
 **Output:** Đề xuất thay đổi `preferred_mutations` hoặc `avoid_mutations` trong
 config/evolution.toml, kèm evidence. Chỉ cập nhật file khi maintainer chọn rõ đề xuất.
+
+
+---
+
+## Phase P: Chắt lọc & Cập nhật `developer.md` từ Lịch sử Thao tác (On-Demand Profile Distillation)
+
+Hệ thống ADK **không tự động đoán hay ghi đè ngầm** `~/.agents/developer.md` sau mỗi lượt chat (vì đếm chữ/regex tự động dễ sinh nhiễu). File `developer.md` ban đầu được khởi tạo trống. Sau một thời gian làm việc, khi Developer chủ động yêu cầu *"chắt lọc gu làm việc / cập nhật developer.md"*, Coding Agent thực hiện 4 bước sau:
+
+### Bước 1: Thu thập Lịch sử Thao tác & Các lần Sửa lưng (`USER_PIVOT`)
+Chạy truy vấn trên `~/.adk/evolution.db` và đọc `.agents/runtime/session-journal.md`:
+```sql
+-- 1. Lấy các lần Developer trực tiếp uốn nắn / sửa lưng Agent (Tín hiệu quý giá nhất)
+SELECT fp.trace_id, fp.description, fp.related_file, t.created_at
+FROM friction_points fp
+JOIN traces t ON t.id = fp.trace_id
+WHERE fp.category = 'user_correction'
+ORDER BY t.created_at DESC
+LIMIT 30;
+
+-- 2. Lấy chuỗi lượt tương tác (prompts & bước thực thi) gần nhất
+SELECT s.project, ts.trace_id, ts.step_order, ts.step_type, ts.input_summary, ts.outcome, ts.friction_note
+FROM trace_steps ts
+JOIN traces t ON t.id = ts.trace_id
+JOIN sessions s ON s.id = t.session_id
+ORDER BY t.created_at DESC, ts.step_order ASC
+LIMIT 60;
+```
+
+### Bước 2: Phân tích & Phân tầng bằng LLM (Tách biệt Con người vs. Dự án)
+Đọc ngữ cảnh thực tế từ các câu lệnh của Developer (bỏ qua các khối code/log dán vào) và phân loại thành 2 nhóm:
+1. **Gu Cá nhân Toàn cục (`~/.agents/developer.md`):**
+   - Phong cách giao tiếp, độ cô đọng, cách trình bày bảng/sơ đồ, ngôn ngữ trao đổi, thói quen kiểm chứng (ví dụ: *"luôn đòi evidence thực tế"*, *"không thích tự động hóa ngầm thiếu chính xác"*, *"ưu tiên chọn 1 cơ chế gọn nhất thay vì fallback rườm rà"*).
+2. **Quy ước Kỹ thuật Cục bộ theo Dự án (`.agents/developer.local.md` hoặc `AGENTS.md`):**
+   - Các quy tắc gắn chặt với ngôn ngữ/framework của riêng repo hiện tại.
+
+### Bước 3: Trình Bảng Đề Xuất (Diff Preview) kèm Bằng chứng
+Trình bày rõ cho Developer duyệt trước khi chạm vào file:
+```markdown
+## 🧑‍💻 Đề xuất Cập nhật Hồ sơ Developer (Từ N phiên tương tác)
+
+| Mục đề xuất | Phân loại đích | Bằng chứng từ lịch sử thao tác (`trace_id` / Lượt nhắc) |
+|---|---|---|
+| Ưu tiên 1 cơ chế đơn giản nhất (Zero-Fallback) | `~/.agents/developer.md` (Mục 2) | Nhắc trực tiếp ở phiên `sess_conv_c3c2f8b2`: *"1 trong 2 thôi, fallback chi cho cực"* |
+| Luôn kèm Ground-Truth Evidence (`file:line`) | `~/.agents/developer.md` (Mục 1) | Nhắc ở phiên `sess_conv_c3c2f8b2`: *"check kĩ lại rồi đưa tôi evidence nhé"* |
+```
+
+### Bước 4: Cập nhật File sau khi Developer Duyệt
+Chỉ sau khi Developer xác nhận đồng ý:
+- Cập nhật trực tiếp vào các đề mục tương ứng trong `~/.agents/developer.md` (hoặc `.agents/developer.local.md`).
+- Nếu Developer muốn lưu thêm vào bảng `user_preferences`, gọi `py tools/evolution_db.py log_preference` và `py tools/evolution_db.py sync_profile` (cập nhật an toàn trong cặp thẻ `<!-- ADK_PROFILE_PREFS_START/END -->`, bảo toàn 100% nội dung bên ngoài).

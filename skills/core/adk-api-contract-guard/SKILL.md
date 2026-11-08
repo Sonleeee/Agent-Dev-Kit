@@ -46,6 +46,12 @@ Phát hiện breaking change trước khi ship, tránh FE/BE drift không kiểm
 - [ ] Filter params có thay đổi tên hoặc behavior?
 - [ ] Default values của filter có thay đổi?
 
+### Hyrum's Law (Hành vi Ngầm định — Implicit Behavioral Contract)
+> *"Với một số lượng người dùng đủ lớn, mọi hành vi quan sát được của hệ thống đều sẽ có bên phụ thuộc vào nó, bất kể tài liệu chính thức viết gì."*
+- [ ] Thứ tự sắp xếp mặc định (default sort order) của danh sách trả về có bị thay đổi không?
+- [ ] Định dạng chuỗi lỗi (`error message` / `error code`), định dạng ngày giờ (ISO-8601 timezone `Z` vs `+07:00`) có bị đổi ngầm không?
+- [ ] Hành vi phân biệt hoa-thường (case-sensitivity) hoặc tự động `trim()` khoảng trắng của tham số đầu vào có thay đổi không?
+
 ## Output
 Dùng template `templates/api-contract-checklist.md.template`.
 

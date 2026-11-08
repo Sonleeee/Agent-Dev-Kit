@@ -15,6 +15,7 @@ from .connection import (
     hash_content,
     upsert_graph_link,
 )
+from .recall import cmd_recall
 from .repositories import (
     cmd_get_preferences,
     cmd_health,
@@ -41,6 +42,7 @@ __all__ = [
     "upsert_graph_link",
     "cmd_init",
     "cmd_inspect",
+    "cmd_recall",
     "cmd_log_session",
     "cmd_log_step",
     "cmd_log_friction",

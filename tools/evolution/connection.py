@@ -69,11 +69,46 @@ def ensure_schema_migrations(conn: sqlite3.Connection) -> None:
     )
 
 
+def get_project_root() -> Path:
+    """Return active project root from ADK_PROJECT_ROOT or default kit root."""
+    env_root = os.environ.get("ADK_PROJECT_ROOT")
+    if env_root:
+        return Path(env_root).expanduser().resolve()
+    return Path(__file__).resolve().parent.parent.parent
+
+
+def _sql_fs_exists(rel_path: str | None) -> int:
+    """SQLite scalar UDF: check if a relative file path exists on disk (1=exists, 0=missing)."""
+    if not rel_path or not isinstance(rel_path, str):
+        return 0
+    try:
+        clean = rel_path.strip().replace("\\", "/").lstrip("/")
+        if not clean:
+            return 0
+        cand = Path(clean)
+        if cand.is_absolute():
+            return 1 if cand.exists() else 0
+        return 1 if (get_project_root() / clean).exists() else 0
+    except Exception:
+        return 0
+
+
+class _ClosingConnection(sqlite3.Connection):
+    """SQLite connection subclass that closes the file handle upon exiting a context manager."""
+
+    def __exit__(self, exc_type: object, exc_val: object, exc_tb: object) -> bool:
+        try:
+            return super().__exit__(exc_type, exc_val, exc_tb)  # type: ignore[arg-type]
+        finally:
+            self.close()
+
+
 def get_connection(db_path: Path | None = None) -> sqlite3.Connection:
-    """Open SQLite connection with Row factory, foreign keys, and schema migrations enabled."""
-    conn = sqlite3.connect(str(db_path or get_db_path()))
+    """Open SQLite connection with Row factory, foreign keys, UDFs, and schema migrations enabled."""
+    conn = sqlite3.connect(str(db_path or get_db_path()), factory=_ClosingConnection)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON;")
+    conn.create_function("fs_exists", 1, _sql_fs_exists)
     ensure_schema_migrations(conn)
     return conn
 

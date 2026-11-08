@@ -1,42 +1,26 @@
 # Developer Personal Profile
 
-> File này định hình phong cách làm việc, gu code và sở thích cá nhân của Developer.
-> Lưu toàn cục tại: ~/.agents/developer.md (Windows: %USERPROFILE%\.agents\developer.md)
-> Hoặc lưu local theo dự án tại: .agents/developer.local.md (đã được .gitignore).
+> File này lưu phong cách làm việc, gu giao tiếp và sở thích cá nhân của Developer.
+> - **Vị trí toàn cục (Global):** `~/.agents/developer.md` (Windows: `%USERPROFILE%\.agents\developer.md`)
+> - **Vị trí cục bộ theo dự án (Project-Local):** `.agents/developer.local.md` (đã được `.gitignore`)
+>
+> **Nguyên tắc vận hành (Zero Auto-Overwrite):**
+> File này khởi tạo ở trạng thái **trống** để không áp đặt giả định sai lệch. Hệ thống **không** tự động ghi đè ngầm sau mỗi lượt chat.
+> Sau một thời gian làm việc với Coding Agent, hãy gọi skill **`adk-gepa-lite`** (chế độ *Distill Developer Profile*) để Agent đọc lại lịch sử tương tác thực tế (`evolution.db` & `session-journal.md`), chắt lọc gu cá nhân và trình bạn duyệt trước khi cập nhật vào đây.
 
 ---
 
-## 1. Interaction & Tone
+## 1. Interaction & Communication Style
+<!-- Ghi nhận cách bạn muốn Agent trao đổi, trình bày báo cáo, ngôn ngữ, độ chi tiết... -->
 
-### Communication Profile & Presets
-- **Preset:** `adhd-flow` <!-- Mặc định ADK: adhd-flow (Tầng Chat Action-First) + cavecrew (Tầng Subagent nén token). Tùy chọn khác: standard | concise | caveman | adhd-caveman -->
-  - `adhd-flow` (Mặc định ADK): Tầng Chat hướng tới hành động ngay (Action-First), chia nhỏ bước đánh số ≤ 5 mục, dòng 1 là kết quả/hành động, kết thúc với 1 việc tiếp theo < 2 phút. Tầng Subagent ngầm tự động dùng Cavecrew nén token.
-  - `standard`: Đầy đủ bối cảnh, giải thích cân bằng, văn phong chuẩn mực.
-  - `concise`: Đi thẳng vào vấn đề, ngắn gọn, súc tích, lược bỏ bối cảnh thừa.
-  - `caveman`: Cô đọng cao độ, triệt tiêu nghi thức, giữ nguyên 100% code/command (xem `skills/core/adk-caveman`).
-  - `adhd-caveman` (Khuyên dùng khi debug/terminal): **Hybrid tối thượng** — Vừa định hình theo cấu trúc hành động của ADHD, vừa nén từ ngữ ở mức cực hạn (Ultracave).
+## 2. Coding & Architectural Preferences
+<!-- Ghi nhận gu thiết kế, nguyên tắc viết code, cách tổ chức hàm/module ưa thích... -->
 
-### Kiến trúc 2 tầng (Dual-Surface Architecture)
-- **User Interface Mode (Tầng Ngoài):** `adhd-flow` <!-- Tùy chọn: adhd-flow | concise | standard | caveman | hybrid -->
-- **Subagent Delegation Mode (Tầng Trong):** `caveman` <!-- Giao thức Cavecrew nén 75% token, khóa cứng verified_cmd -->
-- **Evidence Storage Strategy:** `artifact-first` <!-- Báo tóm tắt verified_cmd trong chat, full logs/traces lưu vào execution-contract.md -->
-- **Heuristic Auto-Sensing:** `enabled` <!-- Tự động mở rộng phân tích khi có từ khóa "evidence", "chi tiết", "case study" hoặc debug fail > 2 lần -->
+## 3. Workflow & Tooling Habits
+<!-- Ghi nhận thói quen sử dụng công cụ, cách chạy test, mức độ tự chủ của Agent... -->
 
-### Quy ước ngôn ngữ & Giải thích
-- **Explanations:** Không giải thích cú pháp hoặc những điều hiển nhiên trừ khi được hỏi cụ thể.
-- **Language:** Tiếng Việt cho trao đổi và commit messages; Tiếng Anh cho code, biến, hàm và comments kỹ thuật.
+## 4. Git & Delivery Conventions
+<!-- Ghi nhận quy ước commit, kiểm soát phạm vi thay đổi (scope control)... -->
 
-## 2. Coding Style & Paradigm
-- **Paradigm:** Ưu tiên Functional programming, immutability, pure functions khi có thể.
-- **Pattern:** Luôn áp dụng Early-return pattern, tránh lồng if-else quá 2 cấp (Guard clauses first).
-- **Naming Conventions:** Rõ nghĩa, tránh viết tắt tối nghĩa (ví dụ: `customerRepository` thay vì `repo`).
-- **Simplicity:** Tối giản (YAGNI, KISS), không tạo abstraction quá sớm khi chưa cần thiết.
-
-## 3. Formatting & Structure
-- **Functions:** Ưu tiên syntax ngắn gọn, rõ ràng theo chuẩn hiện đại của ngôn ngữ.
-- **Imports:** Nhóm imports theo thứ tự: Thư viện chuẩn/Third-party -> Internal modules -> Relative paths.
-- **Code Comments:** Chỉ comment lý do tại sao (Why), không comment mô tả lại code làm gì (What).
-
-## 4. Git & Delivery
-- **Commit Format:** Conventional Commits (ví dụ: `feat: ...`, `fix: ...`, `refactor: ...`, `test: ...`).
-- **Scope Control:** Tuyệt đối không tự ý format hoặc sửa đổi các file nằm ngoài phạm vi task hiện tại.
+<!-- ADK_PROFILE_PREFS_START -->
+<!-- ADK_PROFILE_PREFS_END -->

@@ -14,8 +14,15 @@ description: Điều tra lỗi khi symptom chưa đủ rõ để chọn cách s�
    Không cần tạo số lượng giả thuyết tối thiểu.
 4. Xác định layer/nguyên nhân gốc trước khi sửa. Nếu evidence chưa đủ, nêu điều còn
    thiếu hoặc hỏi đúng câu có thể thay đổi diagnosis.
-5. Sửa nguyên nhân trong scope, thêm regression test khi phù hợp, rồi chạy reproduction
-   hoặc kiểm chứng sát nhất.
+5. **Khóa vùng sửa (`freeze_scope` — Directory Freeze Boundary):** Ngay sau khi khoanh vùng
+   được thư mục/module chứa nguyên nhân gốc, tự khóa phạm vi chỉnh sửa vào đúng thư mục đó;
+   tuyệt đối không sửa lan sang các thư mục lân cận khi đang thử nghiệm bản vá, kết hợp
+   thêm regression test và chạy kiểm chứng sát nhất.
+6. **Quy tắc 3-Strike Architecture Stop (Ngắt mạch sau 3 lần thử sai):** Nếu đã thử sửa
+   tới lần thứ 3 liên tiếp cho cùng một lỗi mà lệnh kiểm chứng vẫn thất bại, **bắt buộc
+   DỪNG sửa code ngay lập tức**. Hoàn tác các thay đổi thử nghiệm bị hỏng, báo cáo rõ 3
+   giả thuyết đã thử và thảo luận lại với người dùng vì đây thường là lệch giả định kiến
+   trúc chứ không phải lỗi cú pháp đơn lẻ.
 
 ## Đầu ra
 

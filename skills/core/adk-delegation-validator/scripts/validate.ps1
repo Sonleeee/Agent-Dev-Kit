@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Delegation Policy Validator for Implementation Tasks
 .DESCRIPTION

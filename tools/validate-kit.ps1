@@ -111,6 +111,27 @@ foreach ($entryRel in @('README.md', 'SYSTEM.md', 'rules/global.md')) {
     }
 }
 
+# 5. Check UTF-8 BOM on PowerShell scripts with non-ASCII characters (Windows PowerShell 5.1 compatibility)
+$ps1Files = Get-ChildItem -Path $KitRoot -Recurse -File -Include '*.ps1' -ErrorAction SilentlyContinue |
+    Where-Object { $_.FullName -notmatch '\\\.git\\' -and $_.FullName -notmatch '\\\.agents\\' }
+foreach ($psFile in $ps1Files) {
+    $bytes = [System.IO.File]::ReadAllBytes($psFile.FullName)
+    $hasNonAscii = $false
+    for ($i = 0; $i -lt $bytes.Length; $i++) {
+        if ($bytes[$i] -gt 127) {
+            $hasNonAscii = $true
+            break
+        }
+    }
+    if ($hasNonAscii) {
+        $hasBom = ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF)
+        if (-not $hasBom) {
+            $rel = $psFile.FullName.Substring($KitRoot.Length).TrimStart('\', '/')
+            $failures.Add("PowerShell script '$rel' contains non-ASCII characters but is missing UTF-8 BOM (causes parser errors in Windows PowerShell 5.1).")
+        }
+    }
+}
+
 if ($warnings.Count -gt 0) {
     $warnings | ForEach-Object { Write-Warning $_ }
 }

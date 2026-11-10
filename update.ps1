@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Agent-Dev-Kit Updater (adk update / adk up)
 .DESCRIPTION

@@ -31,8 +31,9 @@ inheritMcp: true
 
 ## 2. Quy Trình Kiểm Định 4 Cổng (Fail-Closed Protocol)
 
-1. **Cổng 1 — Diff & Scope Audit:**
+1. **Cổng 1 — Diff, Scope & Code Deslop Audit:**
    - Kiểm tra `git status` và `git diff`: Có file rác (`.pyc`, `__pycache__`, debug log) hoặc thay đổi vượt ngoài phạm vi yêu cầu không?
+   - **Logic & Comment Deslop:** Chặn các mẫu AI Slop trong code logic: comment diễn giải lại cú pháp hiển nhiên (chỉ giữ comment giải thích *Why / Business Invariant*), khối `try/catch` nuốt lỗi im lặng, hoặc ép kiểu lách luật (`any`, `@ts-ignore`, `# type: ignore`) không có lý do xác đáng.
 2. **Cổng 2 — Executable Test & Build Gate:**
    - Chạy trực tiếp lệnh test/build/typecheck. Kiểm tra xem test có thực sự assert đúng hành vi mới hay chỉ là test rỗng (tautological/mock-only test).
 3. **Cổng 3 — Deterministic Domain Scanners:**

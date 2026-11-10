@@ -24,11 +24,12 @@ thì dùng chúng khi task chạm đến:
 - pattern constraints
 - template selection
 
-## Quy trinh
+## Quy trình
 
-### 1. Chốt approach
+### 1. Chốt approach (Design It Twice khi chưa hiển nhiên)
 
-Chon 1 huong lam ngan gon.
+- Với task đã rõ pattern trong repo: chọn thẳng 1 hướng làm ngắn gọn theo reference module.
+- Với bài toán thiết kế mới hoặc trade-off phức tạp: phác thảo nhanh **2 phương án đối lập ở mức chữ ký hàm / kiểu dữ liệu (Type & Boundary Sketch)**, đối chiếu theo Ponytail Rule (`R-MINIMAL-CODE` — ít file, ít state, không thêm abstraction thừa) để chốt 1 phương án tối ưu nhất.
 
 ### 2. Phạm vi bị ảnh hưởng
 

@@ -58,8 +58,9 @@ flowchart TD
     ReviewGate -- Clean / Med --> Ship(["🚢 🍳 Cook Report & Ship"])
 ```
 
-### Bước 1: Auto Clarify (`scout`)
+### Bước 1: Auto Clarify & Technical Sharpening (`scout`)
 - Scout nạp context bằng CodeGraph (`codegraph_explore` / `codegraph_callers`) và đọc `AGENTS.md`.
+- **Technical Prompt Sharpening (*"Deeper, Not Bigger"*):** Khi yêu cầu đầu vào ngắn hoặc chỉ nêu bề nổi, tự động làm sâu đặc tả kỹ thuật dựa trên thực tế codebase (xác định rõ kiểu dữ liệu, vòng đời state, xử lý lỗi/timeout, biên giới bất biến) mà **tuyệt đối không phình thêm tính năng ngoài yêu cầu**.
 - Tự giải quyết các khoảng trống bằng conventions sẵn có của codebase thay vì ngắt quãng hỏi user.
 - Nêu giả định nhỏ, an toàn và tiếp tục tiến trình.
 
